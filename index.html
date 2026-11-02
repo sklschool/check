@@ -303,19 +303,7 @@
 
                         <!-- ตารางรายเดือน -->
                         <div id="area-rep-monthly" class="overflow-x-auto rounded-xl border border-gray-200 hidden print:border-none print:shadow-none print:rounded-none pb-2">
-                            <table class="w-full min-w-[950px] text-sm text-center border-collapse font-print" id="report-table-monthly">
-                                <thead class="print:text-black">
-                                    <tr>
-                                        <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-10 text-center">เลขที่</th>
-                                        <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-20 text-center">รหัส</th>
-                                        <th rowspan="2" class="py-2 px-2 border bg-gray-100 w-[130px] text-left">ชื่อ-นามสกุล</th>
-                                        <th colspan="31" class="py-1 px-0.5 border bg-gray-100" id="stats-days-header">วันที่ (1-31)</th>
-                                        <th colspan="6" class="py-1 px-1 border bg-gray-200 w-32">สรุปเวลาเรียน</th>
-                                    </tr>
-                                    <tr class="bg-gray-50 text-[10px] text-gray-600 print:text-black border" id="stats-days-row"></tr>
-                                </thead>
-                                <tbody id="stats-monthly-body" class="bg-white"></tbody>
-                            </table>
+                            <!-- ข้อมูลตารางรายเดือนจะถูกสร้างโดย Javascript เพื่อรองรับการแบ่งหน้าและเลขหน้า -->
                         </div>
 
                         <!-- ส่วนลายเซ็นท้ายรายงาน (จัดรูปทรง Flexbox รองรับครู 1 หรือ 2 คน + ผอ. เรียงสวยงาม) -->
@@ -823,7 +811,15 @@
                     // สร้างแถบจัดกลุ่มกรณีเลือก "ทั้งหมด" เพื่อให้เห็นชั้นเรียนชัดเจน
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassGroup) {
                         currentClassGroup = s.class_name;
-                        listDiv.insertAdjacentHTML('beforeend', `<div class="bg-gray-100 text-brand-dark font-bold px-4 py-2 mt-4 mb-2 rounded-lg text-sm border-l-4" style="border-color: var(--color-brand-dark)">ชั้นเรียน: ${s.class_name}</div>`);
+                        let dividerHtml = `
+                        <div class="flex items-center gap-4 mt-8 mb-4 w-full">
+                            <div class="h-px bg-brand-dark/20 flex-1"></div>
+                            <span class="bg-brand-dark text-white font-bold px-6 py-2 rounded-full text-sm shadow-md flex items-center border-2 border-white">
+                                <i class="fa-solid fa-chalkboard-user mr-2"></i>ชั้นเรียน: ${s.class_name}
+                            </span>
+                            <div class="h-px bg-brand-dark/20 flex-1"></div>
+                        </div>`;
+                        listDiv.insertAdjacentHTML('beforeend', dividerHtml);
                     }
 
                     let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
@@ -1027,8 +1023,7 @@
                     });
 
                     const daysInMonth = new Date(y, m, 0).getDate();
-                    const tbody = document.getElementById('stats-monthly-body');
-                    const rowHeader = document.getElementById('stats-days-row');
+                    const container = document.getElementById('area-rep-monthly');
                     
                     let daysHtml = '';
                     for(let i=1; i<=31; i++) {
@@ -1042,20 +1037,33 @@
                         }
                     }
                     daysHtml += `<th class="py-1 px-1 bg-gray-100 border">มา</th><th class="py-1 px-1 bg-gray-100 border">ป</th><th class="py-1 px-1 bg-gray-100 border">ก</th><th class="py-1 px-1 bg-gray-100 border">ส</th><th class="py-1 px-1 bg-gray-100 border">ข</th><th class="py-1 px-1 bg-gray-100 border">%</th>`;
-                    rowHeader.innerHTML = daysHtml;
+                    
+                    let theadHtml = `
+                    <thead class="print:text-black">
+                        <tr>
+                            <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-10 text-center">เลขที่</th>
+                            <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-20 text-center">รหัส</th>
+                            <th rowspan="2" class="py-2 px-2 border bg-gray-100 w-[130px] text-left">ชื่อ-นามสกุล</th>
+                            <th colspan="31" class="py-1 px-0.5 border bg-gray-100">วันที่ (1-31)</th>
+                            <th colspan="6" class="py-1 px-1 border bg-gray-200 w-32">สรุปเวลาเรียน</th>
+                        </tr>
+                        <tr class="bg-gray-50 text-[10px] text-gray-600 print:text-black border">${daysHtml}</tr>
+                    </thead>`;
 
-                    let html = '';
-                    if(students.length === 0) html = `<tr><td colspan="40" class="py-6 text-center text-gray-500">ไม่มีข้อมูลนักเรียน</td></tr>`;
-                    else {
+                    let finalHtml = '';
+                    if(students.length === 0) {
+                        finalHtml = `<table class="w-full min-w-[950px] text-sm text-center border-collapse font-print">${theadHtml}<tbody><tr><td colspan="40" class="py-6 text-center text-gray-500">ไม่มีข้อมูลนักเรียน</td></tr></tbody></table>`;
+                    } else {
                         let currentClassGroup = '';
-                        students.forEach((s, index) => {
-                            // แบ่งหมวดหมู่ชั้นเรียน (แถบคาด)
+                        let rowsArray = [];
+                        
+                        students.forEach((s) => {
                             if (className === 'ทั้งหมด' && s.class_name !== currentClassGroup) {
                                 currentClassGroup = s.class_name;
-                                html += `<tr><td colspan="40" class="bg-gray-100 font-bold text-left px-2 py-1 text-brand-dark print:bg-gray-50 print:text-black border-y-2 border-gray-400">>> ชั้นเรียน: ${s.class_name}</td></tr>`;
+                                rowsArray.push(`<tr><td colspan="40" class="bg-gray-100 font-bold text-left px-2 py-1 text-brand-dark print:bg-gray-50 print:text-black border-y-2 border-gray-400">>> ชั้นเรียน: ${s.class_name}</td></tr>`);
                             }
 
-                            let rHtml = `<tr class="${(index > 0 && index % 22 === 0) ? 'page-break' : ''}">
+                            let rHtml = `<tr>
                                 <td class="py-1.5 px-1 border text-center text-[10px] bg-white w-10">${s.student_number}</td>
                                 <td class="py-1.5 px-1 border text-center text-[10px] font-mono text-gray-500 bg-white w-20">${s.student_code || '-'}</td>
                                 <td class="py-1.5 px-2 border text-left text-[11px] font-medium whitespace-nowrap bg-white truncate max-w-[130px]">${s.name}</td>`;
@@ -1086,10 +1094,36 @@
                             let totalDays = stats.p + stats.s + stats.l + stats.late + stats.a;
                             let percent = totalDays > 0 ? ((stats.p / totalDays) * 100).toFixed(0) + '%' : '0%';
                             rHtml += `<td class="border font-bold text-[10px] text-[#20B2AA] print:text-black">${stats.p}</td><td class="border font-bold text-[10px] text-[#FFC107] print:text-black">${stats.s}</td><td class="border font-bold text-[10px] text-[#FF7F50] print:text-black">${stats.l}</td><td class="border font-bold text-[10px] text-[#1E90FF] print:text-black">${stats.late}</td><td class="border font-bold text-[10px] text-[#DC143C] print:text-black">${stats.a}</td><td class="border font-bold text-[10px]">${percent}</td></tr>`;
-                            html += rHtml;
+                            
+                            rowsArray.push(rHtml);
                         });
+                        
+                        const ROWS_PER_PAGE = 22; // ตัดหน้ากระดาษทุก 22 รายการ
+                        const totalPages = Math.ceil(rowsArray.length / ROWS_PER_PAGE);
+                        
+                        for (let p = 0; p < totalPages; p++) {
+                            let chunkRows = rowsArray.slice(p * ROWS_PER_PAGE, (p + 1) * ROWS_PER_PAGE);
+                            let isLastPage = (p === totalPages - 1);
+                            
+                            let pageClass = !isLastPage ? 'page-break' : '';
+                            // หากเป็นหน้าที่ 2 เป็นต้นไป ให้เพิ่มระยะขอบด้านบน (pt-8 = 32px) เพื่อไม่ให้ชิดหัวกระดาษเกินไป
+                            let printTopMargin = p > 0 ? 'print:pt-8' : ''; 
+                            
+                            finalHtml += `
+                            <div class="w-full ${pageClass} ${printTopMargin} mb-6">
+                                <table class="w-full min-w-[950px] text-sm text-center border-collapse font-print">
+                                    ${theadHtml}
+                                    <tbody class="bg-white">
+                                        ${chunkRows.join('')}
+                                    </tbody>
+                                </table>
+                                <div class="text-right text-[12px] font-bold mt-3 font-print text-gray-600 print:text-black hidden print:block">
+                                    หน้า ${p + 1} / ${totalPages}
+                                </div>
+                            </div>`;
+                        }
                     }
-                    tbody.innerHTML = html;
+                    container.innerHTML = finalHtml;
                     renderSummaryBadges({total: students.length}, false);
                 }
             } catch (err) {
@@ -1470,15 +1504,30 @@
 
         function downloadPDF() { window.print(); }
         function exportToExcel() {
-            let tableId = currentReportType === 'daily' ? 'report-table-daily' : 'report-table-monthly';
-            let table = document.getElementById(tableId);
-            let rows = Array.from(table.querySelectorAll('tr'));
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            rows.forEach(row => {
-                let rowData = [];
-                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
-                csvContent += rowData.join(",") + "\n";
-            });
+            
+            if (currentReportType === 'daily') {
+                let table = document.getElementById('report-table-daily');
+                let rows = Array.from(table.querySelectorAll('tr'));
+                rows.forEach(row => {
+                    let rowData = [];
+                    row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                    csvContent += rowData.join(",") + "\n";
+                });
+            } else {
+                let tables = document.querySelectorAll('#area-rep-monthly table');
+                tables.forEach((table, index) => {
+                    let rows = Array.from(table.querySelectorAll('tr'));
+                    // ถ้าไม่ใช่ตารางแรกสุด ให้ข้ามแถว thead 2 บรรทัดแรกไป (เพื่อไม่ให้หัวตารางซ้ำในไฟล์ Excel)
+                    let startRow = index === 0 ? 0 : 2; 
+                    for (let i = startRow; i < rows.length; i++) {
+                        let rowData = [];
+                        rows[i].querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                        csvContent += rowData.join(",") + "\n";
+                    }
+                });
+            }
+
             const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `รายงานสถิติการมาเรียน_${currentReportType}.csv`;
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
