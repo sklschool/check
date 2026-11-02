@@ -27,7 +27,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
-        :root { --color-brand-dark: #8B1528; --color-brand-light: #A31D36; --color-brand-bg: #F8F9FA; }
+        :root { --color-brand-dark: #117864; --color-brand-light: #1ABC9C; --color-brand-bg: #F8F9FA; }
         ::-webkit-scrollbar { width: 6px; height: 6px;} ::-webkit-scrollbar-track { background: #f1f1f1; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; } ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         body { background-color: var(--color-brand-bg); }
         .radio-status:checked + label { transform: scale(1.05); font-weight: 500; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); opacity: 1 !important; border-color: transparent; }
@@ -42,30 +42,49 @@
         
         @media print {
             aside, header, nav, .print-hide { display: none !important; }
-            main { width: 100% !important; overflow: visible !important; height: auto !important; padding: 0 !important; display: block !important; }
-            body { background: white !important; font-family: 'Sarabun', sans-serif !important; color: black !important; }
-            .shadow-sm, .shadow-md, .shadow-inner, .border-gray-100 { box-shadow: none !important; border: none !important; }
-            table { border-collapse: collapse !important; width: 100% !important; }
-            th, td { border: 1px solid #000 !important; padding: 2px 3px !important; color: black !important; font-size: 10px !important; }
+            /* บังคับพื้นหลังขาวล้วน ลบสีรบกวน */
+            main, body, #main-scroll-area, #pdf-export-area, .bg-brand-bg, .bg-white, .shadow-sm { 
+                background: white !important; 
+                background-color: white !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+            main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
+            body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
+            
+            table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 20px; }
+            th, td { border: 1px solid #000 !important; padding: 2px 3px !important; color: black !important; font-size: 10px !important; background: white !important; }
             thead { display: table-header-group !important; }
             tr { page-break-inside: avoid !important; }
             
             #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
-            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; } th { background-color: white !important; }
+            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
             
-            .page-break { page-break-after: always; break-after: page; }
-            .print-signature-container { margin-top: 40px; page-break-inside: avoid; display: flex !important; justify-content: space-between !important; width: 100% !important; }
+            /* ดันส่วนที่ถูกตัดขึ้นหน้า 2 ให้ลงมา ไม่ชิดขอบ */
+            .page-break { page-break-before: always !important; display: block; height: 0; }
+            /* ลายเซ็นให้ลงมาด้านล่างสุดและไม่ขาดครึ่ง */
+            .print-signature-container { margin-top: 60px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
-    <style id="print-page-style">@page { size: landscape; margin: 15mm; }</style>
+    <style id="print-page-style">
+        /* กำหนดระยะขอบกระดาษจริง และใส่เลขหน้าที่มุมขวาล่าง (เปิด Headers/Footers ในตอนพิมพ์เพื่อใช้งานร่วมด้วย) */
+        @page { 
+            size: landscape; 
+            margin: 20mm 15mm 20mm 15mm; 
+            @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: 'Sarabun', sans-serif; font-size: 12px; }
+        }
+    </style>
 </head>
 <body class="text-gray-800 flex h-screen overflow-hidden bg-brand-bg relative transition-colors duration-300">
 
-    <!-- LOGIN OVERLAY (แบบดั้งเดิมที่สวยงาม 100% + Footer ล่างสุดไม่ซ้อนทับ) -->
+    <!-- LOGIN OVERLAY (แบบดั้งเดิมที่สวยงาม 100% + Footer ล่างสุดไม่ซ้อนทับปุ่ม) -->
     <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-50 flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-full md:h-auto">
-            <div class="bg-brand-dark p-8 text-center text-white relative transition-colors duration-300">
+            
+            <div class="bg-brand-dark p-8 text-center text-white relative transition-colors duration-300 shrink-0">
                 <div class="w-20 h-20 mx-auto bg-white rounded-2xl flex items-center justify-center mb-4 shadow-lg p-1 relative z-10">
                     <div class="w-full h-full rounded-xl border-2 border-yellow-500 flex items-center justify-center bg-yellow-50 overflow-hidden">
                         <img id="login-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" onerror="this.style.display='none'" class="object-cover w-full h-full p-2">
@@ -75,38 +94,37 @@
                 <p class="text-sm text-white/80 mt-1 relative z-10">ปีการศึกษา <span id="login-year">-</span> ภาคเรียนที่ <span id="login-semester">-</span></p>
             </div>
             
-            <div id="login-step-1" class="p-8 flex-1 flex flex-col animate-fade-in">
-                <!-- กล่อง PIN จัดให้อยู่กึ่งกลาง -->
+            <div id="login-step-1" class="p-8 flex-1 flex flex-col animate-fade-in bg-white">
                 <div class="flex-1 flex flex-col justify-center">
-                    <p class="text-center text-gray-500 mb-6 font-medium">กรอกรหัส PIN 6 หลักเพื่อเข้าสู่ระบบ</p>
+                    <p class="text-center text-gray-500 mb-6 font-bold">กรอกรหัส PIN 6 หลักเพื่อเข้าสู่ระบบ</p>
                     <div class="flex justify-center gap-4 mb-8" id="pin-indicator">
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     </div>
                     <div class="grid grid-cols-3 gap-4 md:gap-5 max-w-[340px] w-full mx-auto px-2">
-                        <button onclick="enterPin(1)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">1</button>
-                        <button onclick="enterPin(2)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">2</button>
-                        <button onclick="enterPin(3)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">3</button>
-                        <button onclick="enterPin(4)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">4</button>
-                        <button onclick="enterPin(5)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">5</button>
-                        <button onclick="enterPin(6)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">6</button>
-                        <button onclick="enterPin(7)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">7</button>
-                        <button onclick="enterPin(8)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">8</button>
-                        <button onclick="enterPin(9)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">9</button>
-                        <button onclick="clearPin()" class="aspect-square rounded-3xl bg-red-50 text-red-500 hover:bg-red-100 text-2xl"><i class="fa-solid fa-trash-can"></i></button>
-                        <button onclick="enterPin(0)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200">0</button>
-                        <button onclick="deletePin()" class="aspect-square rounded-3xl bg-gray-100 text-gray-600 hover:bg-gray-200 text-3xl"><i class="fa-solid fa-delete-left"></i></button>
+                        <button onclick="enterPin(1)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">1</button>
+                        <button onclick="enterPin(2)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">2</button>
+                        <button onclick="enterPin(3)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">3</button>
+                        <button onclick="enterPin(4)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">4</button>
+                        <button onclick="enterPin(5)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">5</button>
+                        <button onclick="enterPin(6)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">6</button>
+                        <button onclick="enterPin(7)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">7</button>
+                        <button onclick="enterPin(8)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">8</button>
+                        <button onclick="enterPin(9)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">9</button>
+                        <button onclick="clearPin()" class="aspect-square rounded-3xl bg-white text-transparent pointer-events-none cursor-default"></button>
+                        <button onclick="enterPin(0)" class="aspect-square rounded-3xl bg-gray-50 border border-gray-100 text-3xl font-bold hover:bg-gray-200 text-[#0F3642]">0</button>
+                        <button onclick="deletePin()" class="aspect-square rounded-3xl bg-white text-[#0F3642] hover:bg-gray-100 text-3xl"><i class="fa-solid fa-delete-left"></i></button>
                     </div>
                 </div>
-                
-                <!-- Footer ดันลงด้านล่างของหน้าโดยอัตโนมัติ -->
-                <div class="w-full text-center mt-6 shrink-0 opacity-70">
+
+                <!-- Footer ตรงนี้ดันอยู่ล่างสุดแบบเป็นระเบียบ ไม่ทับปุ่ม -->
+                <div class="w-full text-center mt-auto pt-6 pb-2 shrink-0">
                     <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-1 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
-                    <p class="text-[8px] text-gray-400 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
+                    <p class="text-[8px] text-gray-400/80 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
                 </div>
             </div>
             
-            <div id="login-step-2" class="p-8 flex-1 flex flex-col justify-start hidden animate-fade-in">
+            <div id="login-step-2" class="p-8 flex-1 flex flex-col justify-start hidden animate-fade-in bg-white">
                 <h2 class="text-center text-lg font-bold text-gray-800 mb-2">เลือกผู้บันทึกข้อมูล</h2>
                 <p class="text-center text-sm text-gray-500 mb-6">กรุณาระบุตัวตนของท่านสำหรับการบันทึกข้อมูล</p>
                 <div class="flex-1 overflow-y-auto max-h-[350px] pr-2 space-y-3" id="teacher-selection-list"></div>
@@ -320,7 +338,7 @@
                                 </table>
                             </div>
 
-                            <!-- ส่วนลายเซ็นท้ายรายงาน (อัปเดตบรรทัดเดียวกัน Flexbox) -->
+                            <!-- ส่วนลายเซ็นท้ายรายงาน (Flexbox บรรทัดเดียวกัน) -->
                             <div class="print-signature-container hidden print:flex justify-between mt-10 px-4 font-print text-sm md:text-base">
                                 <div id="signature-block-teachers"></div>
                                 <div id="signature-block-director"></div>
@@ -485,7 +503,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const themes = {
-            'default': { name: 'แดงเลือดหมู', dark: '#8B1528', light: '#A31D36', bg: '#F8F9FA' },
+            'default': { name: 'แดงเลือดหมู', dark: '#117864', light: '#1ABC9C', bg: '#F8F9FA' },
             'navy': { name: 'น้ำเงินกรมท่า', dark: '#1E3A8A', light: '#1D4ED8', bg: '#F0F9FF' },
             'emerald': { name: 'เขียวมรกต', dark: '#064E3B', light: '#047857', bg: '#ECFDF5' },
             'purple': { name: 'ม่วงเข้ม', dark: '#4C1D95', light: '#6D28D9', bg: '#F5F3FF' },
@@ -591,9 +609,9 @@
             document.getElementById('setting-tel-token').value = appSettings.TelegramBotToken || '';
             document.getElementById('setting-tel-chatid').value = appSettings.TelegramChatID || '';
 
-            const sNameText = appSettings.SchoolName || 'ระบบบันทึกการมาเรียน';
-            const sYearText = appSettings.SchoolYear || '-';
-            const sSemText = appSettings.Semester || '-';
+            const sNameText = appSettings.SchoolName || 'โรงเรียนบ้านซับก้านเหลือง';
+            const sYearText = appSettings.SchoolYear || '2569';
+            const sSemText = appSettings.Semester || '2';
 
             document.getElementById('login-school-name').innerText = sNameText;
             document.getElementById('login-year').innerText = sYearText;
@@ -869,9 +887,9 @@
             
             const printStyleEl = document.getElementById('print-page-style');
             if (type === 'daily') {
-                printStyleEl.innerHTML = '@page { size: portrait; margin: 15mm; }';
+                printStyleEl.innerHTML = '@page { size: portrait; margin: 20mm 15mm 20mm 15mm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
             } else {
-                printStyleEl.innerHTML = '@page { size: landscape; margin: 15mm; }';
+                printStyleEl.innerHTML = '@page { size: landscape; margin: 20mm 15mm 20mm 15mm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
             }
             renderActiveReport();
         }
@@ -1094,7 +1112,7 @@
             tbody.innerHTML = html;
         }
 
-        // หน้าต่างเพิ่ม/แก้ไขบุคลากร ดีไซน์ใหม่
+        // หน้าต่างเพิ่ม/แก้ไขบุคลากร
         function showTeacherModal(id = null) {
             let isEdit = id !== null;
             let t = isEdit ? allTeachers.find(x => String(x.id) === String(id)) : null;
