@@ -373,11 +373,11 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                     <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b pb-4 mb-6">
                         <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-user-tie mr-2"></i>จัดการบุคลากร (ผู้ใช้งาน)</h2>
-                        <button onclick="promptAddTeacher()" class="px-4 py-2 bg-brand-dark text-white rounded-xl text-sm font-medium transition-colors"><i class="fa-solid fa-plus mr-1"></i> เพิ่มบุคลากร</button>
+                        <button onclick="openTeacherModal()" class="px-5 py-2.5 bg-brand-dark text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-light transition-all flex items-center hover:-translate-y-0.5"><i class="fa-solid fa-plus mr-2"></i> เพิ่มบุคลากร</button>
                     </div>
                     <div class="overflow-x-auto rounded-xl border border-gray-200">
                         <table class="w-full text-sm text-left">
-                            <thead class="bg-gray-100 text-gray-600 text-xs uppercase"><tr><th class="px-4 py-3 text-center">รหัส</th><th class="px-4 py-3">ชื่อ - นามสกุล</th><th class="px-4 py-3">ตำแหน่ง</th><th class="px-4 py-3">ครูประจำชั้น</th><th class="px-4 py-3 text-center">สิทธิ์ในระบบ</th><th class="px-4 py-3 text-center">จัดการ</th></tr></thead>
+                            <thead class="bg-gray-100 text-gray-600 text-xs uppercase"><tr><th class="px-4 py-3 text-center">รหัส</th><th class="px-4 py-3">ชื่อ - นามสกุล</th><th class="px-4 py-3">ครูเวรประจำวัน</th><th class="px-4 py-3">ครูประจำชั้น</th><th class="px-4 py-3 text-center">สิทธิ์ในระบบ</th><th class="px-4 py-3 text-center">จัดการ</th></tr></thead>
                             <tbody class="divide-y divide-gray-100" id="teachers-table-body"></tbody>
                         </table>
                     </div>
@@ -401,6 +401,7 @@
                                 </div>
                                 <div class="w-full md:w-2/3 space-y-4">
                                     <div><label class="block text-sm text-gray-500 mb-1">ชื่อโรงเรียน</label><input type="text" id="setting-school-name" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1">ชื่อผู้อำนวยการโรงเรียน (สำหรับลงชื่อในรายงาน)</label><input type="text" id="setting-director-name" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark" placeholder="เช่น นายใจดี รักเรียน"></div>
                                     <div><label class="block text-sm text-gray-500 mb-1">ชื่อสังกัด</label><input type="text" id="setting-school-area" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
                                     <div class="flex gap-4">
                                         <div class="w-1/2"><label class="block text-sm text-gray-500 mb-1">ปีการศึกษา</label><input type="text" id="setting-school-year" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
@@ -443,6 +444,51 @@
                     <div class="w-24 h-24 mx-auto rounded-full bg-brand-dark text-white flex items-center justify-center font-bold text-3xl shadow-lg mb-4" id="profile-avatar-large">-</div>
                     <h2 class="text-xl font-bold text-gray-800" id="profile-display-name">-</h2>
                     <p class="text-brand-dark font-medium mb-8" id="profile-display-role">-</p>
+                </div>
+            </div>
+
+            <!-- MODAL: ADD/EDIT TEACHER -->
+            <div id="teacher-modal" class="fixed inset-0 z-[300] bg-black/40 hidden flex items-center justify-center backdrop-blur-sm transition-opacity print-hide">
+                <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all m-4">
+                    <div class="bg-brand-dark px-6 py-5 flex justify-between items-center text-white relative">
+                        <h3 class="font-bold text-lg" id="teacher-modal-title">เพิ่มบุคลากรใหม่</h3>
+                        <button onclick="closeTeacherModal()" class="hover:text-white/70 transition-colors bg-white/10 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+                    <div class="p-6 space-y-5">
+                        <input type="hidden" id="modal-t-id">
+                        <div>
+                            <label class="text-xs font-bold text-gray-600 mb-1.5 block">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
+                            <input id="modal-t-name" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors" placeholder="เช่น นายสมชาย ใจดี">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 mb-1.5 block">ครูเวรประจำวัน</label>
+                                <select id="modal-t-duty" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors">
+                                    <option value="">- ไม่มี -</option>
+                                    <option value="จันทร์">จันทร์</option>
+                                    <option value="อังคาร">อังคาร</option>
+                                    <option value="พุธ">พุธ</option>
+                                    <option value="พฤหัสบดี">พฤหัสบดี</option>
+                                    <option value="ศุกร์">ศุกร์</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-brand-dark mb-1.5 block">มอบหมาย: ครูประจำชั้น</label>
+                                <select id="modal-t-homeroom" class="w-full p-3 bg-brand-bg border border-brand-light/30 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors text-brand-dark font-medium"></select>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <label class="text-xs font-bold text-gray-600 mb-2 block"><i class="fa-solid fa-shield-halved mr-1"></i> กำหนดสิทธิ์การใช้งานระบบ (Role)</label>
+                            <select id="modal-t-role" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors">
+                                <option value="ครูทั่วไป">ครูทั่วไป (เช็คชื่อห้องตัวเอง)</option>
+                                <option value="แอดมิน">แอดมิน (จัดการระบบได้ทั้งหมด)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                        <button onclick="closeTeacherModal()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 text-sm font-bold hover:bg-gray-100 rounded-xl transition-colors shadow-sm">ยกเลิก</button>
+                        <button onclick="saveTeacherModal()" class="px-6 py-2.5 bg-brand-dark text-white text-sm font-bold rounded-xl hover:bg-brand-light shadow-md transition-colors flex items-center"><i class="fa-solid fa-save mr-2"></i> บันทึกข้อมูล</button>
+                    </div>
                 </div>
             </div>
 
@@ -586,6 +632,7 @@
 
         function applySettingsToUI() {
             document.getElementById('setting-school-name').value = appSettings.SchoolName || '';
+            document.getElementById('setting-director-name').value = appSettings.DirectorName || '';
             document.getElementById('setting-school-area').value = appSettings.SchoolArea || '';
             document.getElementById('setting-school-year').value = appSettings.SchoolYear || '';
             document.getElementById('setting-school-semester').value = appSettings.Semester || '';
@@ -1080,10 +1127,11 @@
             }
             
             // ช่องลายเซ็น ผอ. จะอยู่ช่องขวาสุดเสมอ
+            let directorName = appSettings.DirectorName || '.......................................................';
             html += `
                 <div class="text-center w-64 mx-auto">
                     <p>ลงชื่อ.......................................................ผู้รับรอง</p>
-                    <p class="mt-4">( ....................................................... )</p>
+                    <p class="mt-4">( ${directorName} )</p>
                     <p class="mt-1">ผู้อำนวยการโรงเรียน</p>
                 </div>
             `;
@@ -1145,115 +1193,85 @@
             const tbody = document.getElementById('teachers-table-body');
             let html = '';
             allTeachers.forEach(t => {
-                let hmBadge = t.homeroom_class ? `<span class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full font-medium">ประจำชั้น ${t.homeroom_class}</span>` : `<span class="text-gray-400">-</span>`;
-                let roleBadge = t.role === 'แอดมิน' ? `<span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded-full font-bold">แอดมิน</span>` : `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-medium">${t.role||'ครูทั่วไป'}</span>`;
+                let hmBadge = t.homeroom_class ? `<span class="bg-brand-bg text-brand-dark border border-brand-dark/20 text-xs px-2.5 py-1 rounded-full font-bold">ปจช. ${t.homeroom_class}</span>` : `<span class="text-gray-400">-</span>`;
+                let roleBadge = t.role === 'แอดมิน' ? `<span class="bg-purple-100 text-purple-800 text-xs px-2.5 py-1 rounded-full font-bold">แอดมิน</span>` : `<span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-full font-medium">ครูทั่วไป</span>`;
+                let dutyBadge = t.duty_day ? `<span class="text-gray-700 font-medium">${t.duty_day}</span>` : `<span class="text-gray-400">-</span>`;
                 
                 html += `<tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 text-center text-gray-500">${t.id}</td>
                     <td class="px-4 py-3 font-medium">${t.name}</td>
-                    <td class="px-4 py-3 text-gray-600">${t.role || 'ไม่มีตำแหน่ง'}</td>
+                    <td class="px-4 py-3">${dutyBadge}</td>
                     <td class="px-4 py-3">${hmBadge}</td>
                     <td class="px-4 py-3 text-center">${roleBadge}</td>
                     <td class="px-4 py-3 text-center">
-                        <button onclick="promptEditTeacher('${t.id}')" class="text-gray-400 hover:text-blue-500 mr-3"><i class="fa-solid fa-edit"></i></button>
-                        <button onclick="deleteTeacher('${t.id}')" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                        <button onclick="openTeacherModal('${t.id}')" class="text-gray-400 hover:text-brand-dark mr-3 transition-colors" title="แก้ไขข้อมูล"><i class="fa-solid fa-edit"></i></button>
+                        <button onclick="deleteTeacher('${t.id}')" class="text-gray-400 hover:text-red-500 transition-colors" title="ลบข้อมูล"><i class="fa-solid fa-trash-can"></i></button>
                     </td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
 
-        function promptEditTeacher(id) {
-            const t = allTeachers.find(x => String(x.id) === String(id));
-            if(!t) return;
-            let classOptHtml = '<option value="">-- ไม่ได้เป็นครูประจำชั้น --</option>';
-            allClasses.forEach(c => {
-                classOptHtml += `<option value="${c}" ${t.homeroom_class === c ? 'selected' : ''}>${c}</option>`;
-            });
-
-            Swal.fire({
-                title: 'แก้ไขข้อมูลบุคลากร',
-                html: `
-                    <div class="space-y-3 text-left">
-                        <div><label class="text-xs text-gray-500">ชื่อ-นามสกุล</label><input id="edit-t-name" type="text" class="w-full p-2.5 border rounded-xl" value="${t.name}"></div>
-                        <div><label class="text-xs text-gray-500">ตำแหน่ง / วิทยฐานะ</label><input id="edit-t-role" type="text" class="w-full p-2.5 border rounded-xl" value="${t.role}"></div>
-                        <div><label class="text-xs text-brand-dark font-bold">มอบหมายหน้าที่: ครูประจำชั้นห้อง</label><select id="edit-t-homeroom" class="w-full p-2.5 border border-brand-dark rounded-xl bg-gray-50">${classOptHtml}</select></div>
-                        <div><label class="text-xs text-gray-500">กำหนดสิทธิ์การใช้งานระบบ (Role)</label><select id="edit-t-system-role" class="w-full p-2.5 border rounded-xl"><option value="ครูทั่วไป" ${t.role !== 'แอดมิน' ? 'selected' : ''}>ครูทั่วไป (แก้ไขเช็คชื่อ)</option><option value="แอดมิน" ${t.role === 'แอดมิน' ? 'selected' : ''}>แอดมิน (จัดการระบบได้ทั้งหมด)</option></select></div>
-                    </div>
-                `,
-                showCancelButton: true, confirmButtonText: 'บันทึกการแก้ไข', confirmButtonColor: themes[currentTheme].dark,
-                preConfirm: () => {
-                    const name = document.getElementById('edit-t-name').value;
-                    if(!name) { Swal.showValidationMessage('กรุณากรอกชื่อ'); return false; }
-                    
-                    let systemRole = document.getElementById('edit-t-system-role').value;
-                    let position = document.getElementById('edit-t-role').value;
-                    let finalRole = systemRole === 'แอดมิน' ? 'แอดมิน' : (position || 'ครูทั่วไป');
-                    
-                    return { 
-                        id: id, 
-                        name: name, 
-                        role: finalRole, 
-                        homeroom_class: document.getElementById('edit-t-homeroom').value || null 
-                    };
-                }
-            }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { error } = await supabaseClient.from('teachers').update(result.value).eq('id', id);
-                        if (error) throw error;
-                        const idx = allTeachers.findIndex(x => String(x.id) === String(id));
-                        allTeachers[idx] = { ...allTeachers[idx], ...result.value };
-                        renderTeachersManage(); renderTeacherSelection();
-                        Swal.fire('สำเร็จ', 'แก้ไขข้อมูลบุคลากรเรียบร้อย', 'success');
-                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
-                }
-            });
-        }
-
-        function promptAddTeacher() {
-            let classOptHtml = '<option value="">-- ไม่ได้เป็นครูประจำชั้น --</option>';
+        function openTeacherModal(id = null) {
+            let classOptHtml = '<option value="">-- ไม่ได้เป็น --</option>';
             allClasses.forEach(c => { classOptHtml += `<option value="${c}">${c}</option>`; });
+            document.getElementById('modal-t-homeroom').innerHTML = classOptHtml;
 
-            Swal.fire({
-                title: 'เพิ่มบุคลากรใหม่',
-                html: `
-                    <div class="space-y-3 text-left">
-                        <div><label class="text-xs text-gray-500">ชื่อ-นามสกุล</label><input id="t-name" type="text" class="w-full p-2.5 border rounded-xl" placeholder="เช่น ครูสมชาย ใจดี"></div>
-                        <div><label class="text-xs text-gray-500">ตำแหน่ง / วิทยฐานะ</label><input id="t-role" type="text" class="w-full p-2.5 border rounded-xl" placeholder="เช่น ครูชำนาญการ"></div>
-                        <div><label class="text-xs text-brand-dark font-bold">มอบหมายหน้าที่: ครูประจำชั้นห้อง</label><select id="t-homeroom" class="w-full p-2.5 border border-brand-dark rounded-xl bg-gray-50">${classOptHtml}</select></div>
-                        <div><label class="text-xs text-gray-500">กำหนดสิทธิ์การใช้งานระบบ (Role)</label><select id="t-system-role" class="w-full p-2.5 border rounded-xl"><option value="ครูทั่วไป">ครูทั่วไป (แก้ไขเช็คชื่อ)</option><option value="แอดมิน">แอดมิน (จัดการระบบได้ทั้งหมด)</option></select></div>
-                    </div>
-                `,
-                showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark,
-                preConfirm: () => {
-                    const name = document.getElementById('t-name').value;
-                    if(!name) { Swal.showValidationMessage('กรุณากรอกชื่อ'); return false; }
-                    
-                    let systemRole = document.getElementById('t-system-role').value;
-                    let position = document.getElementById('t-role').value;
-                    let finalRole = systemRole === 'แอดมิน' ? 'แอดมิน' : (position || 'ครูทั่วไป');
-
-                    return { 
-                        name: name, 
-                        role: finalRole, 
-                        homeroom_class: document.getElementById('t-homeroom').value || null 
-                    };
-                }
-            }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { data, error } = await supabaseClient.from('teachers').insert(result.value).select();
-                        if (error) throw error;
-                        if(data) allTeachers.push(data[0]);
-                        renderTeachersManage(); renderTeacherSelection();
-                        Swal.fire('สำเร็จ', 'เพิ่มบุคลากรแล้ว', 'success');
-                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
-                }
-            });
+            if (id) {
+                const t = allTeachers.find(x => String(x.id) === String(id));
+                document.getElementById('modal-t-id').value = t.id;
+                document.getElementById('modal-t-name').value = t.name;
+                document.getElementById('modal-t-duty').value = t.duty_day || '';
+                document.getElementById('modal-t-homeroom').value = t.homeroom_class || '';
+                document.getElementById('modal-t-role').value = t.role === 'แอดมิน' ? 'แอดมิน' : 'ครูทั่วไป';
+                document.getElementById('teacher-modal-title').innerText = 'แก้ไขข้อมูลบุคลากร';
+            } else {
+                document.getElementById('modal-t-id').value = '';
+                document.getElementById('modal-t-name').value = '';
+                document.getElementById('modal-t-duty').value = '';
+                document.getElementById('modal-t-homeroom').value = '';
+                document.getElementById('modal-t-role').value = 'ครูทั่วไป';
+                document.getElementById('teacher-modal-title').innerText = 'เพิ่มบุคลากรใหม่';
+            }
+            document.getElementById('teacher-modal').classList.remove('hidden');
         }
+
+        function closeTeacherModal() {
+            document.getElementById('teacher-modal').classList.add('hidden');
+        }
+
+        async function saveTeacherModal() {
+            const id = document.getElementById('modal-t-id').value;
+            const name = document.getElementById('modal-t-name').value;
+            const duty = document.getElementById('modal-t-duty').value;
+            const homeroom = document.getElementById('modal-t-homeroom').value || null;
+            const role = document.getElementById('modal-t-role').value;
+
+            if (!name) { Swal.fire('แจ้งเตือน', 'กรุณากรอกชื่อ-นามสกุล ให้ครบถ้วน', 'warning'); return; }
+
+            const payload = { name, duty_day: duty, homeroom_class: homeroom, role };
+
+            Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
+            try {
+                if (id) {
+                    const { error } = await supabaseClient.from('teachers').update(payload).eq('id', id);
+                    if (error) throw error;
+                    const idx = allTeachers.findIndex(x => String(x.id) === String(id));
+                    allTeachers[idx] = { ...allTeachers[idx], ...payload };
+                } else {
+                    const { data, error } = await supabaseClient.from('teachers').insert(payload).select();
+                    if (error) throw error;
+                    if(data) allTeachers.push(data[0]);
+                }
+                closeTeacherModal();
+                renderTeachersManage(); 
+                renderTeacherSelection();
+                Swal.fire('สำเร็จ', 'บันทึกข้อมูลบุคลากรเรียบร้อย', 'success');
+            } catch(err) {
+                Swal.fire('ผิดพลาด', err.message, 'error');
+            }
+        }
+
         function deleteTeacher(id) {
             Swal.fire({ title: 'ยืนยันการลบ?', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบข้อมูล' }).then(async (result) => {
                 if(result.isConfirmed) {
@@ -1395,6 +1413,7 @@
 
             let newSettings = {
                 SchoolName: document.getElementById('setting-school-name').value,
+                DirectorName: document.getElementById('setting-director-name').value,
                 SchoolArea: document.getElementById('setting-school-area').value,
                 SchoolYear: document.getElementById('setting-school-year').value,
                 Semester: document.getElementById('setting-school-semester').value,
