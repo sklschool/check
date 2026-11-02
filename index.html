@@ -54,35 +54,29 @@
             main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
             body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
             
-            table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 20px; }
-            th, td { border: 1px solid #000 !important; padding: 2px 3px !important; color: black !important; font-size: 10px !important; background: white !important; }
+            /* ควบคุมการขึ้นหน้าใหม่ และให้มีระยะห่าง 0.5cm */
+            table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; }
+            th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; background: white !important; }
             thead { display: table-header-group !important; }
-            tr { page-break-inside: avoid !important; }
+            tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
             #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
             
-            /* ดันส่วนที่ถูกตัดขึ้นหน้า 2 ให้ลงมา ไม่ชิดขอบ */
-            .page-break { page-break-before: always !important; display: block; height: 0; }
-            /* ลายเซ็นให้ลงมาด้านล่างสุดและไม่ขาดครึ่ง */
-            .print-signature-container { margin-top: 60px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
+            /* ลายเซ็นไม่ให้โดนตัดขาด */
+            .print-signature-container { margin-top: 40px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
     <style id="print-page-style">
-        /* กำหนดระยะขอบกระดาษจริง และใส่เลขหน้าที่มุมขวาล่าง */
-        @page { 
-            size: landscape; 
-            margin: 20mm 15mm 20mm 15mm; 
-            @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: 'Sarabun', sans-serif; font-size: 12px; }
-        }
+        /* ค่าเริ่มต้น (จะเปลี่ยนเป็นแนวนอน/แนวตั้ง อัตโนมัติเมื่อกดสลับแท็บ) */
+        @page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }
     </style>
 </head>
 <body class="text-gray-800 flex h-screen overflow-hidden bg-brand-bg relative transition-colors duration-300">
 
     <!-- LOGIN OVERLAY -->
     <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-50 flex flex-col items-center justify-center transition-opacity duration-500">
-        <!-- สัดส่วนกล่องแบบเดิมเป๊ะ -->
         <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col h-full md:h-auto">
             
             <div class="bg-brand-dark p-8 text-center text-white relative transition-colors duration-300 shrink-0">
@@ -118,7 +112,6 @@
                     </div>
                 </div>
 
-                <!-- Footer ตรงนี้ดันอยู่ล่างสุดแบบเป็นระเบียบ ไม่ทับปุ่ม -->
                 <div class="w-full text-center mt-auto pt-6 pb-2 shrink-0">
                     <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-1 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
                     <p class="text-[8px] text-gray-400/80 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
@@ -340,7 +333,7 @@
                                 </table>
                             </div>
 
-                            <!-- ส่วนลายเซ็นท้ายรายงาน (Flexbox บรรทัดเดียวกัน) -->
+                            <!-- ส่วนลายเซ็นท้ายรายงาน -->
                             <div class="print-signature-container hidden print:flex justify-between mt-10 px-4 font-print text-sm md:text-base">
                                 <div id="signature-block-teachers"></div>
                                 <div id="signature-block-director"></div>
@@ -786,7 +779,6 @@
 
                 let currentClassRendered = '';
                 students.forEach(s => {
-                    // สร้างแถบคั่นแบ่งชั้นเรียนสวยๆ (เปลี่ยนสีป้ายให้ชัดเจนขึ้นตามความต้องการ)
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
                         currentClassRendered = s.class_name;
                         listDiv.insertAdjacentHTML('beforeend', `
@@ -889,9 +881,9 @@
             
             const printStyleEl = document.getElementById('print-page-style');
             if (type === 'daily') {
-                printStyleEl.innerHTML = '@page { size: portrait; margin: 20mm 15mm 20mm 15mm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
+                printStyleEl.innerHTML = '@page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }';
             } else {
-                printStyleEl.innerHTML = '@page { size: landscape; margin: 20mm 15mm 20mm 15mm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
+                printStyleEl.innerHTML = '@page { size: landscape; margin: 0.5cm 1cm 0.5cm 1cm; }';
             }
             renderActiveReport();
         }
