@@ -42,7 +42,6 @@
         
         @media print {
             aside, header, nav, .print-hide { display: none !important; }
-            /* บังคับพื้นหลังขาวล้วน ลบสีรบกวน */
             main, body, #main-scroll-area, #pdf-export-area, .bg-brand-bg, .bg-white, .shadow-sm { 
                 background: white !important; 
                 background-color: white !important; 
@@ -54,23 +53,25 @@
             main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
             body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
             
-            /* ควบคุมการขึ้นหน้าใหม่ และให้มีระยะห่าง 0.5cm */
-            table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; }
-            th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; background: white !important; }
+            /* ควบคุมเส้นตารางและการขึ้นหน้าใหม่ */
+            table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; border: 1px solid #000 !important; }
+            th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; }
             thead { display: table-header-group !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
             #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
-            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; }
+            
+            /* บังคับพิมพ์สีพื้นหลัง */
+            * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
             
             /* ลายเซ็นไม่ให้โดนตัดขาด */
             .print-signature-container { margin-top: 40px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
     <style id="print-page-style">
-        /* ค่าเริ่มต้น (จะเปลี่ยนเป็นแนวนอน/แนวตั้ง อัตโนมัติเมื่อกดสลับแท็บ) */
-        @page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }
+        /* ค่าเริ่มต้น ขอบกระดาษ 1cm ทั้ง 4 ด้าน (บน ล่าง ซ้าย ขวา) */
+        @page { size: portrait; margin: 1cm; }
     </style>
 </head>
 <body class="text-gray-800 flex h-screen overflow-hidden bg-brand-bg relative transition-colors duration-300">
@@ -233,7 +234,6 @@
 
                     <div id="student-list-container" class="hidden pb-12">
                         <div id="student-list" class="space-y-3 mb-6"></div>
-                        <!-- ลบ sticky และ bottom ออกเพื่อให้ปุ่มอยู่ล่างสุดเสมอ ไม่ลอยตามหน้าจอ -->
                         <div class="w-full flex justify-center pt-4 pb-8">
                             <button onclick="submitAttendance()" class="w-full md:w-[400px] bg-brand-dark text-white px-6 py-4 rounded-xl font-bold shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-lg border-2 border-white">
                                 <i class="fa-solid fa-save text-xl"></i> ยืนยันการบันทึกข้อมูล
@@ -321,13 +321,13 @@
                                 <table class="w-full min-w-[950px] text-sm text-center border-collapse font-print" id="report-table-monthly">
                                     <thead class="print:text-black border">
                                         <tr>
-                                            <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-10 text-center">เลขที่</th>
-                                            <th rowspan="2" class="py-2 px-1 border bg-gray-100 w-16 text-center">รหัส</th>
-                                            <th rowspan="2" class="py-2 px-2 border bg-gray-100 w-[140px] text-left">ชื่อ-นามสกุล</th>
-                                            <th colspan="31" class="py-1 px-0.5 border bg-gray-100" id="stats-days-header">วันที่ (1-31)</th>
-                                            <th colspan="6" class="py-1 px-1 border bg-gray-200 w-32">สรุปเวลาเรียน</th>
+                                            <th rowspan="2" class="py-2 px-1 border w-10 text-center" style="background-color: #f3f4f6 !important;">เลขที่</th>
+                                            <th rowspan="2" class="py-2 px-1 border w-16 text-center" style="background-color: #f3f4f6 !important;">รหัส</th>
+                                            <th rowspan="2" class="py-2 px-2 border w-[140px] text-left" style="background-color: #f3f4f6 !important;">ชื่อ-นามสกุล</th>
+                                            <th colspan="31" class="py-1 px-0.5 border" style="background-color: #f3f4f6 !important;" id="stats-days-header">วันที่ (1-31)</th>
+                                            <th colspan="6" class="py-1 px-1 border w-32" style="background-color: #e5e7eb !important;">สรุปเวลาเรียน</th>
                                         </tr>
-                                        <tr class="bg-gray-50 text-[10px] text-gray-600 print:text-black border" id="stats-days-row"></tr>
+                                        <tr class="text-[10px] text-gray-600 print:text-black border" id="stats-days-row"></tr>
                                     </thead>
                                     <tbody id="stats-monthly-body" class="bg-white"></tbody>
                                 </table>
@@ -784,7 +784,7 @@
                         listDiv.insertAdjacentHTML('beforeend', `
                             <div class="flex items-center gap-4 mt-8 mb-4">
                                 <div class="h-[2px] bg-gray-200 flex-1 rounded-full"></div>
-                                <span class="bg-brand-dark text-white border border-brand-light px-6 py-2 rounded-full text-sm font-bold shadow-md">
+                                <span class="bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-bold shadow-md tracking-wide" style="background: linear-gradient(135deg, var(--color-brand-light) 0%, var(--color-brand-dark) 100%); border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
                                     <i class="fa-solid fa-chalkboard-user mr-2"></i>${currentClassRendered}
                                 </span>
                                 <div class="h-[2px] bg-gray-200 flex-1 rounded-full"></div>
@@ -881,9 +881,9 @@
             
             const printStyleEl = document.getElementById('print-page-style');
             if (type === 'daily') {
-                printStyleEl.innerHTML = '@page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }';
+                printStyleEl.innerHTML = '@page { size: portrait; margin: 1cm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
             } else {
-                printStyleEl.innerHTML = '@page { size: landscape; margin: 0.5cm 1cm 0.5cm 1cm; }';
+                printStyleEl.innerHTML = '@page { size: landscape; margin: 1cm; @bottom-right { content: "หน้า " counter(page) " / " counter(pages); font-family: "Sarabun", sans-serif; font-size: 12px; } }';
             }
             renderActiveReport();
         }
@@ -992,13 +992,15 @@
                         if(i <= daysInMonth) {
                             let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
                             let dayOfWeek = new Date(dateStr).getDay();
-                            let bgClass = (dayOfWeek === 0 || dayOfWeek === 6 || publicHolidays.includes(dateStr)) ? 'bg-gray-200 text-red-500' : 'bg-gray-50 text-gray-600';
-                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] ${bgClass} border text-[9px]">${i}<br>${thaiDays[dayOfWeek]}</th>`;
+                            let isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || publicHolidays.includes(dateStr));
+                            let textCol = isHolidayOrWeekend ? 'text-red-500' : 'text-gray-800';
+                            let bgStyle = isHolidayOrWeekend ? 'background-color: #e5e7eb !important;' : '';
+                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px] ${textCol}" style="${bgStyle}">${i}<br>${thaiDays[dayOfWeek]}</th>`;
                         } else {
-                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] bg-gray-100 border text-[9px]">-</th>`;
+                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px]" style="background-color: #f3f4f6 !important;">-</th>`;
                         }
                     }
-                    daysHtml += `<th class="py-1 px-1 bg-gray-100 border">มา</th><th class="py-1 px-1 bg-gray-100 border">ป</th><th class="py-1 px-1 bg-gray-100 border">ก</th><th class="py-1 px-1 bg-gray-100 border">ส</th><th class="py-1 px-1 bg-gray-100 border">ข</th><th class="py-1 px-1 bg-gray-100 border">%</th>`;
+                    daysHtml += `<th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">มา</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ป</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ก</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ส</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ข</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">%</th>`;
                     rowHeader.innerHTML = daysHtml;
 
                     let html = '';
@@ -1006,9 +1008,9 @@
                     else {
                         students.forEach((s) => {
                             let rHtml = `<tr>
-                                <td class="py-1.5 px-1 border text-center text-[10px] bg-white w-10">${s.student_number}</td>
-                                <td class="py-1.5 px-1 border text-center text-[10px] font-mono text-gray-500 bg-white w-16">${s.student_code || '-'}</td>
-                                <td class="py-1.5 px-2 border text-left text-[11px] font-medium whitespace-nowrap bg-white truncate max-w-[140px]">${s.name}</td>`;
+                                <td class="py-1.5 px-1 border text-center text-[10px] w-10">${s.student_number}</td>
+                                <td class="py-1.5 px-1 border text-center text-[10px] font-mono text-gray-500 w-16">${s.student_code || '-'}</td>
+                                <td class="py-1.5 px-2 border text-left text-[11px] font-medium whitespace-nowrap truncate max-w-[140px]">${s.name}</td>`;
                                 
                             let stats = { p:0, s:0, l:0, late:0, a:0 };
                             let history = attendanceMap[s.student_code] || {};
@@ -1019,8 +1021,8 @@
                                     let dayOfWeek = new Date(dateStr).getDay();
                                     let isHol = publicHolidays.includes(dateStr);
                                     
-                                    if (dayOfWeek === 0 || dayOfWeek === 6) rHtml += `<td class="py-1 border bg-gray-100"></td>`;
-                                    else if (isHol) rHtml += `<td class="py-1 border bg-gray-100 text-red-500 font-bold text-[8px]">หยุด</td>`;
+                                    if (dayOfWeek === 0 || dayOfWeek === 6) rHtml += `<td class="py-1 border" style="background-color: #e5e7eb !important;"></td>`;
+                                    else if (isHol) rHtml += `<td class="py-1 border text-red-500 font-bold text-[8px]" style="background-color: #e5e7eb !important;">หยุด</td>`;
                                     else {
                                         let status = history[dateStr] || '';
                                         let mark = '', col = '';
@@ -1031,7 +1033,7 @@
                                         else if(status === 'ขาด') { mark = 'ข'; col = 'text-[#DC143C]'; stats.a++; }
                                         rHtml += `<td class="py-1 border font-bold text-[10px] ${col} print:text-black text-center">${mark}</td>`;
                                     }
-                                } else rHtml += `<td class="py-1 border bg-gray-50"></td>`;
+                                } else rHtml += `<td class="py-1 border" style="background-color: #f3f4f6 !important;"></td>`;
                             }
                             let totalDays = stats.p + stats.s + stats.l + stats.late + stats.a;
                             let percent = totalDays > 0 ? ((stats.p / totalDays) * 100).toFixed(0) + '%' : '0%';
