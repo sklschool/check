@@ -917,9 +917,11 @@
             
             const printStyleEl = document.getElementById('print-page-style');
             if (type === 'daily') {
-                printStyleEl.innerHTML = '@page { size: portrait; margin: 10mm; }';
+                // แก้ไข: กำหนดกระดาษแนวตั้ง และเพิ่มระยะขอบ (Margin) ให้กว้างขึ้นเป็น 15mm
+                printStyleEl.innerHTML = '@page { size: portrait; margin: 15mm; }';
             } else {
-                printStyleEl.innerHTML = '@page { size: landscape; margin: 8mm; }';
+                // แก้ไข: กำหนดกระดาษแนวนอน และเพิ่มระยะขอบ (Margin) ให้กว้างขึ้นเป็น 15mm ไม่ให้ชิดขอบตอนตัดหน้า
+                printStyleEl.innerHTML = '@page { size: landscape; margin: 15mm; }';
             }
 
             renderActiveReport();
@@ -1108,9 +1110,9 @@
             if (className === 'ทั้งหมด' || homeroomTeachers.length === 0) {
                 // กรณีเลือกดูรวม หรือไม่พบครูประจำชั้น
                 html += `
-                <div class="text-center w-64 mx-auto">
-                    <p>ลงชื่อ.......................................................ผู้รายงาน</p>
-                    <p class="mt-4">( ....................................................... )</p>
+                <div class="text-center w-auto mx-auto px-4">
+                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p>
+                    <p class="mt-6">( ....................................................... )</p>
                     <p class="mt-1">ครูประจำชั้น</p>
                 </div>`;
             } else {
@@ -1118,9 +1120,9 @@
                 homeroomTeachers.forEach((t, index) => {
                     let title = homeroomTeachers.length > 1 ? `ผู้รายงาน (ครูคนที่ ${index+1})` : `ผู้รายงาน`;
                     html += `
-                    <div class="text-center w-64 mx-auto">
-                        <p>ลงชื่อ.......................................................${title}</p>
-                        <p class="mt-4">( ${t.name} )</p>
+                    <div class="text-center w-auto mx-auto px-4">
+                        <p class="whitespace-nowrap">ลงชื่อ.......................................................${title}</p>
+                        <p class="mt-6">( ${t.name} )</p>
                         <p class="mt-1">ครูประจำชั้น${t.homeroom_class}</p>
                     </div>`;
                 });
@@ -1129,9 +1131,9 @@
             // ช่องลายเซ็น ผอ. จะอยู่ช่องขวาสุดเสมอ
             let directorName = appSettings.DirectorName || '.......................................................';
             html += `
-                <div class="text-center w-64 mx-auto">
-                    <p>ลงชื่อ.......................................................ผู้รับรอง</p>
-                    <p class="mt-4">( ${directorName} )</p>
+                <div class="text-center w-auto mx-auto px-4">
+                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รับรอง</p>
+                    <p class="mt-6">( ${directorName} )</p>
                     <p class="mt-1">ผู้อำนวยการโรงเรียน</p>
                 </div>
             `;
