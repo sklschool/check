@@ -42,6 +42,7 @@
         
         @media print {
             aside, header, nav, .print-hide { display: none !important; }
+            /* บังคับพื้นหลังขาวล้วน ลบสีรบกวน */
             main, body, #main-scroll-area, #pdf-export-area, .bg-brand-bg, .bg-white, .shadow-sm { 
                 background: white !important; 
                 background-color: white !important; 
@@ -53,6 +54,7 @@
             main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
             body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
             
+            /* ควบคุมเส้นตารางและการขึ้นหน้าใหม่ */
             table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; border: 1px solid #000 !important; }
             th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; }
             thead { display: table-header-group !important; }
@@ -61,8 +63,10 @@
             #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             
+            /* บังคับพิมพ์สีพื้นหลัง */
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
             
+            /* ลายเซ็นไม่ให้โดนตัดขาด */
             .print-signature-container { margin-top: 40px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
@@ -129,7 +133,7 @@
         <div class="p-6 text-center border-b border-white/10 relative">
             <button class="md:hidden absolute top-4 right-4 text-white/70 hover:text-white text-xl" onclick="toggleMobileMenu()"><i class="fa-solid fa-xmark"></i></button>
             <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-3 shadow-inner p-1 overflow-hidden">
-                <img id="sidebar-logo-preview" src="" class="object-cover w-full h-full p-1" style="display:none;">
+                <img id="sidebar-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" class="object-cover w-full h-full p-1" onerror="this.style.display='none'">
             </div>
             <h1 class="text-lg font-bold">บันทึกการมาเรียน</h1>
             <p class="text-xs text-white/80 mt-1" id="sidebar-school-name">กำลังโหลด...</p>
@@ -203,7 +207,7 @@
                     <!-- กราฟคู่ซ้ายขวา -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                         <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 flex flex-col items-center">
-                            <h3 class="text-gray-700 font-bold w-full mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie text-brand-dark mr-2 transition-colors"></i>สัดส่วนสถานะนักเรียนวันนี้</h3>
+                            <h3 class="text-gray-700 font-bold w-full mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie text-brand-dark mr-2 transition-colors"></i>สัดส่วนสถานะนักเรียน</h3>
                             <div class="relative h-64 w-full flex justify-center"><canvas id="donutChart"></canvas></div>
                         </div>
                         <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 flex flex-col items-center">
@@ -321,14 +325,13 @@
                                     <span class="px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs md:text-sm font-medium text-gray-700 shadow-sm flex items-center" id="stats-table-class-subtitle"><i class="fa-solid fa-chalkboard-user text-brand-dark mr-2"></i>ชั้น: ทั้งหมด</span>
                                     <span class="px-4 py-1.5 bg-white border border-gray-200 rounded-full text-xs md:text-sm font-medium text-gray-700 shadow-sm flex items-center" id="stats-table-date-subtitle"><i class="fa-regular fa-calendar-days text-brand-dark mr-2"></i>ประจำวันที่ ...</span>
                                 </div>
-                                
                                 <div class="flex flex-wrap justify-center gap-2 mt-4 relative z-10" id="stats-summary-badges"></div>
                             </div>
 
                             <!-- ตารางรายวัน -->
                             <div id="area-rep-daily" class="overflow-x-auto rounded-xl border border-gray-200 print:border-none print:shadow-none print:rounded-none">
                                 <table class="w-full text-sm text-left border-collapse font-print" id="report-table-daily">
-                                    <thead class="bg-gray-100 text-gray-700 print:text-black print:font-bold">
+                                    <thead class="bg-gray-100 text-gray-700 print:text-black print:font-bold border">
                                         <tr>
                                             <th class="py-3 px-4 border text-center w-16">เลขที่</th>
                                             <th class="py-3 px-4 border text-center w-24">รหัสประจำตัว</th>
@@ -344,16 +347,26 @@
 
                             <!-- ตารางรายเดือน -->
                             <div id="area-rep-monthly" class="overflow-x-auto rounded-xl border border-gray-200 hidden print:border-none print:shadow-none print:rounded-none pb-2">
-                                <!-- ข้อมูลตารางรายเดือนจะถูกสร้างโดย Javascript เพื่อรองรับการแบ่งหน้าและเลขหน้า -->
+                                <table class="w-full min-w-[950px] text-sm text-center border-collapse font-print" id="report-table-monthly">
+                                    <thead class="print:text-black border">
+                                        <tr>
+                                            <th rowspan="2" class="py-2 px-1 border w-10 text-center" style="background-color: #f3f4f6 !important;">เลขที่</th>
+                                            <th rowspan="2" class="py-2 px-1 border w-16 text-center" style="background-color: #f3f4f6 !important;">รหัส</th>
+                                            <th rowspan="2" class="py-2 px-2 border w-[140px] text-left" style="background-color: #f3f4f6 !important;">ชื่อ-นามสกุล</th>
+                                            <th colspan="31" class="py-1 px-0.5 border" style="background-color: #f3f4f6 !important;" id="stats-days-header">วันที่ (1-31)</th>
+                                            <th colspan="6" class="py-1 px-1 border w-32" style="background-color: #e5e7eb !important;">สรุปเวลาเรียน</th>
+                                        </tr>
+                                        <tr class="text-[10px] text-gray-600 print:text-black border" id="stats-days-row"></tr>
+                                    </thead>
+                                    <tbody id="stats-monthly-body" class="bg-white"></tbody>
+                                </table>
                             </div>
 
                             <!-- ส่วนลายเซ็นท้ายรายงาน -->
-                            <div class="mt-12 w-full font-print text-base page-break-inside-avoid hidden print:block">
-                                <div id="signature-grid" class="flex justify-around items-end gap-4 px-4 w-full">
-                                    <!-- ส่วนนี้จะถูกสร้างด้วย Javascript (updateReportSignatures) แบบอัตโนมัติ -->
-                                </div>
+                            <div class="print-signature-container hidden print:flex justify-between mt-10 px-4 font-print text-sm md:text-base">
+                                <div id="signature-block-teachers"></div>
+                                <div id="signature-block-director"></div>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -402,12 +415,21 @@
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b pb-4 mb-6">
                             <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-user-tie mr-2"></i>จัดการบุคลากร (ผู้ใช้งาน)</h2>
-                            <button onclick="openTeacherModal()" class="px-5 py-2.5 bg-brand-dark text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-light transition-all flex items-center hover:-translate-y-0.5"><i class="fa-solid fa-plus mr-2"></i> เพิ่มบุคลากร</button>
+                            <button onclick="showTeacherModal()" class="px-5 py-2.5 bg-brand-dark text-white rounded-xl text-sm font-bold shadow-md hover:bg-brand-light transition-all flex items-center hover:-translate-y-0.5"><i class="fa-solid fa-plus mr-2"></i> เพิ่มบุคลากร</button>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200">
                             <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase"><tr><th class="px-4 py-3 text-center">รหัส</th><th class="px-4 py-3">ชื่อ - นามสกุล</th><th class="px-4 py-3">ครูเวรประจำวัน</th><th class="px-4 py-3">ครูประจำชั้น</th><th class="px-4 py-3 text-center">สิทธิ์ในระบบ</th><th class="px-4 py-3 text-center">จัดการ</th></tr></thead>
-                                <tbody class="divide-y divide-gray-100" id="teachers-table-body"></tbody>
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase">
+                                    <tr>
+                                        <th class="px-4 py-3 text-center w-12">ลำดับ</th>
+                                        <th class="px-4 py-3">ชื่อ - นามสกุล</th>
+                                        <th class="px-4 py-3">ครูเวรประจำวัน</th>
+                                        <th class="px-4 py-3">ครูประจำชั้น</th>
+                                        <th class="px-4 py-3 text-center">สิทธิ์ในระบบ</th>
+                                        <th class="px-4 py-3 text-center">จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 bg-white" id="teachers-table-body"></tbody>
                             </table>
                         </div>
                     </div>
@@ -427,14 +449,15 @@
                                             <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"><i class="fa-solid fa-camera text-white text-2xl"></i></div>
                                         </div>
                                         <input type="file" id="logo-upload" class="hidden" accept="image/*" onchange="handleLogoUpload(event)">
+                                        <p class="text-[10px] text-gray-400 mt-2 text-center">โลโก้เริ่มต้นดึงจาก GitHub</p>
                                     </div>
                                     <div class="w-full md:w-2/3 space-y-4">
-                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อโรงเรียน</label><input type="text" id="setting-school-name" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
-                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อผู้อำนวยการโรงเรียน (สำหรับลงชื่อในรายงาน)</label><input type="text" id="setting-director-name" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark" placeholder="เช่น นายใจดี รักเรียน"></div>
-                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อสังกัด</label><input type="text" id="setting-school-area" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
+                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อโรงเรียน</label><input type="text" id="setting-school-name" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark"></div>
+                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อผู้อำนวยการโรงเรียน (สำหรับลงชื่อในรายงาน)</label><input type="text" id="setting-school-director" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark"></div>
+                                        <div><label class="block text-sm text-gray-500 mb-1">ชื่อสังกัด</label><input type="text" id="setting-school-area" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark"></div>
                                         <div class="flex gap-4">
-                                            <div class="w-1/2"><label class="block text-sm text-gray-500 mb-1">ปีการศึกษา</label><input type="text" id="setting-school-year" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
-                                            <div class="w-1/2"><label class="block text-sm text-gray-500 mb-1">ภาคเรียนที่</label><input type="text" id="setting-school-semester" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark"></div>
+                                            <div class="w-1/2"><label class="block text-sm text-gray-500 mb-1">ปีการศึกษา</label><input type="text" id="setting-school-year" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark"></div>
+                                            <div class="w-1/2"><label class="block text-sm text-gray-500 mb-1">ภาคเรียนที่</label><input type="text" id="setting-school-semester" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -443,8 +466,8 @@
                             <div>
                                 <h3 class="font-bold text-gray-700 mb-4 flex items-center"><i class="fa-brands fa-telegram text-brand-dark w-6"></i> แจ้งเตือนผ่าน Telegram (ตั้งค่า)</h3>
                                 <div class="space-y-4 px-2 md:px-6 max-w-lg">
-                                    <div><label class="block text-sm text-gray-500 mb-1">Bot Token</label><input type="text" id="setting-tel-token" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark" placeholder="123456:ABC-DEF..."></div>
-                                    <div><label class="block text-sm text-gray-500 mb-1">Chat ID</label><input type="text" id="setting-tel-chatid" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark" placeholder="-1001234567890"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1">Bot Token</label><input type="text" id="setting-tel-token" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark" placeholder="123456:ABC-DEF..."></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1">Chat ID</label><input type="text" id="setting-tel-chatid" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark" placeholder="-1001234567890"></div>
                                 </div>
                             </div>
                             <hr class="border-gray-100">
@@ -456,8 +479,8 @@
                             <div>
                                 <h3 class="font-bold text-gray-700 mb-4 flex items-center"><i class="fa-solid fa-lock text-brand-dark w-6"></i> เปลี่ยนรหัสเข้าสู่ระบบ (PIN)</h3>
                                 <div class="space-y-4 px-2 md:px-6 max-w-sm">
-                                    <div><label class="block text-sm text-gray-500 mb-1">รหัส PIN ปัจจุบัน</label><input type="password" id="set-pin-current" maxlength="6" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark tracking-widest text-center"></div>
-                                    <div><label class="block text-sm text-gray-500 mb-1">รหัส PIN ใหม่ (6 หลัก)</label><input type="password" id="set-pin-new" maxlength="6" class="w-full px-4 py-2 bg-gray-50 border rounded-xl outline-none focus:border-brand-dark tracking-widest text-center"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1">รหัส PIN ปัจจุบัน</label><input type="password" id="set-pin-current" maxlength="6" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark tracking-widest text-center"></div>
+                                    <div><label class="block text-sm text-gray-500 mb-1">รหัส PIN ใหม่ (6 หลัก)</label><input type="password" id="set-pin-new" maxlength="6" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark tracking-widest text-center"></div>
                                 </div>
                             </div>
                         </div>
@@ -473,51 +496,6 @@
                         <div class="w-24 h-24 mx-auto rounded-full bg-brand-dark text-white flex items-center justify-center font-bold text-3xl shadow-lg mb-4" id="profile-avatar-large">-</div>
                         <h2 class="text-xl font-bold text-gray-800" id="profile-display-name">-</h2>
                         <p class="text-brand-dark font-medium mb-8" id="profile-display-role">-</p>
-                    </div>
-                </div>
-
-                <!-- MODAL: ADD/EDIT TEACHER -->
-                <div id="teacher-modal" class="fixed inset-0 z-[300] bg-black/40 hidden flex items-center justify-center backdrop-blur-sm transition-opacity print-hide">
-                    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all m-4">
-                        <div class="bg-brand-dark px-6 py-5 flex justify-between items-center text-white relative">
-                            <h3 class="font-bold text-lg" id="teacher-modal-title">เพิ่มบุคลากรใหม่</h3>
-                            <button onclick="closeTeacherModal()" class="hover:text-white/70 transition-colors bg-white/10 w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark text-lg"></i></button>
-                        </div>
-                        <div class="p-6 space-y-5">
-                            <input type="hidden" id="modal-t-id">
-                            <div>
-                                <label class="text-xs font-bold text-gray-600 mb-1.5 block">ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                                <input id="modal-t-name" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors" placeholder="เช่น นายสมชาย ใจดี">
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="text-xs font-bold text-gray-600 mb-1.5 block">ครูเวรประจำวัน</label>
-                                    <select id="modal-t-duty" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors">
-                                        <option value="">- ไม่มี -</option>
-                                        <option value="จันทร์">จันทร์</option>
-                                        <option value="อังคาร">อังคาร</option>
-                                        <option value="พุธ">พุธ</option>
-                                        <option value="พฤหัสบดี">พฤหัสบดี</option>
-                                        <option value="ศุกร์">ศุกร์</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-brand-dark mb-1.5 block">มอบหมาย: ครูประจำชั้น</label>
-                                    <select id="modal-t-homeroom" class="w-full p-3 bg-brand-bg border border-brand-light/30 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors text-brand-dark font-medium"></select>
-                                </div>
-                            </div>
-                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                <label class="text-xs font-bold text-gray-600 mb-2 block"><i class="fa-solid fa-shield-halved mr-1"></i> กำหนดสิทธิ์การใช้งานระบบ (Role)</label>
-                                <select id="modal-t-role" class="w-full p-3 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-dark outline-none transition-colors">
-                                    <option value="ครูทั่วไป">ครูทั่วไป (เช็คชื่อห้องตัวเอง)</option>
-                                    <option value="แอดมิน">แอดมิน (จัดการระบบได้ทั้งหมด)</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                            <button onclick="closeTeacherModal()" class="px-5 py-2.5 text-gray-600 bg-white border border-gray-200 text-sm font-bold hover:bg-gray-100 rounded-xl transition-colors shadow-sm">ยกเลิก</button>
-                            <button onclick="saveTeacherModal()" class="px-6 py-2.5 bg-brand-dark text-white text-sm font-bold rounded-xl hover:bg-brand-light shadow-md transition-colors flex items-center"><i class="fa-solid fa-save mr-2"></i> บันทึกข้อมูล</button>
-                        </div>
                     </div>
                 </div>
 
@@ -624,9 +602,6 @@
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             
-            const loadingOverlay = document.getElementById('app-loading-overlay');
-            if (loadingOverlay) loadingOverlay.classList.remove('hidden');
-
             try {
                 const [setRes, clsRes, tchRes] = await Promise.all([
                     supabaseClient.from('settings').select('*'),
@@ -645,7 +620,6 @@
                 populateDropdowns();
                 renderTeacherSelection();
 
-                // ปรับแก้วันที่ให้ดึงตาม Timezone ท้องถิ่น (ไทย) เสมอ
                 const d = new Date();
                 const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
                 const today = localDate.toISOString().split('T')[0];
@@ -656,17 +630,15 @@
                 document.getElementById('stats-month').value = today.substring(0, 7);
                 updateDashboardDateDisplay();
 
-                isDataLoaded = true;
             } catch (err) {
-                const loadingText = document.getElementById('app-loading-text');
-                if (loadingText) loadingText.innerText = 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้';
-                Swal.fire('ข้อผิดพลาด', err.message || 'เชื่อมต่อ Supabase ล้มเหลว', 'error');
+                console.error('Database connection failed:', err);
+                Swal.fire('ข้อผิดพลาด', 'เชื่อมต่อฐานข้อมูลล้มเหลว กรุณารีเฟรชหน้าเว็บใหม่', 'error');
             }
         });
 
         function applySettingsToUI() {
             document.getElementById('setting-school-name').value = appSettings.SchoolName || '';
-            document.getElementById('setting-director-name').value = appSettings.DirectorName || '';
+            document.getElementById('setting-school-director').value = appSettings.SchoolDirector || '';
             document.getElementById('setting-school-area').value = appSettings.SchoolArea || '';
             document.getElementById('setting-school-year').value = appSettings.SchoolYear || '';
             document.getElementById('setting-school-semester').value = appSettings.Semester || '';
@@ -705,15 +677,16 @@
         function renderTeacherSelection() {
             const listDiv = document.getElementById('teacher-selection-list');
             let html = '';
-            if(allTeachers.length === 0) html = '<p class="text-center text-gray-500">ไม่มีรายชื่อบุคลากร</p>';
+            if(allTeachers.length === 0) html = '<p class="text-center text-gray-500">ไม่มีรายชื่อบุคลากร (กรุณาใช้รหัสเพื่อเข้าตั้งค่า)</p>';
             allTeachers.forEach(t => {
-                let initial = t.name.replace('นาย', '').replace('นางสาว', '').replace('นาง', '').charAt(0) || '-';
-                let roleBadge = t.role || 'ครูทั่วไป';
+                let initial = t.name.replace('นาย', '').replace('นางสาว', '').replace('นาง', '').replace('ว่าที่ร้อยตรี', '').charAt(0) || '-';
+                let roleBadge = t.role || 'ครูเวรประจำวัน';
                 if(t.homeroom_class) roleBadge += ` (ประจำชั้น ${t.homeroom_class})`;
                 html += `
-                <div onclick="selectTeacher(${t.id})" class="bg-white border border-gray-100 p-3 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-gray-50 shadow-sm">
-                    <div class="w-10 h-10 rounded-full bg-gray-100 text-brand-dark flex items-center justify-center font-bold">${initial}</div>
-                    <div class="text-left flex-1"><div class="font-bold text-gray-800 text-sm">${t.name}</div><div class="text-[10px] text-gray-500">${roleBadge}</div></div>
+                <div onclick="selectTeacher(${t.id})" class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-brand-bg hover:border-brand-dark/30 transition-colors shadow-sm">
+                    <div class="w-12 h-12 rounded-full bg-brand-dark/10 text-brand-dark flex items-center justify-center font-bold text-lg">${initial}</div>
+                    <div class="text-left flex-1"><div class="font-bold text-gray-800 text-sm md:text-base">${t.name}</div><div class="text-[11px] md:text-xs text-gray-500 font-medium">${roleBadge}</div></div>
+                    <i class="fa-solid fa-chevron-right text-gray-300"></i>
                 </div>`;
             });
             listDiv.innerHTML = html;
@@ -724,12 +697,12 @@
             let shortName = currentUser.name.replace('นาย', '').replace('นางสาว', '').replace('นาง', '');
             
             document.getElementById('header-user-name').innerText = currentUser.name;
-            document.getElementById('header-user-role').innerText = currentUser.role + (currentUser.homeroom_class ? ` (${currentUser.homeroom_class})` : '');
+            document.getElementById('header-user-role').innerText = (currentUser.role || 'ครู') + (currentUser.homeroom_class ? ` (${currentUser.homeroom_class})` : '');
             document.getElementById('header-avatar-initial').innerText = shortName.charAt(0);
             
             document.getElementById('profile-avatar-large').innerText = shortName.charAt(0);
             document.getElementById('profile-display-name').innerText = currentUser.name;
-            document.getElementById('profile-display-role').innerText = currentUser.role + (currentUser.homeroom_class ? ` | ครูประจำชั้น ${currentUser.homeroom_class}` : '');
+            document.getElementById('profile-display-role').innerText = (currentUser.role || 'ครูเวรประจำวัน') + (currentUser.homeroom_class ? ` | ครูประจำชั้น ${currentUser.homeroom_class}` : '');
 
             const overlay = document.getElementById('login-overlay');
             overlay.classList.add('opacity-0', 'pointer-events-none');
@@ -739,7 +712,8 @@
             }, 500);
         }
 
-        function logout() {
+        function logout(e) {
+            if(e) e.preventDefault();
             clearPin(); currentUser = null;
             document.getElementById('login-step-1').classList.remove('hidden');
             document.getElementById('login-step-2').classList.add('hidden');
@@ -748,11 +722,8 @@
             switchTab('dashboard');
         }
 
-        function toggleMobileMenu() {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('mobile-sidebar-backdrop');
-            if(sidebar) sidebar.classList.toggle('-translate-x-full');
-            if(backdrop) backdrop.classList.toggle('hidden');
+        function toggleMobileMenu() { 
+            document.getElementById('sidebar').classList.toggle('-translate-x-full'); 
         }
 
         function switchTab(tabName) {
@@ -795,7 +766,6 @@
             updateDashboardDateDisplay();
             const dateStr = document.getElementById('dashboard-date').value;
             try {
-                // โหลดข้อมูลรายวัน
                 const { data, error } = await supabaseClient.from('attendance').select('status, class_name').eq('record_date', dateStr);
                 if (error) throw error;
 
@@ -827,7 +797,6 @@
                 
                 renderDonutChart([stats.present, stats.sick, stats.leave, stats.late, stats.absent]);
                 
-                // โหลดข้อมูลรายเดือน สำหรับกราฟ Gradient Area Chart
                 loadMonthlyTrendStats();
 
                 let tbodyHtml = '';
@@ -850,11 +819,9 @@
 
         async function loadMonthlyTrendStats() {
             try {
-                // ดึงข้อมูลเดือนและสถานะทั้งหมดเพื่อคำนวณ % การมาเรียนของ พ.ย.-มี.ค.
                 const { data, error } = await supabaseClient.from('attendance').select('month_year, status');
                 if (error) throw error;
 
-                // กำหนดโครงสร้างเก็บข้อมูลตามเดือน (11=พ.ย., 12=ธ.ค., 01=ม.ค., 02=ก.พ., 03=มี.ค.)
                 let monthlyStats = {
                     '11': { total: 0, present: 0 },
                     '12': { total: 0, present: 0 },
@@ -865,7 +832,7 @@
 
                 data.forEach(row => {
                     if(!row.month_year) return;
-                    let month = row.month_year.split('-')[1]; // แยกเอาเฉพาะเดือน
+                    let month = row.month_year.split('-')[1]; 
                     if (monthlyStats[month]) {
                         monthlyStats[month].total++;
                         if (row.status === 'มาเรียน') {
@@ -893,10 +860,9 @@
             if(myTrendChart) myTrendChart.destroy();
             Chart.defaults.font.family = 'Kanit';
             
-            // สร้าง Gradient สำหรับกราฟแบบ Area (สีฟ้าไล่ระดับ)
             let gradient = trendCtx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); // Blue-500 แบบโปร่งใส 50%
-            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)'); // โปร่งใส 0% ด้านล่าง
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)'); 
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)'); 
 
             myTrendChart = new Chart(trendCtx, {
                 type: 'line',
@@ -905,11 +871,11 @@
                     datasets: [{
                         label: 'มาเรียน (%)',
                         data: dataArray,
-                        borderColor: '#3B82F6', // Blue-500
+                        borderColor: '#3B82F6', 
                         backgroundColor: gradient,
                         borderWidth: 2,
-                        fill: true, // ทำให้พื้นที่ใต้กราฟมีสี
-                        tension: 0.4, // ปรับให้เส้นโค้งนุ่มนวล
+                        fill: true, 
+                        tension: 0.4, 
                         pointBackgroundColor: '#ffffff',
                         pointBorderColor: '#3B82F6',
                         pointBorderWidth: 2,
@@ -939,13 +905,27 @@
             const donutCtx = document.getElementById('donutChart').getContext('2d');
             if(myDonutChart) myDonutChart.destroy();
             Chart.defaults.font.family = 'Kanit';
+            
+            const total = dataArray.reduce((a, b) => a + b, 0);
+            const displayData = total === 0 ? [1] : dataArray;
+            const displayColors = total === 0 ? ['#F3F4F6'] : ['#20B2AA', '#FFC107', '#FF7F50', '#1E90FF', '#DC143C'];
+            const displayLabels = total === 0 ? ['ยังไม่มีข้อมูลเช็คชื่อวันนี้'] : ['มาเรียน', 'ลาป่วย', 'ลากิจ', 'มาสาย', 'ขาดเรียน'];
+
             myDonutChart = new Chart(donutCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['มาเรียน', 'ลาป่วย', 'ลากิจ', 'มาสาย', 'ขาดเรียน'],
-                    datasets: [{ data: dataArray, backgroundColor: ['#20B2AA', '#FFC107', '#FF7F50', '#1E90FF', '#DC143C'], borderWidth: 0 }]
+                    labels: displayLabels,
+                    datasets: [{ data: displayData, backgroundColor: displayColors, borderWidth: 0 }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right' } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    cutout: '70%', 
+                    plugins: { 
+                        legend: { position: 'right' },
+                        tooltip: { enabled: total !== 0 }
+                    } 
+                }
             });
         }
 
@@ -970,7 +950,6 @@
 
                 let currentClassRendered = '';
                 students.forEach(s => {
-                    // สร้างป้ายชื่อชั้นเรียนสีทึบ ไล่เฉดสีให้สวยงามและเด่นชัด
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
                         currentClassRendered = s.class_name;
                         listDiv.insertAdjacentHTML('beforeend', `
@@ -1300,7 +1279,6 @@
             tbody.innerHTML = html;
         }
 
-        // หน้าต่างเพิ่ม/แก้ไขบุคลากร
         function showTeacherModal(id = null) {
             let isEdit = id !== null;
             let t = isEdit ? allTeachers.find(x => String(x.id) === String(id)) : null;
@@ -1312,8 +1290,9 @@
             });
 
             let nameVal = isEdit ? t.name : '';
-            let positionVal = (isEdit && t.role && t.role !== 'แอดมิน') ? t.role : '';
-            let isAdm = (isEdit && t.role === 'แอดมิน');
+            let roleVal = isEdit ? t.role : '';
+            let positionVal = (isEdit && roleVal && roleVal !== 'แอดมิน') ? roleVal : '';
+            let isAdm = (isEdit && roleVal === 'แอดมิน');
 
             Swal.fire({
                 title: isEdit ? 'แก้ไขข้อมูลบุคลากร' : 'เพิ่มบุคลากรใหม่',
@@ -1354,31 +1333,44 @@
                     
                     let systemRole = document.querySelector('input[name="modal-t-sysrole"]:checked').value;
                     let position = document.getElementById('modal-t-position').value;
-                    let finalRole = systemRole === 'แอดมิน' ? 'แอดมิน' : (position || 'ครูเวรประจำวัน');
+                    let finalRole = systemRole === 'แอดมิน' ? 'แอดมิน' : (position || 'ครูทั่วไป');
+                    let homeroomClass = document.getElementById('modal-t-homeroom').value;
 
                     return { 
                         name: name, 
                         role: finalRole, 
-                        homeroom_class: document.getElementById('modal-t-homeroom').value || null 
+                        homeroom_class: homeroomClass === "" ? null : homeroomClass 
                     };
                 }
             }).then(async (result) => {
                 if(result.isConfirmed) {
                     Swal.fire({title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     try {
-                        if(isEdit) {
-                            const { error } = await supabaseClient.from('teachers').update(result.value).eq('id', id);
+                        let updatedData = null;
+
+                        if (isEdit) {
+                            const { data, error } = await supabaseClient.from('teachers').update(result.value).eq('id', id).select();
                             if (error) throw error;
+                            updatedData = data;
                             const idx = allTeachers.findIndex(x => String(x.id) === String(id));
-                            allTeachers[idx] = { ...allTeachers[idx], ...result.value };
+                            if (idx !== -1 && data && data.length > 0) {
+                                allTeachers[idx] = data[0];
+                            }
                         } else {
                             const { data, error } = await supabaseClient.from('teachers').insert(result.value).select();
                             if (error) throw error;
-                            if(data) allTeachers.push(data[0]);
+                            updatedData = data;
+                            if (data && data.length > 0) {
+                                allTeachers.push(data[0]);
+                            }
                         }
-                        renderTeachersManage(); renderTeacherSelection();
+                        
+                        renderTeachersManage(); 
+                        renderTeacherSelection();
                         Swal.fire({icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลบุคลากรเรียบร้อย', timer: 1500, showConfirmButton: false});
-                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                    } catch(err) { 
+                        Swal.fire('ผิดพลาด', err.message, 'error'); 
+                    }
                 }
             });
         }
