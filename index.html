@@ -42,7 +42,6 @@
         
         @media print {
             aside, header, nav, .print-hide { display: none !important; }
-            /* บังคับพื้นหลังขาวล้วน ลบสีรบกวน */
             main, body, #main-scroll-area, #pdf-export-area, .bg-brand-bg, .bg-white, .shadow-sm { 
                 background: white !important; 
                 background-color: white !important; 
@@ -54,7 +53,6 @@
             main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
             body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
             
-            /* ควบคุมเส้นตารางและการขึ้นหน้าใหม่ */
             table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; border: 1px solid #000 !important; }
             th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; }
             thead { display: table-header-group !important; }
@@ -63,10 +61,8 @@
             #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             
-            /* บังคับพิมพ์สีพื้นหลัง */
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
             
-            /* ลายเซ็นไม่ให้โดนตัดขาด */
             .print-signature-container { margin-top: 40px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
@@ -464,6 +460,27 @@
                             </div>
                             <hr class="border-gray-100">
                             <div>
+                                <h3 class="font-bold text-gray-700 mb-4 flex items-center"><i class="fa-solid fa-calendar-xmark text-brand-dark w-6"></i> กำหนดวันหยุดพิเศษ (นอกเหนือจากเสาร์-อาทิตย์)</h3>
+                                <div class="px-2 md:px-6 max-w-lg">
+                                    <div class="flex gap-2 mb-4">
+                                        <input type="date" id="add-holiday-date" class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark">
+                                        <input type="text" id="add-holiday-name" placeholder="ชื่อวันหยุด..." class="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark">
+                                        <button type="button" onclick="addSpecialHoliday()" class="px-4 py-2 bg-brand-dark text-white rounded-xl font-medium hover:bg-brand-light transition-colors">เพิ่ม</button>
+                                    </div>
+                                    <div class="overflow-x-auto rounded-xl border border-gray-200">
+                                        <table class="w-full text-sm text-left">
+                                            <thead class="bg-gray-100 text-gray-600 text-xs uppercase">
+                                                <tr><th class="px-4 py-2">วันที่</th><th class="px-4 py-2">ชื่อวันหยุด</th><th class="px-4 py-2 text-center w-16">ลบ</th></tr>
+                                            </thead>
+                                            <tbody id="special-holidays-list" class="divide-y divide-gray-100 bg-white">
+                                                <!-- แสดงรายการวันหยุด -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="border-gray-100">
+                            <div>
                                 <h3 class="font-bold text-gray-700 mb-4 flex items-center"><i class="fa-brands fa-telegram text-brand-dark w-6"></i> แจ้งเตือนผ่าน Telegram (ตั้งค่า)</h3>
                                 <div class="space-y-4 px-2 md:px-6 max-w-lg">
                                     <div><label class="block text-sm text-gray-500 mb-1">Bot Token</label><input type="text" id="setting-tel-token" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark" placeholder="123456:ABC-DEF..."></div>
@@ -541,7 +558,8 @@
             'pastel-lavender': { name: 'ม่วงพาสเทล', dark: '#A78BFA', light: '#DDD6FE', bg: '#F5F3FF' }
         };
         let currentTheme = 'default';
-        const publicHolidays = ['2026-10-13', '2026-10-23', '2026-12-05', '2026-12-10', '2026-12-31'];
+        let specialHolidays = []; // เก็บวันหยุดพิเศษ
+
         const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
         const thaiDays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
 
@@ -616,9 +634,16 @@
                 allTeachers = tchRes.data || [];
                 systemPin = String(appSettings.SystemPIN || '123456');
 
+                // โหลดวันหยุดพิเศษ
+                if (appSettings.SpecialHolidays) {
+                    try { specialHolidays = JSON.parse(appSettings.SpecialHolidays); } 
+                    catch(e) { specialHolidays = []; }
+                }
+
                 applySettingsToUI();
                 populateDropdowns();
                 renderTeacherSelection();
+                renderSpecialHolidays();
 
                 const d = new Date();
                 const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
@@ -664,6 +689,43 @@
                     imgEl.style.display = currentLogo ? 'block' : 'none';
                 }
             });
+        }
+
+        // จัดการวันหยุดพิเศษ
+        function renderSpecialHolidays() {
+            const tbody = document.getElementById('special-holidays-list');
+            let html = '';
+            if (specialHolidays.length === 0) {
+                html = '<tr><td colspan="3" class="px-4 py-4 text-center text-gray-500">ยังไม่มีข้อมูลวันหยุดพิเศษ</td></tr>';
+            } else {
+                specialHolidays.sort((a, b) => new Date(a.date) - new Date(b.date)).forEach((h, index) => {
+                    const d = new Date(h.date);
+                    const dateDisplay = `${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+                    html += `<tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 font-medium text-gray-800">${dateDisplay}</td>
+                        <td class="px-4 py-3 text-gray-600">${h.name}</td>
+                        <td class="px-4 py-3 text-center"><button type="button" onclick="removeSpecialHoliday(${index})" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-trash-can"></i></button></td>
+                    </tr>`;
+                });
+            }
+            tbody.innerHTML = html;
+        }
+
+        window.addSpecialHoliday = function() {
+            const dateInput = document.getElementById('add-holiday-date').value;
+            const nameInput = document.getElementById('add-holiday-name').value;
+            if(!dateInput) { Swal.fire('แจ้งเตือน', 'กรุณาเลือกวันที่ก่อน', 'warning'); return; }
+            if(specialHolidays.some(h => h.date === dateInput)) { Swal.fire('แจ้งเตือน', 'มีวันหยุดนี้ในระบบแล้ว', 'warning'); return; }
+            
+            specialHolidays.push({ date: dateInput, name: nameInput || 'วันหยุดพิเศษ' });
+            document.getElementById('add-holiday-date').value = '';
+            document.getElementById('add-holiday-name').value = '';
+            renderSpecialHolidays();
+        }
+
+        window.removeSpecialHoliday = function(index) {
+            specialHolidays.splice(index, 1);
+            renderSpecialHolidays();
         }
 
         function populateDropdowns() {
@@ -796,7 +858,6 @@
                 document.getElementById('stat-absent').innerText = stats.absent;
                 
                 renderDonutChart([stats.present, stats.sick, stats.leave, stats.late, stats.absent]);
-                
                 loadMonthlyTrendStats();
 
                 let tbodyHtml = '';
@@ -1163,7 +1224,9 @@
                         if(i <= daysInMonth) {
                             let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
                             let dayOfWeek = new Date(dateStr).getDay();
-                            let isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || publicHolidays.includes(dateStr));
+                            let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
+                            let isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || isSpecialHoliday);
+                            
                             let textCol = isHolidayOrWeekend ? 'text-red-500' : 'text-gray-800';
                             let bgStyle = isHolidayOrWeekend ? 'background-color: #e5e7eb !important;' : '';
                             daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px] ${textCol}" style="${bgStyle}">${i}<br>${thaiDays[dayOfWeek]}</th>`;
@@ -1190,11 +1253,14 @@
                                 if(i <= daysInMonth) {
                                     let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
                                     let dayOfWeek = new Date(dateStr).getDay();
-                                    let isHol = publicHolidays.includes(dateStr);
+                                    let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
+                                    let isHol = (dayOfWeek === 0 || dayOfWeek === 6 || isSpecialHoliday);
                                     
-                                    if (dayOfWeek === 0 || dayOfWeek === 6) rHtml += `<td class="py-1 border" style="background-color: #e5e7eb !important;"></td>`;
-                                    else if (isHol) rHtml += `<td class="py-1 border text-red-500 font-bold text-[8px]" style="background-color: #e5e7eb !important;">หยุด</td>`;
-                                    else {
+                                    if (dayOfWeek === 0 || dayOfWeek === 6) {
+                                        rHtml += `<td class="py-1 border" style="background-color: #e5e7eb !important;"></td>`;
+                                    } else if (isSpecialHoliday) {
+                                        rHtml += `<td class="py-1 border text-red-500 font-bold text-[8px]" style="background-color: #e5e7eb !important;">หยุด</td>`;
+                                    } else {
                                         let status = history[dateStr] || '';
                                         let mark = '', col = '';
                                         if(status === 'มาเรียน') { mark = 'ม'; col = 'text-[#20B2AA]'; stats.p++; }
@@ -1204,7 +1270,9 @@
                                         else if(status === 'ขาด') { mark = 'ข'; col = 'text-[#DC143C]'; stats.a++; }
                                         rHtml += `<td class="py-1 border font-bold text-[10px] ${col} print:text-black text-center">${mark}</td>`;
                                     }
-                                } else rHtml += `<td class="py-1 border" style="background-color: #f3f4f6 !important;"></td>`;
+                                } else {
+                                    rHtml += `<td class="py-1 border" style="background-color: #f3f4f6 !important;"></td>`;
+                                }
                             }
                             let totalDays = stats.p + stats.s + stats.l + stats.late + stats.a;
                             let percent = totalDays > 0 ? ((stats.p / totalDays) * 100).toFixed(0) + '%' : '0%';
@@ -1563,7 +1631,8 @@
                 SchoolYear: document.getElementById('setting-school-year').value,
                 Semester: document.getElementById('setting-school-semester').value,
                 TelegramBotToken: document.getElementById('setting-tel-token').value,
-                TelegramChatID: document.getElementById('setting-tel-chatid').value
+                TelegramChatID: document.getElementById('setting-tel-chatid').value,
+                SpecialHolidays: JSON.stringify(specialHolidays)
             };
             if (newPinInput) { newSettings.SystemPIN = newPinInput; systemPin = newPinInput; }
 
