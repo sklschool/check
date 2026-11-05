@@ -1611,17 +1611,44 @@
             const reader = new FileReader();
             reader.onload = async function(e) {
                 const rows = e.target.result.split('\n'); let newStudents = [];
+                let missingClasses = new Set();
+                
                 for (let i = 1; i < rows.length; i++) {
                     let cols = rows[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
                     if (cols.length >= 4 && cols[0]) {
-                        newStudents.push({ student_number: parseInt(cols[0]), student_code: cols[1], name: cols[2], class_name: cols[3], gender: cols[4] || '' });
+                        const className = cols[3];
+                        // ตรวจสอบว่ามีชั้นเรียนนี้อยู่ในระบบหรือไม่
+                        if (!allClasses.includes(className)) {
+                            missingClasses.add(className);
+                        }
+                        newStudents.push({ student_number: parseInt(cols[0]), student_code: cols[1], name: cols[2], class_name: className, gender: cols[4] || '' });
                     }
                 }
+                
+                // ถ้ารายชื่อชั้นเรียนไม่ตรงกับในระบบ ให้แจ้งเตือนและหยุดการทำงาน
+                if (missingClasses.size > 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'พบชั้นเรียนที่ไม่มีในระบบ',
+                        html: `ข้อมูลในไฟล์มีชั้นเรียนต่อไปนี้ที่ยังไม่ได้เพิ่มในระบบ:<br><br>
+                               <span class="text-red-500 font-bold">${Array.from(missingClasses).join(', ')}</span><br><br>
+                               กรุณาไปเพิ่มชั้นเรียนเหล่านี้ในเมนู <b>"จัดการชั้นเรียน"</b> ก่อน หรือแก้ไขในไฟล์ให้ตรงกับระบบ`,
+                        confirmButtonColor: themes[currentTheme].dark
+                    });
+                    event.target.value = '';
+                    return;
+                }
+
                 if (newStudents.length > 0) {
                     Swal.fire({title: 'กำลังนำเข้า...', didOpen: () => Swal.showLoading()});
                     try {
                         const { error } = await supabaseClient.from('students').insert(newStudents);
-                        if (error) throw error;
+                        if (error) {
+                            if(error.message.includes('foreign key constraint')) {
+                                throw new Error('ชื่อชั้นเรียนในไฟล์ ไม่ตรงกับในระบบ กรุณาตรวจสอบให้แน่ใจว่าได้เพิ่มชั้นเรียนไว้แล้ว');
+                            }
+                            throw error;
+                        }
                         Swal.fire('สำเร็จ', `นำเข้าทั้งหมด ${newStudents.length} รายการ`, 'success'); 
                         renderManageStudentsTable();
                     } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
