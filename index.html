@@ -387,6 +387,7 @@
                                 <button onclick="document.getElementById('import-csv-file').click()" class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"><i class="fa-solid fa-file-import mr-1"></i> นำเข้าไฟล์ (CSV)</button>
                                 <input type="file" id="import-csv-file" class="hidden" accept=".csv" onchange="importStudentCSV(event)">
                                 <button onclick="showAddStudentModal()" class="px-4 py-2 bg-brand-dark text-white rounded-xl text-sm font-medium hover:bg-brand-light transition-colors"><i class="fa-solid fa-plus mr-1"></i> เพิ่มนักเรียน</button>
+                                <button onclick="deleteAllStudents()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-medium hover:bg-red-600 hover:text-white transition-colors"><i class="fa-solid fa-trash-can mr-1"></i> ลบนักเรียนทั้งหมด</button>
                             </div>
                         </div>
                         <div class="flex gap-4 mb-4">
@@ -1626,6 +1627,47 @@
                         if (error) throw error;
                         renderManageStudentsTable(); 
                     } catch(err) {}
+                }
+            });
+        }
+        function deleteAllStudents() {
+            const classFilter = document.getElementById('manage-class-filter').value;
+            const targetText = classFilter === 'ทั้งหมด' ? 'ทั้งหมดทุกชั้นเรียน' : `เฉพาะชั้น ${classFilter}`;
+            
+            Swal.fire({
+                title: 'ยืนยันการลบนักเรียนทั้งหมด?',
+                text: `คุณกำลังจะลบข้อมูลนักเรียน ${targetText} การกระทำนี้ไม่สามารถย้อนกลับได้!`,
+                icon: 'warning',
+                input: 'text',
+                inputPlaceholder: 'พิมพ์ DELETE เพื่อยืนยัน',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                confirmButtonText: 'ลบข้อมูลทั้งหมด',
+                cancelButtonText: 'ยกเลิก',
+                preConfirm: (inputValue) => {
+                    if (inputValue !== 'DELETE') {
+                        Swal.showValidationMessage('กรุณาพิมพ์คำว่า DELETE ให้ถูกต้อง');
+                        return false;
+                    }
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังลบข้อมูลนักเรียน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    try {
+                        let query = supabaseClient.from('students').delete();
+                        if (classFilter !== 'ทั้งหมด') {
+                            query = query.eq('class_name', classFilter);
+                        } else {
+                            query = query.neq('student_code', ''); // ลบทั้งหมด
+                        }
+                        const { error } = await query;
+                        if (error) throw error;
+                        
+                        renderManageStudentsTable();
+                        Swal.fire({ icon: 'success', title: 'ลบข้อมูลเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
+                    } catch (err) {
+                        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error');
+                    }
                 }
             });
         }
