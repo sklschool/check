@@ -1625,18 +1625,23 @@
                     }
                 }
                 
-                // ถ้ารายชื่อชั้นเรียนไม่ตรงกับในระบบ ให้แจ้งเตือนและหยุดการทำงาน
+                // ถ้าพบชั้นเรียนที่ไม่มีในระบบ ให้เพิ่มชั้นเรียนอัตโนมัติ
                 if (missingClasses.size > 0) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'พบชั้นเรียนที่ไม่มีในระบบ',
-                        html: `ข้อมูลในไฟล์มีชั้นเรียนต่อไปนี้ที่ยังไม่ได้เพิ่มในระบบ:<br><br>
-                               <span class="text-red-500 font-bold">${Array.from(missingClasses).join(', ')}</span><br><br>
-                               กรุณาไปเพิ่มชั้นเรียนเหล่านี้ในเมนู <b>"จัดการชั้นเรียน"</b> ก่อน หรือแก้ไขในไฟล์ให้ตรงกับระบบ`,
-                        confirmButtonColor: themes[currentTheme].dark
-                    });
-                    event.target.value = '';
-                    return;
+                    Swal.fire({title: 'กำลังสร้างชั้นเรียนใหม่...', didOpen: () => Swal.showLoading()});
+                    try {
+                        const newClassesToInsert = Array.from(missingClasses).map(c => ({ class_name: c }));
+                        const { error: classError } = await supabaseClient.from('classes').insert(newClassesToInsert);
+                        if (classError) throw classError;
+                        
+                        // เพิ่มลงในตัวแปร local และอัปเดต UI
+                        Array.from(missingClasses).forEach(c => allClasses.push(c));
+                        populateDropdowns(); 
+                        renderClassesManage();
+                    } catch (err) {
+                        Swal.fire('เกิดข้อผิดพลาดในการสร้างชั้นเรียน', err.message, 'error');
+                        event.target.value = '';
+                        return;
+                    }
                 }
 
                 if (newStudents.length > 0) {
