@@ -381,6 +381,7 @@
                                 <button onclick="document.getElementById('import-csv-file').click()" class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"><i class="fa-solid fa-file-import mr-1"></i> นำเข้าไฟล์ (CSV)</button>
                                 <input type="file" id="import-csv-file" class="hidden" accept=".csv" onchange="importStudentCSV(event)">
                                 <button onclick="showAddStudentModal()" class="px-4 py-2 bg-brand-dark text-white rounded-xl text-sm font-medium hover:bg-brand-light transition-colors"><i class="fa-solid fa-plus mr-1"></i> เพิ่มนักเรียน</button>
+                                <button onclick="deleteAllStudents()" class="px-4 py-2 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600 transition-colors shadow-sm"><i class="fa-solid fa-trash-can mr-1"></i> ลบทั้งหมด</button>
                             </div>
                         </div>
                         <div class="flex gap-4 mb-4">
@@ -1600,6 +1601,33 @@
                 }
             });
         }
+        
+        function deleteAllStudents() {
+            Swal.fire({ 
+                title: 'ยืนยันการลบนักเรียนทั้งหมด?', 
+                text: 'คำเตือน: ข้อมูลนักเรียนทั้งหมดจะถูกลบออกจากระบบและไม่สามารถกู้คืนได้!', 
+                icon: 'warning', 
+                showCancelButton: true, 
+                confirmButtonColor: '#d33', 
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'ใช่, ลบทั้งหมด',
+                cancelButtonText: 'ยกเลิก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({title: 'กำลังลบข้อมูล...', didOpen: () => Swal.showLoading()});
+                    try {
+                        // ใช้ filter .not('student_code', 'is', null) เพื่อให้ลบทุกแถว (Supabase บังคับให้ต้องมี filter ในการ delete)
+                        const { error } = await supabaseClient.from('students').delete().not('student_code', 'is', null);
+                        if (error) throw error;
+                        Swal.fire('สำเร็จ', 'ลบข้อมูลนักเรียนทั้งหมดเรียบร้อยแล้ว', 'success');
+                        renderManageStudentsTable(); 
+                    } catch(err) {
+                        Swal.fire('ผิดพลาด', err.message, 'error');
+                    }
+                }
+            });
+        }
+
         function downloadStudentTemplate() {
             const csv = "data:text/csv;charset=utf-8,\uFEFFเลขที่,รหัสประจำตัว,ชื่อ-นามสกุล,ชั้นเรียน,เพศ (M/F)\n1,660101,เด็กชายตัวอย่าง,ประถมศึกษาปีที่ 1,M";
             const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "แม่แบบนักเรียน.csv";
