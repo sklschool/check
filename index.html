@@ -1014,8 +1014,35 @@
                 }
 
                 let currentClassRendered = '';
-                students.forEach(s => {
+                let classMaleCount = 0;
+                let classFemaleCount = 0;
+
+                // ฟังก์ชันช่วยสร้างการ์ดสรุปยอด ชาย / หญิง / รวม
+                const renderClassSummaryCard = (cName, male, female) => {
+                    const total = male + female;
+                    return `
+                    <div class="bg-white/80 backdrop-blur border-2 border-dashed border-brand-dark/20 p-4 rounded-2xl shadow-sm my-4 flex flex-col md:flex-row items-center justify-between gap-3 text-brand-dark">
+                        <div class="flex items-center gap-2 font-bold text-sm md:text-base">
+                            <i class="fa-solid fa-users text-brand-dark"></i>
+                            <span>สรุปจำนวนนักเรียน${cName ? ' (' + cName + ')' : ''}</span>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs md:text-sm font-medium">
+                            <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-100"><i class="fa-solid fa-mars mr-1"></i>ชาย: <b>${male}</b> คน</span>
+                            <span class="px-3 py-1 bg-pink-50 text-pink-700 rounded-lg border border-pink-100"><i class="fa-solid fa-venus mr-1"></i>หญิง: <b>${female}</b> คน</span>
+                            <span class="px-3 py-1 bg-brand-dark text-white rounded-lg shadow-sm font-bold"><i class="fa-solid fa-user-check mr-1"></i>รวม: <b>${total}</b> คน</span>
+                        </div>
+                    </div>`;
+                };
+
+                students.forEach((s, index) => {
+                    // กรณีเลือกดูรวมทุกห้อง ให้แทรกการ์ดสรุปของห้องก่อนหน้าเมื่อเปลี่ยนชั้นเรียน
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
+                        if (currentClassRendered !== '') {
+                            listDiv.insertAdjacentHTML('beforeend', renderClassSummaryCard(currentClassRendered, classMaleCount, classFemaleCount));
+                            classMaleCount = 0;
+                            classFemaleCount = 0;
+                        }
+
                         currentClassRendered = s.class_name;
                         listDiv.insertAdjacentHTML('beforeend', `
                             <div class="flex items-center gap-4 mt-8 mb-4">
@@ -1026,6 +1053,13 @@
                                 <div class="h-[2px] bg-gray-200 flex-1 rounded-full"></div>
                             </div>
                         `);
+                    }
+
+                    // นับจำนวน ชาย / หญิง
+                    if (s.gender === 'M' || (s.name && s.name.includes('เด็กชาย')) || (s.name && s.name.includes('นาย'))) {
+                        classMaleCount++;
+                    } else {
+                        classFemaleCount++;
                     }
 
                     let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
@@ -1046,6 +1080,12 @@
                         </div>
                     </div>`;
                     listDiv.insertAdjacentHTML('beforeend', rowHtml);
+
+                    // หากเป็นคนสุดท้าย แสดงการ์ดสรุปยอดต่อท้ายทันที
+                    if (index === students.length - 1) {
+                        const labelName = className === 'ทั้งหมด' ? currentClassRendered : className;
+                        listDiv.insertAdjacentHTML('beforeend', renderClassSummaryCard(labelName, classMaleCount, classFemaleCount));
+                    }
                 });
             } catch (err) {
                 listDiv.innerHTML = `<div class="text-center py-10 text-red-500">ดึงข้อมูลล้มเหลว: ${err.message}</div>`;
