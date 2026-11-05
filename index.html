@@ -1593,19 +1593,28 @@
                 showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark,
                 preConfirm: () => {
                     const number = document.getElementById('add-s-num').value;
-                    const code = document.getElementById('add-s-code').value;
-                    const name = document.getElementById('add-s-name').value;
-                    if(!number || !code || !name) { Swal.showValidationMessage('กรุณากรอกให้ครบ'); return false; }
-                    return { student_number: number, student_code: code, name: name, class_name: document.getElementById('add-s-class').value, gender: document.getElementById('add-s-gender').value };
+                    const code = document.getElementById('add-s-code').value ? document.getElementById('add-s-code').value.trim() : '';
+                    const name = document.getElementById('add-s-name').value ? document.getElementById('add-s-name').value.trim() : '';
+                    if(!number || !code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน'); return false; }
+                    return { student_number: parseInt(number), student_code: code, name: name, class_name: document.getElementById('add-s-class').value, gender: document.getElementById('add-s-gender').value };
                 }
             }).then(async (result) => {
                 if(result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
-                        const { error } = await supabaseClient.from('students').insert(result.value);
-                        if (error) throw error;
+                        // ใช้ upsert เพื่ออัปเดตข้อมูลหากมีรหัสประจำตัวเดิม หรือเพิ่มใหม่หากยังไม่มี
+                        const { error } = await supabaseClient.from('students').upsert(result.value, { onConflict: 'student_code' });
+                        if (error) {
+                            if (error.code === '23505') {
+                                throw new Error(`รหัสประจำตัวนักเรียน "${result.value.student_code}" มีในระบบอยู่แล้ว กรุณาตรวจสอบรหัสซ้ำ`);
+                            }
+                            throw error;
+                        }
                         renderManageStudentsTable(); 
-                        Swal.fire('สำเร็จ', '', 'success');
-                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                        Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลนักเรียนเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
+                    } catch(err) { 
+                        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error'); 
+                    }
                 }
             });
         }
