@@ -77,48 +77,54 @@
 <body class="text-gray-800 flex h-screen overflow-hidden bg-brand-bg relative transition-colors duration-300">
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-50 flex flex-col items-center justify-center transition-opacity duration-500 p-4">
-        <div class="w-full max-w-[360px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-full">
+    <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-600/30 backdrop-blur-sm flex items-center justify-center transition-opacity duration-500 p-4">
+        <div class="w-full max-w-[360px] bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col border border-gray-100">
             
-            <div class="bg-brand-dark p-6 text-center text-white relative transition-colors duration-300 shrink-0">
-                <div class="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-3 shadow-lg p-1 relative z-10">
-                    <div class="w-full h-full rounded-xl border-2 border-yellow-500 flex items-center justify-center bg-yellow-50 overflow-hidden">
-                        <img id="login-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" onerror="this.style.display='none'" class="object-cover w-full h-full p-1">
+            <!-- Header ส่วนสีเขียวหลัก -->
+            <div class="bg-brand-dark px-6 pt-7 pb-6 text-center text-white relative transition-colors duration-300 shrink-0">
+                <div class="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-3 shadow-md p-1 relative z-10">
+                    <div class="w-full h-full rounded-xl border-2 border-yellow-400 flex items-center justify-center bg-white overflow-hidden">
+                        <img id="login-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" onerror="this.style.display='none'" class="object-contain w-full h-full p-1">
                     </div>
                 </div>
-                <h1 class="text-lg font-bold relative z-10" id="login-school-name">โรงเรียนบ้านซับก้านเหลือง</h1>
-                <p class="text-xs text-white/80 mt-1 relative z-10">ปีการศึกษา <span id="login-year">2569</span> ภาคเรียนที่ <span id="login-semester">2</span></p>
+                <h1 class="text-xl font-bold tracking-tight text-white relative z-10" id="login-school-name">โรงเรียนบ้านซับก้านเหลือง</h1>
+                <p class="text-xs text-white/90 mt-1 font-medium relative z-10">ปีการศึกษา <span id="login-year">2569</span> ภาคเรียนที่ <span id="login-semester">2</span></p>
             </div>
             
-            <div id="login-step-1" class="p-6 flex-1 flex flex-col animate-fade-in bg-white overflow-y-auto">
-                <div class="flex-1 flex flex-col justify-center min-h-[280px]">
-                    <p class="text-center text-gray-500 mb-4 font-bold text-sm">กรอกรหัส PIN 6 หลักเพื่อเข้าสู่ระบบ</p>
-                    <div class="flex justify-center gap-3 mb-6" id="pin-indicator">
+            <!-- Step 1: ใส่ PIN -->
+            <div id="login-step-1" class="p-6 flex-1 flex flex-col items-center bg-white">
+                <div class="w-full flex flex-col items-center justify-center my-2">
+                    <!-- จุด PIN 6 จุด -->
+                    <div class="flex justify-center gap-2.5 mb-6" id="pin-indicator">
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     </div>
-                    <div class="grid grid-cols-3 gap-3 max-w-[260px] w-full mx-auto px-2">
-                        <button onclick="enterPin(1)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">1</button>
-                        <button onclick="enterPin(2)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">2</button>
-                        <button onclick="enterPin(3)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">3</button>
-                        <button onclick="enterPin(4)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">4</button>
-                        <button onclick="enterPin(5)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">5</button>
-                        <button onclick="enterPin(6)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">6</button>
-                        <button onclick="enterPin(7)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">7</button>
-                        <button onclick="enterPin(8)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">8</button>
-                        <button onclick="enterPin(9)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">9</button>
-                        <button onclick="clearPin()" class="aspect-square rounded-2xl bg-white text-transparent pointer-events-none cursor-default"></button>
-                        <button onclick="enterPin(0)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">0</button>
-                        <button onclick="deletePin()" class="aspect-square rounded-2xl bg-white text-[#0F3642] hover:bg-gray-100 text-2xl"><i class="fa-solid fa-delete-left"></i></button>
+                    
+                    <!-- ปุ่มตัวเลข 3x4 -->
+                    <div class="grid grid-cols-3 gap-3 w-full max-w-[270px] mx-auto">
+                        <button onclick="enterPin(1)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">1</button>
+                        <button onclick="enterPin(2)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">2</button>
+                        <button onclick="enterPin(3)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">3</button>
+                        <button onclick="enterPin(4)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">4</button>
+                        <button onclick="enterPin(5)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">5</button>
+                        <button onclick="enterPin(6)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">6</button>
+                        <button onclick="enterPin(7)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">7</button>
+                        <button onclick="enterPin(8)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">8</button>
+                        <button onclick="enterPin(9)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">9</button>
+                        <div class="aspect-square"></div>
+                        <button onclick="enterPin(0)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642] shadow-sm transition-all active:scale-95">0</button>
+                        <button onclick="deletePin()" class="aspect-square rounded-2xl bg-[#0F3642] text-white hover:bg-[#0F3642]/80 text-lg flex items-center justify-center shadow-md transition-all active:scale-95"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                 </div>
 
-                <div class="w-full text-center mt-4 pt-4 pb-1 shrink-0">
-                    <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-1 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
+                <!-- Footer ท้ายการ์ด -->
+                <div class="w-full text-center mt-5 pt-1 pb-1 shrink-0">
+                    <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-0.5 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
                     <p class="text-[8px] text-gray-400/80 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
                 </div>
             </div>
             
+            <!-- Step 2: เลือกผู้ใช้งาน -->
             <div id="login-step-2" class="p-6 flex-1 flex flex-col justify-start hidden animate-fade-in bg-white overflow-y-auto">
                 <h2 class="text-center text-lg font-bold text-gray-800 mb-2">เลือกผู้บันทึกข้อมูล</h2>
                 <p class="text-center text-sm text-gray-500 mb-6">กรุณาระบุตัวตนของท่านสำหรับการบันทึกข้อมูล</p>
