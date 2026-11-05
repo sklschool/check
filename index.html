@@ -77,54 +77,48 @@
 <body class="text-gray-800 flex h-screen overflow-hidden bg-brand-bg relative transition-colors duration-300">
 
     <!-- LOGIN OVERLAY -->
-    <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-900/40 backdrop-blur-md flex items-center justify-center transition-all duration-500 p-4">
-        <div class="w-full max-w-[360px] bg-white rounded-[32px] shadow-2xl overflow-hidden flex flex-col border border-white/20 transform transition-all duration-300 scale-100">
+    <div id="login-overlay" class="fixed inset-0 z-[100] bg-gray-50 flex flex-col items-center justify-center transition-opacity duration-500 p-4">
+        <div class="w-full max-w-[360px] bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-full">
             
-            <!-- Header ส่วนสีเขียวหลัก -->
-            <div class="bg-brand-dark px-6 pt-7 pb-6 text-center text-white relative transition-colors duration-300 shrink-0">
-                <div class="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-3 shadow-md p-1 relative z-10">
-                    <div class="w-full h-full rounded-xl border-2 border-yellow-400 flex items-center justify-center bg-white overflow-hidden">
-                        <img id="login-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" onerror="this.style.display='none'" class="object-contain w-full h-full p-1">
+            <div class="bg-brand-dark p-6 text-center text-white relative transition-colors duration-300 shrink-0">
+                <div class="w-16 h-16 mx-auto bg-white rounded-2xl flex items-center justify-center mb-3 shadow-lg p-1 relative z-10">
+                    <div class="w-full h-full rounded-xl border-2 border-yellow-500 flex items-center justify-center bg-yellow-50 overflow-hidden">
+                        <img id="login-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" onerror="this.style.display='none'" class="object-cover w-full h-full p-1">
                     </div>
                 </div>
-                <h1 class="text-xl font-bold tracking-tight text-white relative z-10" id="login-school-name">โรงเรียนบ้านซับก้านเหลือง</h1>
-                <p class="text-xs text-white/90 mt-1 font-medium relative z-10">ปีการศึกษา <span id="login-year">2569</span> ภาคเรียนที่ <span id="login-semester">2</span></p>
+                <h1 class="text-lg font-bold relative z-10" id="login-school-name">โรงเรียนบ้านซับก้านเหลือง</h1>
+                <p class="text-xs text-white/80 mt-1 relative z-10">ปีการศึกษา <span id="login-year">2569</span> ภาคเรียนที่ <span id="login-semester">2</span></p>
             </div>
             
-            <!-- Step 1: ใส่ PIN -->
-            <div id="login-step-1" class="p-6 flex-1 flex flex-col items-center bg-white">
-                <div class="w-full flex flex-col items-center justify-center my-2">
-                    <!-- จุด PIN 6 จุด -->
-                    <div class="flex justify-center gap-2.5 mb-6" id="pin-indicator">
+            <div id="login-step-1" class="p-6 flex-1 flex flex-col animate-fade-in bg-white overflow-y-auto">
+                <div class="flex-1 flex flex-col justify-center min-h-[280px]">
+                    <p class="text-center text-gray-500 mb-4 font-bold text-sm">กรอกรหัส PIN 6 หลักเพื่อเข้าสู่ระบบ</p>
+                    <div class="flex justify-center gap-3 mb-6" id="pin-indicator">
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                         <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
                     </div>
-                    
-                    <!-- ปุ่มตัวเลข 3x4 -->
-                    <div class="grid grid-cols-3 gap-3 w-full max-w-[270px] mx-auto">
-                        <button onclick="enterPin(1)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">1</button>
-                        <button onclick="enterPin(2)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">2</button>
-                        <button onclick="enterPin(3)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">3</button>
-                        <button onclick="enterPin(4)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">4</button>
-                        <button onclick="enterPin(5)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">5</button>
-                        <button onclick="enterPin(6)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">6</button>
-                        <button onclick="enterPin(7)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">7</button>
-                        <button onclick="enterPin(8)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">8</button>
-                        <button onclick="enterPin(9)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">9</button>
-                        <div class="aspect-square"></div>
-                        <button onclick="enterPin(0)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-100 text-[#0F3642] shadow-sm transition-all active:scale-95">0</button>
-                        <button onclick="deletePin()" class="aspect-square rounded-2xl bg-[#0F3642] text-white hover:bg-[#0F3642]/90 text-lg flex items-center justify-center shadow-md transition-all active:scale-95"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="grid grid-cols-3 gap-3 max-w-[260px] w-full mx-auto px-2">
+                        <button onclick="enterPin(1)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">1</button>
+                        <button onclick="enterPin(2)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">2</button>
+                        <button onclick="enterPin(3)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">3</button>
+                        <button onclick="enterPin(4)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">4</button>
+                        <button onclick="enterPin(5)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">5</button>
+                        <button onclick="enterPin(6)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">6</button>
+                        <button onclick="enterPin(7)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">7</button>
+                        <button onclick="enterPin(8)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">8</button>
+                        <button onclick="enterPin(9)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">9</button>
+                        <button onclick="clearPin()" class="aspect-square rounded-2xl bg-white text-transparent pointer-events-none cursor-default"></button>
+                        <button onclick="enterPin(0)" class="aspect-square rounded-2xl bg-gray-50 border border-gray-100 text-2xl font-bold hover:bg-gray-200 text-[#0F3642]">0</button>
+                        <button onclick="deletePin()" class="aspect-square rounded-2xl bg-white text-[#0F3642] hover:bg-gray-100 text-2xl"><i class="fa-solid fa-delete-left"></i></button>
                     </div>
                 </div>
 
-                <!-- Footer ท้ายการ์ด -->
-                <div class="w-full text-center mt-5 pt-1 pb-1 shrink-0">
-                    <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-0.5 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
+                <div class="w-full text-center mt-4 pt-4 pb-1 shrink-0">
+                    <p class="text-[9px] font-bold text-gray-400 tracking-wider mb-1 whitespace-nowrap">- INNOVATE &bull; EDUCATE &bull; DIGITAL TECHNOLOGY &bull; TEACHER -</p>
                     <p class="text-[8px] text-gray-400/80 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
                 </div>
             </div>
             
-            <!-- Step 2: เลือกผู้ใช้งาน -->
             <div id="login-step-2" class="p-6 flex-1 flex flex-col justify-start hidden animate-fade-in bg-white overflow-y-auto">
                 <h2 class="text-center text-lg font-bold text-gray-800 mb-2">เลือกผู้บันทึกข้อมูล</h2>
                 <p class="text-center text-sm text-gray-500 mb-6">กรุณาระบุตัวตนของท่านสำหรับการบันทึกข้อมูล</p>
@@ -387,7 +381,6 @@
                                 <button onclick="document.getElementById('import-csv-file').click()" class="px-4 py-2 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition-colors"><i class="fa-solid fa-file-import mr-1"></i> นำเข้าไฟล์ (CSV)</button>
                                 <input type="file" id="import-csv-file" class="hidden" accept=".csv" onchange="importStudentCSV(event)">
                                 <button onclick="showAddStudentModal()" class="px-4 py-2 bg-brand-dark text-white rounded-xl text-sm font-medium hover:bg-brand-light transition-colors"><i class="fa-solid fa-plus mr-1"></i> เพิ่มนักเรียน</button>
-                                <button onclick="deleteAllStudents()" class="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-xl text-sm font-medium hover:bg-red-600 hover:text-white transition-colors"><i class="fa-solid fa-trash-can mr-1"></i> ลบนักเรียนทั้งหมด</button>
                             </div>
                         </div>
                         <div class="flex gap-4 mb-4">
@@ -1015,85 +1008,71 @@
                 const { data: students, error } = await query;
                 if (error) throw error;
 
-                listDiv.innerHTML = '';
                 if(students.length === 0) {
                     listDiv.innerHTML = '<div class="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</div>'; return;
                 }
 
-                let currentClassRendered = '';
-                let classMaleCount = 0;
-                let classFemaleCount = 0;
+                // จัดกลุ่มนักเรียนตามชั้นเรียน
+                const groupedStudents = {};
+                students.forEach(s => {
+                    if (!groupedStudents[s.class_name]) groupedStudents[s.class_name] = [];
+                    groupedStudents[s.class_name].push(s);
+                });
 
-                // ฟังก์ชันช่วยสร้างการ์ดสรุปยอด ชาย / หญิง / รวม
-                const renderClassSummaryCard = (cName, male, female) => {
-                    const total = male + female;
-                    return `
-                    <div class="bg-white/80 backdrop-blur border-2 border-dashed border-brand-dark/20 p-4 rounded-2xl shadow-sm my-4 flex flex-col md:flex-row items-center justify-between gap-3 text-brand-dark">
-                        <div class="flex items-center gap-2 font-bold text-sm md:text-base">
-                            <i class="fa-solid fa-users text-brand-dark"></i>
-                            <span>สรุปจำนวนนักเรียน${cName ? ' (' + cName + ')' : ''}</span>
-                        </div>
-                        <div class="flex items-center gap-4 text-xs md:text-sm font-medium">
-                            <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-100"><i class="fa-solid fa-mars mr-1"></i>ชาย: <b>${male}</b> คน</span>
-                            <span class="px-3 py-1 bg-pink-50 text-pink-700 rounded-lg border border-pink-100"><i class="fa-solid fa-venus mr-1"></i>หญิง: <b>${female}</b> คน</span>
-                            <span class="px-3 py-1 bg-brand-dark text-white rounded-lg shadow-sm font-bold"><i class="fa-solid fa-user-check mr-1"></i>รวม: <b>${total}</b> คน</span>
-                        </div>
-                    </div>`;
-                };
+                let finalHtml = '';
 
-                students.forEach((s, index) => {
-                    // กรณีเลือกดูรวมทุกห้อง ให้แทรกการ์ดสรุปของห้องก่อนหน้าเมื่อเปลี่ยนชั้นเรียน
-                    if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
-                        if (currentClassRendered !== '') {
-                            listDiv.insertAdjacentHTML('beforeend', renderClassSummaryCard(currentClassRendered, classMaleCount, classFemaleCount));
-                            classMaleCount = 0;
-                            classFemaleCount = 0;
-                        }
-
-                        currentClassRendered = s.class_name;
-                        listDiv.insertAdjacentHTML('beforeend', `
+                for (const [cls, stuList] of Object.entries(groupedStudents)) {
+                    if (className === 'ทั้งหมด') {
+                        finalHtml += `
                             <div class="flex items-center gap-4 mt-8 mb-4">
                                 <div class="h-[2px] bg-gray-200 flex-1 rounded-full"></div>
                                 <span class="bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-bold shadow-md tracking-wide" style="background: linear-gradient(135deg, var(--color-brand-light) 0%, var(--color-brand-dark) 100%); border: 2px solid white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
-                                    <i class="fa-solid fa-chalkboard-user mr-2"></i>${currentClassRendered}
+                                    <i class="fa-solid fa-chalkboard-user mr-2"></i>${cls}
                                 </span>
                                 <div class="h-[2px] bg-gray-200 flex-1 rounded-full"></div>
                             </div>
-                        `);
+                        `;
                     }
 
-                    // นับจำนวน ชาย / หญิง
-                    if (s.gender === 'M' || (s.name && s.name.includes('เด็กชาย')) || (s.name && s.name.includes('นาย'))) {
-                        classMaleCount++;
-                    } else {
-                        classFemaleCount++;
-                    }
+                    stuList.forEach(s => {
+                        let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
+                        finalHtml += `
+                        <div class="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center gap-3 relative overflow-hidden group hover:border-gray-300 transition-colors mb-3">
+                            <div class="flex items-center gap-3 w-full md:w-1/3">
+                                <div class="w-8 h-8 rounded-full ${prefixColor} flex items-center justify-center font-bold text-sm shrink-0">${s.student_number}</div>
+                                <div class="font-medium text-gray-800 text-sm truncate w-full">${s.name}</div>
+                                ${className !== 'ทั้งหมด' ? `<div class="text-[10px] text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full hidden md:block whitespace-nowrap">${s.class_name}</div>` : ''}
+                                <input type="hidden" class="student-hidden-class" value="${s.class_name}">
+                            </div>
+                            <div class="flex flex-wrap md:flex-nowrap gap-1.5 w-full md:w-2/3 justify-between">
+                                ${createRadioBtn(s.student_code, 'มาเรียน', 'present', true)}
+                                ${createRadioBtn(s.student_code, 'ลาป่วย', 'sick', false)}
+                                ${createRadioBtn(s.student_code, 'ลากิจ', 'leave', false)}
+                                ${createRadioBtn(s.student_code, 'มาสาย', 'late', false)}
+                                ${createRadioBtn(s.student_code, 'ขาด', 'absent', false)}
+                            </div>
+                        </div>`;
+                    });
 
-                    let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
-                    let rowHtml = `
-                    <div class="bg-white p-3 md:p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center gap-3 relative overflow-hidden group hover:border-gray-300 transition-colors">
-                        <div class="flex items-center gap-3 w-full md:w-1/3">
-                            <div class="w-8 h-8 rounded-full ${prefixColor} flex items-center justify-center font-bold text-sm shrink-0">${s.student_number}</div>
-                            <div class="font-medium text-gray-800 text-sm truncate w-full">${s.name}</div>
-                            ${className !== 'ทั้งหมด' ? `<div class="text-[10px] text-gray-400 border border-gray-200 px-2 py-0.5 rounded-full hidden md:block whitespace-nowrap">${s.class_name}</div>` : ''}
-                            <input type="hidden" class="student-hidden-class" value="${s.class_name}">
-                        </div>
-                        <div class="flex flex-wrap md:flex-nowrap gap-1.5 w-full md:w-2/3 justify-between">
-                            ${createRadioBtn(s.student_code, 'มาเรียน', 'present', true)}
-                            ${createRadioBtn(s.student_code, 'ลาป่วย', 'sick', false)}
-                            ${createRadioBtn(s.student_code, 'ลากิจ', 'leave', false)}
-                            ${createRadioBtn(s.student_code, 'มาสาย', 'late', false)}
-                            ${createRadioBtn(s.student_code, 'ขาด', 'absent', false)}
+                    // คำนวณสรุปจำนวนนักเรียน
+                    let mCount = stuList.filter(s => s.gender !== 'F').length;
+                    let fCount = stuList.filter(s => s.gender === 'F').length;
+                    
+                    finalHtml += `
+                    <div class="bg-gray-100/80 p-4 rounded-2xl border border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm font-bold text-gray-700 shadow-sm mt-2 mb-6">
+                        <div class="mb-3 md:mb-0 text-brand-dark"><i class="fa-solid fa-users mr-2"></i>สรุปยอดนักเรียนชั้น ${cls}</div>
+                        <div class="flex gap-3 md:gap-4 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 w-full md:w-auto justify-center">
+                            <span class="text-blue-600 flex items-center"><i class="fa-solid fa-person text-lg mr-1"></i> ชาย: ${mCount}</span>
+                            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+                            <span class="text-pink-600 flex items-center"><i class="fa-solid fa-person-dress text-lg mr-1"></i> หญิง: ${fCount}</span>
+                            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+                            <span class="text-brand-dark flex items-center px-2 bg-brand-dark/10 rounded-lg">รวม: ${stuList.length}</span>
                         </div>
                     </div>`;
-                    listDiv.insertAdjacentHTML('beforeend', rowHtml);
+                }
 
-                    // หากเป็นคนสุดท้าย แสดงการ์ดสรุปยอดต่อท้ายทันที
-                    if (index === students.length - 1) {
-                        const labelName = className === 'ทั้งหมด' ? currentClassRendered : className;
-                        listDiv.insertAdjacentHTML('beforeend', renderClassSummaryCard(labelName, classMaleCount, classFemaleCount));
-                    }
-                });
+                listDiv.innerHTML = finalHtml;
+
             } catch (err) {
                 listDiv.innerHTML = `<div class="text-center py-10 text-red-500">ดึงข้อมูลล้มเหลว: ${err.message}</div>`;
             }
@@ -1594,28 +1573,19 @@
                 showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark,
                 preConfirm: () => {
                     const number = document.getElementById('add-s-num').value;
-                    const code = document.getElementById('add-s-code').value ? document.getElementById('add-s-code').value.trim() : '';
-                    const name = document.getElementById('add-s-name').value ? document.getElementById('add-s-name').value.trim() : '';
-                    if(!number || !code || !name) { Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน'); return false; }
-                    return { student_number: parseInt(number), student_code: code, name: name, class_name: document.getElementById('add-s-class').value, gender: document.getElementById('add-s-gender').value };
+                    const code = document.getElementById('add-s-code').value;
+                    const name = document.getElementById('add-s-name').value;
+                    if(!number || !code || !name) { Swal.showValidationMessage('กรุณากรอกให้ครบ'); return false; }
+                    return { student_number: number, student_code: code, name: name, class_name: document.getElementById('add-s-class').value, gender: document.getElementById('add-s-gender').value };
                 }
             }).then(async (result) => {
                 if(result.isConfirmed) {
-                    Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
-                        // ใช้ upsert เพื่ออัปเดตข้อมูลหากมีรหัสประจำตัวเดิม หรือเพิ่มใหม่หากยังไม่มี
-                        const { error } = await supabaseClient.from('students').upsert(result.value, { onConflict: 'student_code' });
-                        if (error) {
-                            if (error.code === '23505') {
-                                throw new Error(`รหัสประจำตัวนักเรียน "${result.value.student_code}" มีในระบบอยู่แล้ว กรุณาตรวจสอบรหัสซ้ำ`);
-                            }
-                            throw error;
-                        }
+                        const { error } = await supabaseClient.from('students').insert(result.value);
+                        if (error) throw error;
                         renderManageStudentsTable(); 
-                        Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลนักเรียนเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-                    } catch(err) { 
-                        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error'); 
-                    }
+                        Swal.fire('สำเร็จ', '', 'success');
+                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
                 }
             });
         }
@@ -1627,47 +1597,6 @@
                         if (error) throw error;
                         renderManageStudentsTable(); 
                     } catch(err) {}
-                }
-            });
-        }
-        function deleteAllStudents() {
-            const classFilter = document.getElementById('manage-class-filter').value;
-            const targetText = classFilter === 'ทั้งหมด' ? 'ทั้งหมดทุกชั้นเรียน' : `เฉพาะชั้น ${classFilter}`;
-            
-            Swal.fire({
-                title: 'ยืนยันการลบนักเรียนทั้งหมด?',
-                text: `คุณกำลังจะลบข้อมูลนักเรียน ${targetText} การกระทำนี้ไม่สามารถย้อนกลับได้!`,
-                icon: 'warning',
-                input: 'text',
-                inputPlaceholder: 'พิมพ์ DELETE เพื่อยืนยัน',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                confirmButtonText: 'ลบข้อมูลทั้งหมด',
-                cancelButtonText: 'ยกเลิก',
-                preConfirm: (inputValue) => {
-                    if (inputValue !== 'DELETE') {
-                        Swal.showValidationMessage('กรุณาพิมพ์คำว่า DELETE ให้ถูกต้อง');
-                        return false;
-                    }
-                }
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({ title: 'กำลังลบข้อมูลนักเรียน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                    try {
-                        let query = supabaseClient.from('students').delete();
-                        if (classFilter !== 'ทั้งหมด') {
-                            query = query.eq('class_name', classFilter);
-                        } else {
-                            query = query.neq('student_code', ''); // ลบทั้งหมด
-                        }
-                        const { error } = await query;
-                        if (error) throw error;
-                        
-                        renderManageStudentsTable();
-                        Swal.fire({ icon: 'success', title: 'ลบข้อมูลเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false });
-                    } catch (err) {
-                        Swal.fire('เกิดข้อผิดพลาด', err.message, 'error');
-                    }
                 }
             });
         }
