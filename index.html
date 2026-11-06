@@ -313,15 +313,12 @@
                     </div>
 
                     <div id="health-list-container" class="hidden pb-12 print-hide">
-                        <!-- ตารางกรอกน้ำหนักส่วนสูง (เอาช่องอายุและเพศออกตาม Request) -->
                         <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white mb-6">
                             <table class="w-full text-sm text-left border-collapse">
                                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
                                     <tr>
                                         <th class="px-2 py-4 text-center w-16">เลขที่</th>
                                         <th class="px-4 py-4 text-left">ชื่อ - นามสกุล</th>
-                                        <th class="px-2 py-4 text-center w-16">เพศ</th>
-                                        <th class="px-2 py-4 text-center w-16">อายุ</th>
                                         <th class="px-2 py-4 text-center w-28">น้ำหนัก (กก.)</th>
                                         <th class="px-2 py-4 text-center w-28">ส่วนสูง (ซม.)</th>
                                         <th class="px-2 py-4 text-center w-20">BMI</th>
@@ -368,8 +365,6 @@
                                             <th class="py-3 px-2 text-center w-20 border print:border-black">รหัสประจำตัว</th>
                                             <th class="py-3 px-4 text-center border print:border-black">ชื่อ - นามสกุล</th>
                                             <th class="py-3 px-2 text-center w-24 border print:border-black">ชั้นเรียน</th>
-                                            <th class="py-3 px-2 text-center w-12 border print:border-black">เพศ</th>
-                                            <th class="py-3 px-2 text-center w-16 border print:border-black">อายุ(ปี)</th>
                                             <th class="py-3 px-2 text-center w-24 border print:border-black">น้ำหนัก(กก.)</th>
                                             <th class="py-3 px-2 text-center w-24 border print:border-black">ส่วนสูง(ซม.)</th>
                                             <th class="py-3 px-2 text-center w-20 border print:border-black">BMI</th>
@@ -377,7 +372,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="health-report-body" class="divide-y divide-gray-100 bg-white print:divide-black">
-                                        <tr><td colspan="10" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
+                                        <tr><td colspan="8" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1354,15 +1349,22 @@
             
             document.getElementById('health-report-container').classList.remove('hidden');
             const tbody = document.getElementById('health-report-body');
-            tbody.innerHTML = '<tr><td colspan="10" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
 
             let dateText = '';
+            let startDate = '';
+            let endDate = '';
+
             if (isDaily) {
                 const d = new Date(recordDate);
                 dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
             } else {
                 const [y, m] = monthVal.split('-');
                 dateText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
+                startDate = `${monthVal}-01`;
+                // หาวันสุดท้ายของเดือน
+                const lastDay = new Date(y, m, 0).getDate();
+                endDate = `${monthVal}-${lastDay}`;
             }
             
             document.getElementById('print-health-doc-date').innerText = `ประจำ${dateText}`;
@@ -1377,14 +1379,14 @@
                 if (stuErr) throw stuErr;
 
                 if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
+                    tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
                     document.getElementById('health-summary-badges').innerHTML = '';
                     return;
                 }
 
                 let healthQuery = supabaseClient.from('health_records').select('*');
                 if (isDaily) healthQuery = healthQuery.eq('record_date', recordDate);
-                else healthQuery = healthQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
+                else healthQuery = healthQuery.gte('record_date', startDate).lte('record_date', endDate).order('record_date', { ascending: false });
                 
                 if (className !== 'ทั้งหมด') healthQuery = healthQuery.eq('class_name', className);
                 const { data: records, error: hlthErr } = await healthQuery;
@@ -1392,6 +1394,7 @@
                 let healthMap = {};
                 if(records) {
                     records.forEach(r => {
+                        // เก็บเรคคอร์ดล่าสุดของเดือนนั้นๆ สำหรับนักเรียนแต่ละคน
                         if (!healthMap[r.student_code]) healthMap[r.student_code] = r;
                     });
                 }
@@ -1402,10 +1405,6 @@
                 students.forEach(s => {
                     let rec = healthMap[s.student_code];
                     let hasRec = !!rec;
-                    
-                    let g = s.gender === 'M' ? 'ชาย' : 'หญิง';
-                    // ถ้าในตาราง health_records บันทึกอายุไว้ก็ใช้ค่านั้น ถ้ายังไม่มีให้คำนวณจากข้อมูลนักเรียน
-                    let a = hasRec && rec.age ? rec.age : calculateAge(s.birth_date); 
                     
                     let w = hasRec && rec.weight ? rec.weight : '-';
                     let h = hasRec && rec.height ? rec.height : '-';
@@ -1427,8 +1426,6 @@
                         <td class="py-3 px-2 text-center font-mono text-gray-500 border print:border-black print:text-black">${s.student_code}</td>
                         <td class="py-3 px-4 text-left font-medium text-gray-800 border print:border-black print:text-black">${s.name}</td>
                         <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${s.class_name}</td>
-                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${g}</td>
-                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${a}</td>
                         <td class="py-3 px-2 text-center font-bold text-gray-700 border print:border-black print:text-black">${w}</td>
                         <td class="py-3 px-2 text-center font-bold text-gray-700 border print:border-black print:text-black">${h}</td>
                         <td class="py-3 px-2 text-center font-bold text-brand-dark border print:border-black print:text-black">${bmi}</td>
@@ -1445,7 +1442,7 @@
                     <div class="px-3 py-1.5 bg-white text-orange-600 rounded-lg text-xs md:text-sm font-medium border border-orange-200 shadow-sm">อ้วน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.fat}</span></div>
                     <div class="px-3 py-1.5 bg-white text-red-600 rounded-lg text-xs md:text-sm font-medium border border-red-200 shadow-sm">อ้วนมาก: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.very_fat}</span></div>
                 `;
-            } catch (err) { tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
         function exportHealthExcel() {
@@ -1470,7 +1467,7 @@
             const recordDate = document.getElementById('health-date').value;
             document.getElementById('health-list-container').classList.remove('hidden');
             const tbody = document.getElementById('health-list-body');
-            tbody.innerHTML = '<tr><td colspan="8" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
 
             try {
                 let query = supabaseClient.from('students').select('*')
@@ -1481,7 +1478,7 @@
                 if (stuErr) throw stuErr;
 
                 if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
+                    tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
                     return;
                 }
 
@@ -1498,14 +1495,13 @@
                 students.forEach(s => {
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
                         currentClassRendered = s.class_name;
-                        html += `<tr class="bg-brand-dark/5 border-y border-gray-200"><td colspan="8" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td></tr>`;
+                        html += `<tr class="bg-brand-dark/5 border-y border-gray-200"><td colspan="6" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td></tr>`;
                     }
 
                     let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
                     let rec = healthMap[s.student_code] || { weight: '', height: '', bmi: '', bmi_label: '' };
                     
                     let age = calculateAge(s.birth_date);
-                    let genderText = s.gender === 'F' ? 'หญิง' : 'ชาย';
 
                     let badgeHtml = '<span class="text-gray-300">-</span>';
                     if (rec.bmi_label) {
@@ -1530,8 +1526,6 @@
                             <input type="hidden" class="h-stu-a" id="a_val_${s.student_code}" value="${age !== '-' ? age : ''}">
                         </td>
                         <td class="px-4 py-3 font-medium text-gray-800 text-sm whitespace-nowrap">${s.name}</td>
-                        <td class="px-2 py-3 text-center text-sm text-gray-600">${genderText}</td>
-                        <td class="px-2 py-3 text-center text-sm text-gray-600">${age}</td>
                         <td class="px-2 py-3 text-center">
                             <input type="number" id="w_${s.student_code}" value="${rec.weight}" step="0.1" min="0" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[70px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="กก.">
                         </td>
@@ -1546,7 +1540,7 @@
                 });
 
                 tbody.innerHTML = html;
-            } catch (err) { tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="6" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
         function calcBMI(code) {
@@ -1785,12 +1779,18 @@
             tbody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
 
             let dateText = '';
+            let startDate = '';
+            let endDate = '';
+
             if (isDaily) {
                 const d = new Date(recordDate);
                 dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
             } else {
                 const [y, m] = monthVal.split('-');
                 dateText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
+                startDate = `${monthVal}-01`;
+                const lastDay = new Date(y, m, 0).getDate();
+                endDate = `${monthVal}-${lastDay}`;
             }
             document.getElementById('print-hygiene-doc-date').innerText = `ประจำ${dateText}`;
             document.getElementById('print-hygiene-doc-class').innerText = `ชั้นเรียน: ${className}`;
@@ -1809,12 +1809,13 @@
 
                 let hygQuery = supabaseClient.from('hygiene_records').select('*');
                 if (isDaily) hygQuery = hygQuery.eq('record_date', recordDate);
-                else hygQuery = hygQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
+                else hygQuery = hygQuery.gte('record_date', startDate).lte('record_date', endDate).order('record_date', { ascending: false });
                 
                 if (className !== 'ทั้งหมด') hygQuery = hygQuery.eq('class_name', className);
                 const { data: records, error: hygErr } = await hygQuery;
                 
                 let hygMap = {};
+                // เก็บเรคคอร์ดล่าสุดของเดือนนั้นๆ สำหรับแต่ละนักเรียน
                 if(records) records.forEach(r => { if (!hygMap[r.student_code]) hygMap[r.student_code] = r; });
 
                 let stats = { total: students.length, h_pass:0, h_fail:0, n_pass:0, n_fail:0, t_pass:0, t_fail:0 };
