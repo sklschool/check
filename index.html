@@ -73,7 +73,7 @@
             thead { display: table-header-group !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
-            #tab-stats { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            #tab-health:not(.hidden), #tab-stats:not(.hidden) { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             
             /* บังคับพิมพ์สีพื้นหลัง */
@@ -131,13 +131,6 @@
                     <p class="text-[8px] text-gray-400/80 font-medium">&copy; 2026 BANSUBKANLUENG SCHOOL</p>
                 </div>
             </div>
-            
-            <div id="login-step-2" class="p-6 flex-1 flex flex-col justify-start hidden animate-fade-in bg-white overflow-y-auto">
-                <h2 class="text-center text-lg font-bold text-gray-800 mb-2">เลือกผู้บันทึกข้อมูล</h2>
-                <p class="text-center text-sm text-gray-500 mb-6">กรุณาระบุตัวตนของท่านสำหรับการบันทึกข้อมูล</p>
-                <div class="flex-1 overflow-y-auto max-h-[350px] pr-2 space-y-3" id="teacher-selection-list"></div>
-                <button onclick="logout()" class="mt-6 w-full text-gray-500 hover:text-red-500 font-medium transition-colors text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> ย้อนกลับ (ใส่รหัสใหม่)</button>
-            </div>
         </div>
     </div>
 
@@ -154,6 +147,7 @@
         <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center px-4 py-3 bg-white text-brand-dark rounded-xl font-medium transition-colors shadow-sm"><i class="fa-solid fa-border-all w-8 text-xl"></i> แดชบอร์ด</button>
             <button onclick="switchTab('record')" id="nav-record" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-calendar-check w-8 text-xl"></i> บันทึกเช็คชื่อ</button>
+            <button onclick="switchTab('health')" id="nav-health" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-weight-scale w-8 text-xl"></i> น้ำหนัก/ส่วนสูง</button>
             <button onclick="switchTab('stats')" id="nav-stats" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-file-invoice w-8 text-xl"></i> รายงานสถิติ</button>
             <button onclick="switchTab('manage-students')" id="nav-manage-students" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-users-gear w-8 text-xl"></i> จัดการนักเรียน</button>
             <button onclick="switchTab('manage-classes')" id="nav-manage-classes" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-chalkboard-user w-8 text-xl"></i> จัดการชั้นเรียน</button>
@@ -189,6 +183,7 @@
                         <h3 class="text-sm font-medium text-gray-500 mb-4"><i class="fa-solid fa-bolt text-yellow-500 mr-2"></i>เมนูทางลัด</h3>
                         <div class="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start">
                             <button onclick="switchTab('record')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2DD4BF] to-[#0F766E] text-white flex items-center justify-center text-[26px] shadow-md shadow-teal-500/20 mb-2"><i class="fa-regular fa-pen-to-square"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">บันทึก<br>มาเรียน</span></button>
+                            <button onclick="switchTab('health')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F472B6] to-[#BE185D] text-white flex items-center justify-center text-[24px] shadow-md shadow-pink-500/20 mb-2"><i class="fa-solid fa-weight-scale"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">น้ำหนัก<br>ส่วนสูง</span></button>
                             <button onclick="switchTab('stats')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#6D28D9] text-white flex items-center justify-center text-[24px] shadow-md shadow-purple-500/20 mb-2"><i class="fa-solid fa-file-invoice"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">รายงาน<br>สถิติ</span></button>
                             <button onclick="switchTab('manage-students')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white flex items-center justify-center text-[24px] shadow-md shadow-blue-500/20 mb-2"><i class="fa-solid fa-users-gear"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>นักเรียน</span></button>
                             <button onclick="switchTab('manage-classes')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#10B981] to-[#047857] text-white flex items-center justify-center text-[24px] shadow-md shadow-emerald-500/20 mb-2"><i class="fa-solid fa-chalkboard-user"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>ชั้นเรียน</span></button>
@@ -280,6 +275,131 @@
                             <button onclick="submitAttendance()" class="w-full md:w-[400px] bg-brand-dark text-white px-6 py-4 rounded-xl font-bold shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-lg border-2 border-white">
                                 <i class="fa-solid fa-save text-xl"></i> ยืนยันการบันทึกข้อมูล
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: HEALTH (น้ำหนัก/ส่วนสูง) -->
+                <div id="tab-health" class="hidden animate-fade-in max-w-5xl mx-auto">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 mb-6 shadow-sm border border-gray-100 print-hide">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
+                            <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-weight-scale mr-2"></i>ระบบน้ำหนักและส่วนสูง</h2>
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
+                                <button id="btn-hlth-record" onclick="setHealthMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-hlth-report" onclick="setHealthMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4" id="health-desc">กรอกข้อมูลน้ำหนัก (กิโลกรัม) และส่วนสูง (เซนติเมตร) ระบบจะคำนวณค่า BMI ให้อัตโนมัติ</p>
+                        
+                        <div id="health-report-toggles" class="hidden mb-4 print-hide">
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
+                                <button id="btn-hlth-rep-daily" onclick="setHealthReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
+                                <button id="btn-hlth-rep-monthly" onclick="setHealthReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-4 mb-2">
+                            <div class="flex-1" id="health-date-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">วันที่บันทึก/รายงาน</label>
+                                <input type="date" id="health-date" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1 hidden" id="health-month-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เดือนที่รายงาน</label>
+                                <input type="month" id="health-month" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เลือกชั้นเรียน</label>
+                                <select id="health-class" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark"></select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="fetchHealthData()" class="w-full md:w-auto bg-brand-dark text-white px-6 py-2.5 rounded-xl font-medium hover:bg-brand-light shadow-md transition-all active:scale-95 flex items-center justify-center">
+                                    <i class="fa-solid fa-filter mr-2"></i>ดึงข้อมูล
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="health-list-container" class="hidden pb-12 print-hide">
+                        <!-- ส่วนควบคุมกำหนดอายุทุกคน -->
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 w-full md:w-auto">
+                                <label class="font-bold text-gray-700 text-sm whitespace-nowrap">กำหนดอายุทุกคน (ปี):</label>
+                                <input type="number" id="bulk-age-input" class="w-20 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-center" min="1" step="1">
+                                <button onclick="setBulkAge()" class="bg-brand-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-light transition-colors text-sm shadow-sm whitespace-nowrap">นำไปใช้</button>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                *สามารถแก้ไขอายุรายบุคคลในตารางด้านล่างได้
+                            </div>
+                        </div>
+
+                        <!-- ตารางกรอกน้ำหนักส่วนสูง -->
+                        <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white mb-6">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-2 py-4 text-center w-16">เลขที่</th>
+                                        <th class="px-4 py-4 text-left">ชื่อ - นามสกุล</th>
+                                        <th class="px-2 py-4 text-center w-24">เพศ</th>
+                                        <th class="px-2 py-4 text-center w-24">อายุ (ปี)</th>
+                                        <th class="px-2 py-4 text-center w-28">น้ำหนัก (กก.)</th>
+                                        <th class="px-2 py-4 text-center w-28">ส่วนสูง (ซม.)</th>
+                                        <th class="px-2 py-4 text-center w-20">BMI</th>
+                                        <th class="px-2 py-4 text-center w-24">แปลผล</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="health-list-body" class="divide-y divide-gray-100 bg-white">
+                                    <!-- ข้อมูลนักเรียนจะถูกเพิ่มผ่าน JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="w-full flex justify-center pt-2 pb-8">
+                            <button onclick="saveHealthRecords()" class="w-full md:w-[400px] bg-brand-dark text-white px-6 py-4 rounded-xl font-bold shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-lg border-2 border-white">
+                                <i class="fa-solid fa-save text-xl"></i> บันทึกข้อมูลน้ำหนัก/ส่วนสูง
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- HEALTH REPORT CONTAINER -->
+                    <div id="health-report-container" class="hidden pb-12 relative">
+                        <div class="flex justify-end gap-2 mb-4 print-hide">
+                            <button onclick="exportHealthExcel()" class="px-4 py-2 bg-[#107C41] text-white rounded-xl text-sm font-medium hover:bg-green-700 shadow-sm transition-colors"><i class="fa-solid fa-file-excel mr-1"></i> ดาวน์โหลด Excel</button>
+                            <button onclick="window.print()" class="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 shadow-sm transition-colors"><i class="fa-solid fa-print mr-1"></i> สั่งพิมพ์เอกสาร</button>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 md:p-6 print:border-none print:shadow-none print:p-0">
+                            <!-- Print Header -->
+                            <div class="hidden print:block text-center mb-6 font-print">
+                                <img id="print-logo-health-preview" src="" class="h-20 mx-auto mb-2 grayscale opacity-90 object-contain" alt="ตราโรงเรียน" style="display:none;">
+                                <h1 class="text-2xl font-bold text-black">แบบรายงานน้ำหนัก ส่วนสูง และมวลกาย (BMI)</h1>
+                                <h2 class="text-xl text-black mt-1" id="print-health-doc-school">กำลังโหลด...</h2>
+                                <p class="text-lg text-black mt-2 font-medium" id="print-health-doc-date">ประจำวันที่ ...</p>
+                                <p class="text-lg text-black mt-1 font-medium" id="print-health-doc-class">ชั้นเรียน: ...</p>
+                            </div>
+
+                            <div class="flex flex-wrap justify-center gap-2 mb-6 relative z-10" id="health-summary-badges"></div>
+
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 print:border-none print:shadow-none print:rounded-none">
+                                <table class="w-full text-sm text-left border-collapse font-print" id="report-table-health">
+                                    <thead class="bg-gray-100 text-gray-700 print:bg-transparent print:text-black print:font-bold border-b border-gray-200 print:border-black">
+                                        <tr>
+                                            <th class="py-3 px-2 text-center w-12 border print:border-black">เลขที่</th>
+                                            <th class="py-3 px-2 text-center w-20 border print:border-black">รหัสประจำตัว</th>
+                                            <th class="py-3 px-4 text-center border print:border-black">ชื่อ - นามสกุล</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">ชั้นเรียน</th>
+                                            <th class="py-3 px-2 text-center w-12 border print:border-black">เพศ</th>
+                                            <th class="py-3 px-2 text-center w-16 border print:border-black">อายุ(ปี)</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">น้ำหนัก(กก.)</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">ส่วนสูง(ซม.)</th>
+                                            <th class="py-3 px-2 text-center w-20 border print:border-black">BMI</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">แปลผล</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="health-report-body" class="divide-y divide-gray-100 bg-white print:divide-black">
+                                        <tr><td colspan="10" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -588,6 +708,8 @@
         let myDonutChart = null;
         let myTrendChart = null;
         let currentReportType = 'daily'; 
+        let currentHealthMode = 'record';
+        let currentHealthReportType = 'daily';
 
         let appSettings = {};
         let allClasses = [];
@@ -628,8 +750,24 @@
                 clearPin(); return;
             }
             if (String(pin) === String(systemPin)) {
-                document.getElementById('login-step-1').classList.add('hidden');
-                document.getElementById('login-step-2').classList.remove('hidden');
+                // ตั้งค่าผู้ใช้งานเริ่มต้นเป็น Admin หลังจากกรอกรหัสผ่านถูก
+                currentUser = { name: 'ผู้ดูแลระบบ', role: 'แอดมิน', homeroom_class: null };
+                let shortName = 'ผ';
+                
+                document.getElementById('header-user-name').innerText = currentUser.name;
+                document.getElementById('header-user-role').innerText = currentUser.role;
+                document.getElementById('header-avatar-initial').innerText = shortName;
+                
+                document.getElementById('profile-avatar-large').innerText = shortName;
+                document.getElementById('profile-display-name').innerText = currentUser.name;
+                document.getElementById('profile-display-role').innerText = currentUser.role;
+
+                const overlay = document.getElementById('login-overlay');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => { 
+                    overlay.classList.add('hidden'); 
+                    loadDashboardStats(); 
+                }, 500);
             } else {
                 Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'กรุณาลองใหม่อีกครั้ง' });
                 clearPin();
@@ -661,17 +799,19 @@
 
                 applySettingsToUI();
                 populateDropdowns();
-                renderTeacherSelection();
                 renderSpecialHolidays();
 
                 const d = new Date();
                 const localDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000));
                 const today = localDate.toISOString().split('T')[0];
+                const currentMonth = today.substring(0, 7);
 
                 document.getElementById('dashboard-date').value = today;
                 document.getElementById('record-date').value = today;
+                document.getElementById('health-date').value = today;
+                document.getElementById('health-month').value = currentMonth;
                 document.getElementById('stats-date').value = today;
-                document.getElementById('stats-month').value = today.substring(0, 7);
+                document.getElementById('stats-month').value = currentMonth;
                 updateDashboardDateDisplay();
 
             } catch (err) {
@@ -699,9 +839,10 @@
             document.getElementById('sidebar-school-name').innerText = sNameText;
             
             document.getElementById('print-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
+            document.getElementById('print-health-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('stats-table-school-subtitle').innerText = sNameText;
 
-            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview'].forEach(id => {
+            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview'].forEach(id => {
                 const imgEl = document.getElementById(id);
                 if (imgEl) {
                     imgEl.src = currentLogo;
@@ -747,57 +888,47 @@
             renderSpecialHolidays();
         }
 
+        window.setBulkAge = function() {
+            const bulkAge = document.getElementById('bulk-age-input').value;
+            if (!bulkAge) {
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุอายุที่ต้องการกำหนดให้ทุกคนก่อน' });
+                return;
+            }
+            
+            let updatedCount = 0;
+            const ageInputs = document.querySelectorAll('.health-row input[id^="a_"]');
+            ageInputs.forEach(input => {
+                input.value = bulkAge;
+                const code = input.id.substring(2); 
+                calcBMI(code); 
+                updatedCount++;
+            });
+            
+            if (updatedCount > 0) {
+                Swal.fire({
+                    icon: 'success', 
+                    title: 'กำหนดอายุเรียบร้อย', 
+                    toast: true, 
+                    position: 'top-end', 
+                    showConfirmButton: false, 
+                    timer: 1500
+                });
+            }
+        }
+
         function populateDropdowns() {
             let optionsHtml = '<option value="ทั้งหมด">-- ทุกชั้นเรียน (รวม) --</option>';
             allClasses.forEach(c => { optionsHtml += `<option value="${c}">${c}</option>`; });
             document.getElementById('report-class').innerHTML = optionsHtml;
             document.getElementById('record-class').innerHTML = optionsHtml;
             document.getElementById('manage-class-filter').innerHTML = optionsHtml;
-        }
-
-        function renderTeacherSelection() {
-            const listDiv = document.getElementById('teacher-selection-list');
-            let html = '';
-            if(allTeachers.length === 0) html = '<p class="text-center text-gray-500">ไม่มีรายชื่อบุคลากร (กรุณาใช้รหัสเพื่อเข้าตั้งค่า)</p>';
-            allTeachers.forEach(t => {
-                let initial = t.name.replace('นาย', '').replace('นางสาว', '').replace('นาง', '').replace('ว่าที่ร้อยตรี', '').charAt(0) || '-';
-                let roleBadge = t.role || 'ครูเวรประจำวัน';
-                if(t.homeroom_class) roleBadge += ` (ประจำชั้น ${t.homeroom_class})`;
-                html += `
-                <div onclick="selectTeacher(${t.id})" class="bg-gray-50 border border-gray-200 p-4 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-brand-bg hover:border-brand-dark/30 transition-colors shadow-sm">
-                    <div class="w-12 h-12 rounded-full bg-brand-dark/10 text-brand-dark flex items-center justify-center font-bold text-lg">${initial}</div>
-                    <div class="text-left flex-1"><div class="font-bold text-gray-800 text-sm md:text-base">${t.name}</div><div class="text-[11px] md:text-xs text-gray-500 font-medium">${roleBadge}</div></div>
-                    <i class="fa-solid fa-chevron-right text-gray-300"></i>
-                </div>`;
-            });
-            listDiv.innerHTML = html;
-        }
-
-        function selectTeacher(teacherId) {
-            currentUser = allTeachers.find(t => String(t.id) === String(teacherId));
-            let shortName = currentUser.name.replace('นาย', '').replace('นางสาว', '').replace('นาง', '');
-            
-            document.getElementById('header-user-name').innerText = currentUser.name;
-            document.getElementById('header-user-role').innerText = (currentUser.role || 'ครู') + (currentUser.homeroom_class ? ` (${currentUser.homeroom_class})` : '');
-            document.getElementById('header-avatar-initial').innerText = shortName.charAt(0);
-            
-            document.getElementById('profile-avatar-large').innerText = shortName.charAt(0);
-            document.getElementById('profile-display-name').innerText = currentUser.name;
-            document.getElementById('profile-display-role').innerText = (currentUser.role || 'ครูเวรประจำวัน') + (currentUser.homeroom_class ? ` | ครูประจำชั้น ${currentUser.homeroom_class}` : '');
-
-            const overlay = document.getElementById('login-overlay');
-            overlay.classList.add('opacity-0', 'pointer-events-none');
-            setTimeout(() => { 
-                overlay.classList.add('hidden'); 
-                loadDashboardStats(); 
-            }, 500);
+            document.getElementById('health-class').innerHTML = optionsHtml;
         }
 
         function logout(e) {
             if(e) e.preventDefault();
             clearPin(); currentUser = null;
             document.getElementById('login-step-1').classList.remove('hidden');
-            document.getElementById('login-step-2').classList.add('hidden');
             const overlay = document.getElementById('login-overlay');
             overlay.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
             switchTab('dashboard');
@@ -809,7 +940,7 @@
 
         function switchTab(tabName) {
             if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleMobileMenu();
-            ['dashboard', 'record', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
+            ['dashboard', 'record', 'health', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab}`);
                 if(el) el.classList.add('hidden');
             });
@@ -829,6 +960,10 @@
             if (tabName === 'dashboard') loadDashboardStats();
             if (tabName === 'stats') renderActiveReport();
             if (tabName === 'record') loadStudents();
+            if (tabName === 'health') {
+                document.getElementById('health-list-container').classList.add('hidden');
+                document.getElementById('health-report-container').classList.add('hidden');
+            }
             if (tabName === 'manage-students') { populateDropdowns(); renderManageStudentsTable(); }
             if (tabName === 'manage-classes') renderClassesManage();
             if (tabName === 'manage-teachers') renderTeachersManage();
@@ -1136,6 +1271,385 @@
                 const { error } = await supabaseClient.from('attendance').upsert(resultData, { onConflict: 'record_date, student_code' });
                 if (error) throw error;
                 Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกเช็คชื่อเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark });
+            }
+        }
+
+        // จัดการโหมดของหน้าสุขภาพ (บันทึก/รายงาน)
+        function setHealthMode(mode) {
+            currentHealthMode = mode;
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-hlth-record').className = mode === 'record' ? btnClassA : btnClassB;
+            document.getElementById('btn-hlth-report').className = mode === 'report' ? btnClassA : btnClassB;
+            
+            document.getElementById('health-desc').innerText = mode === 'record' 
+                ? 'กรอกข้อมูลน้ำหนัก (กิโลกรัม) และส่วนสูง (เซนติเมตร) ระบบจะคำนวณค่า BMI ให้อัตโนมัติ'
+                : 'ดูรายงานและส่งออกข้อมูลน้ำหนัก ส่วนสูง และเกณฑ์ BMI ของนักเรียน';
+
+            document.getElementById('health-report-toggles').classList.toggle('hidden', mode === 'record');
+            
+            if (mode === 'record') {
+                document.getElementById('health-date-wrapper').classList.remove('hidden');
+                document.getElementById('health-month-wrapper').classList.add('hidden');
+            } else {
+                setHealthReportType(currentHealthReportType);
+            }
+
+            document.getElementById('health-list-container').classList.add('hidden');
+            document.getElementById('health-report-container').classList.add('hidden');
+        }
+
+        function setHealthReportType(type) {
+            currentHealthReportType = type;
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-hlth-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
+            document.getElementById('btn-hlth-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
+            
+            document.getElementById('health-date-wrapper').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('health-month-wrapper').classList.toggle('hidden', type !== 'monthly');
+            
+            document.getElementById('health-report-container').classList.add('hidden');
+        }
+
+        function fetchHealthData() {
+            if (currentHealthMode === 'record') {
+                loadHealthStudents();
+            } else {
+                loadHealthReport();
+            }
+        }
+
+        async function loadHealthReport() {
+            const className = document.getElementById('health-class').value;
+            const isDaily = currentHealthReportType === 'daily';
+            const recordDate = document.getElementById('health-date').value;
+            const monthVal = document.getElementById('health-month').value;
+            
+            document.getElementById('health-report-container').classList.remove('hidden');
+            const tbody = document.getElementById('health-report-body');
+            tbody.innerHTML = '<tr><td colspan="10" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
+
+            let dateText = '';
+            if (isDaily) {
+                const d = new Date(recordDate);
+                dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+            } else {
+                const [y, m] = monthVal.split('-');
+                dateText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
+            }
+            
+            document.getElementById('print-health-doc-date').innerText = `ประจำ${dateText}`;
+            document.getElementById('print-health-doc-class').innerText = `ชั้นเรียน: ${className}`;
+
+            try {
+                let stuQuery = supabaseClient.from('students').select('*')
+                            .order('class_name', { ascending: true })
+                            .order('student_number', { ascending: true });
+                if (className !== 'ทั้งหมด') stuQuery = stuQuery.eq('class_name', className);
+                const { data: students, error: stuErr } = await stuQuery;
+                if (stuErr) throw stuErr;
+
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="10" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
+                    document.getElementById('health-summary-badges').innerHTML = '';
+                    return;
+                }
+
+                let healthQuery = supabaseClient.from('health_records').select('*');
+                if (isDaily) {
+                    healthQuery = healthQuery.eq('record_date', recordDate);
+                } else {
+                    healthQuery = healthQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
+                }
+                
+                if (className !== 'ทั้งหมด') healthQuery = healthQuery.eq('class_name', className);
+                const { data: records, error: hlthErr } = await healthQuery;
+                
+                let healthMap = {};
+                if(records) {
+                    records.forEach(r => {
+                        // เก็บข้อมูลล่าสุด (เนื่องจากดึงมาแบบเรียงจากวันที่ล่าสุดแล้ว กรณีรายเดือน)
+                        if (!healthMap[r.student_code]) {
+                            healthMap[r.student_code] = r;
+                        }
+                    });
+                }
+
+                let stats = { total: students.length, thin: 0, normal: 0, plump: 0, fat: 0, very_fat: 0 };
+                let html = '';
+
+                students.forEach(s => {
+                    let rec = healthMap[s.student_code];
+                    let hasRec = !!rec;
+                    
+                    let a = hasRec && rec.age ? rec.age : '-';
+                    let w = hasRec && rec.weight ? rec.weight : '-';
+                    let h = hasRec && rec.height ? rec.height : '-';
+                    let bmi = hasRec && rec.bmi ? rec.bmi : '-';
+                    let g = hasRec && rec.gender ? (rec.gender === 'M' ? 'ชาย' : 'หญิง') : (s.gender === 'M' ? 'ชาย' : 'หญิง');
+                    
+                    let labelHtml = '-';
+                    if (hasRec && rec.bmi_label) {
+                        let color = '';
+                        if (rec.bmi_label === 'ผอม') { color = 'text-blue-600 print:text-black'; stats.thin++; }
+                        else if (rec.bmi_label === 'สมส่วน') { color = 'text-green-600 print:text-black'; stats.normal++; }
+                        else if (rec.bmi_label === 'ท้วม') { color = 'text-yellow-600 print:text-black'; stats.plump++; }
+                        else if (rec.bmi_label === 'อ้วน') { color = 'text-orange-600 print:text-black'; stats.fat++; }
+                        else if (rec.bmi_label === 'อ้วนมาก') { color = 'text-red-600 print:text-black'; stats.very_fat++; }
+                        labelHtml = `<span class="font-bold ${color}">${rec.bmi_label}</span>`;
+                    }
+
+                    html += `<tr class="hover:bg-gray-50 group transition-colors">
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${s.student_number}</td>
+                        <td class="py-3 px-2 text-center font-mono text-gray-500 border print:border-black print:text-black">${s.student_code}</td>
+                        <td class="py-3 px-4 text-left font-medium text-gray-800 border print:border-black print:text-black">${s.name}</td>
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${s.class_name}</td>
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${g}</td>
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${a}</td>
+                        <td class="py-3 px-2 text-center font-bold text-gray-700 border print:border-black print:text-black">${w}</td>
+                        <td class="py-3 px-2 text-center font-bold text-gray-700 border print:border-black print:text-black">${h}</td>
+                        <td class="py-3 px-2 text-center font-bold text-brand-dark border print:border-black print:text-black">${bmi}</td>
+                        <td class="py-3 px-2 text-center border print:border-black print:text-black">${labelHtml}</td>
+                    </tr>`;
+                });
+
+                tbody.innerHTML = html;
+
+                document.getElementById('health-summary-badges').innerHTML = `
+                    <div class="px-3 py-1.5 bg-white text-gray-700 rounded-lg text-xs md:text-sm font-medium border border-gray-200 shadow-sm">นักเรียนทั้งหมด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.total}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs md:text-sm font-medium border border-blue-200 shadow-sm">ผอม: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.thin}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-green-600 rounded-lg text-xs md:text-sm font-medium border border-green-200 shadow-sm">สมส่วน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.normal}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-yellow-600 rounded-lg text-xs md:text-sm font-medium border border-yellow-200 shadow-sm">ท้วม: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.plump}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-orange-600 rounded-lg text-xs md:text-sm font-medium border border-orange-200 shadow-sm">อ้วน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.fat}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-red-600 rounded-lg text-xs md:text-sm font-medium border border-red-200 shadow-sm">อ้วนมาก: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.very_fat}</span></div>
+                `;
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`;
+            }
+        }
+
+        function exportHealthExcel() {
+            let table = document.getElementById('report-table-health');
+            let rows = Array.from(table.querySelectorAll('tr'));
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            rows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                csvContent += rowData.join(",") + "\n";
+            });
+            const link = document.createElement("a"); 
+            link.href = encodeURI(csvContent); 
+            const isDaily = currentHealthReportType === 'daily';
+            const d = isDaily ? document.getElementById('health-date').value : document.getElementById('health-month').value;
+            const cls = document.getElementById('health-class').value;
+            link.download = `รายงานน้ำหนักส่วนสูง_${cls}_${d}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        async function loadHealthStudents() {
+            const className = document.getElementById('health-class').value;
+            const recordDate = document.getElementById('health-date').value;
+            document.getElementById('health-list-container').classList.remove('hidden');
+            const tbody = document.getElementById('health-list-body');
+            tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
+
+            try {
+                // ดึงรายชื่อนักเรียน
+                let query = supabaseClient.from('students').select('*')
+                            .order('class_name', { ascending: true })
+                            .order('student_number', { ascending: true });
+                if (className !== 'ทั้งหมด') query = query.eq('class_name', className);
+                const { data: students, error: stuErr } = await query;
+                if (stuErr) throw stuErr;
+
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
+                    return;
+                }
+
+                // ดึงข้อมูลสุขภาพที่มีการบันทึกไว้แล้วในวันนี้ (เพื่อนำมาแสดง)
+                let healthQuery = supabaseClient.from('health_records').select('*').eq('record_date', recordDate);
+                if (className !== 'ทั้งหมด') healthQuery = healthQuery.eq('class_name', className);
+                const { data: existingRecords, error: hlthErr } = await healthQuery;
+                
+                let healthMap = {};
+                if(existingRecords) {
+                    existingRecords.forEach(r => {
+                        healthMap[r.student_code] = r;
+                    });
+                }
+
+                let html = '';
+                let currentClassRendered = '';
+
+                students.forEach(s => {
+                    if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
+                        currentClassRendered = s.class_name;
+                        html += `
+                        <tr class="bg-brand-dark/5 border-y border-gray-200">
+                            <td colspan="8" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td>
+                        </tr>`;
+                    }
+
+                    let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
+                    let rec = healthMap[s.student_code] || { weight: '', height: '', age: '', gender: s.gender || 'M', bmi: '', bmi_label: '' };
+                    
+                    let badgeHtml = '<span class="text-gray-300">-</span>';
+                    if (rec.bmi_label) {
+                        let color = '';
+                        if (rec.bmi < 18.5) color = 'text-blue-500 bg-blue-50 border-blue-200';
+                        else if (rec.bmi < 23) color = 'text-green-600 bg-green-50 border-green-200';
+                        else if (rec.bmi < 25) color = 'text-yellow-600 bg-yellow-50 border-yellow-200';
+                        else if (rec.bmi < 30) color = 'text-orange-500 bg-orange-50 border-orange-200';
+                        else color = 'text-red-600 bg-red-50 border-red-200';
+                        badgeHtml = `<span class="px-3 py-1 rounded-full border text-xs font-bold ${color}">${rec.bmi_label}</span>`;
+                    }
+
+                    let genderSelect = `
+                        <select id="g_${s.student_code}" onchange="calcBMI('${s.student_code}')" class="w-full max-w-[60px] px-1 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-xs bg-white">
+                            <option value="M" ${rec.gender === 'M' ? 'selected' : ''}>ชาย</option>
+                            <option value="F" ${rec.gender === 'F' ? 'selected' : ''}>หญิง</option>
+                        </select>
+                    `;
+
+                    html += `
+                    <tr class="hover:bg-gray-50 health-row">
+                        <td class="px-2 py-3 text-center">
+                            <div class="w-8 h-8 mx-auto rounded-full ${prefixColor} flex items-center justify-center font-bold text-sm shrink-0">${s.student_number}</div>
+                            <input type="hidden" class="h-stu-code" value="${s.student_code}">
+                            <input type="hidden" class="h-stu-name" value="${s.name}">
+                            <input type="hidden" class="h-stu-class" value="${s.class_name}">
+                            <input type="hidden" class="h-stu-num" value="${s.student_number}">
+                        </td>
+                        <td class="px-4 py-3 font-medium text-gray-800 text-sm whitespace-nowrap">${s.name}</td>
+                        <td class="px-2 py-3 text-center">${genderSelect}</td>
+                        <td class="px-2 py-3 text-center">
+                            <input type="number" id="a_${s.student_code}" value="${rec.age || ''}" step="1" min="1" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[60px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="ปี">
+                        </td>
+                        <td class="px-2 py-3 text-center">
+                            <input type="number" id="w_${s.student_code}" value="${rec.weight}" step="0.1" min="0" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[70px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="กก.">
+                        </td>
+                        <td class="px-2 py-3 text-center">
+                            <input type="number" id="h_${s.student_code}" value="${rec.height}" step="0.1" min="0" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[70px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="ซม.">
+                        </td>
+                        <td class="px-2 py-3 text-center font-bold text-gray-600" id="bmi_${s.student_code}">${rec.bmi || '-'}</td>
+                        <td class="px-2 py-3 text-center" id="bmilabel_${s.student_code}">${badgeHtml}</td>
+                        <input type="hidden" id="bmi_val_${s.student_code}" value="${rec.bmi || ''}">
+                        <input type="hidden" id="bmi_label_val_${s.student_code}" value="${rec.bmi_label || ''}">
+                    </tr>`;
+                });
+
+                tbody.innerHTML = html;
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`;
+            }
+        }
+
+        function calcBMI(code) {
+            const aInput = document.getElementById(`a_${code}`).value;
+            const gInput = document.getElementById(`g_${code}`).value;
+            const wInput = document.getElementById(`w_${code}`).value;
+            const hInput = document.getElementById(`h_${code}`).value;
+            const bmiCell = document.getElementById(`bmi_${code}`);
+            const labelCell = document.getElementById(`bmilabel_${code}`);
+            const bmiValInput = document.getElementById(`bmi_val_${code}`);
+            const labelValInput = document.getElementById(`bmi_label_val_${code}`);
+
+            const a = parseInt(aInput);
+            const w = parseFloat(wInput);
+            const h = parseFloat(hInput);
+
+            if (w > 0 && h > 0) {
+                const hm = h / 100;
+                const bmi = (w / (hm * hm)).toFixed(2);
+                bmiCell.innerText = bmi;
+                bmiValInput.value = bmi;
+                
+                let label = '', color = '';
+                
+                // สำหรับเด็ก/วัยรุ่น (อายุ < 19 ปี) เกณฑ์เบื้องต้นจะต่างจากผู้ใหญ่ 
+                if (a && a < 19) {
+                    if (bmi < 15.0) { label = 'ผอม'; color = 'text-blue-500 bg-blue-50 border-blue-200'; }
+                    else if (bmi < 20.0) { label = 'สมส่วน'; color = 'text-green-600 bg-green-50 border-green-200'; }
+                    else if (bmi < 23.0) { label = 'ท้วม'; color = 'text-yellow-600 bg-yellow-50 border-yellow-200'; }
+                    else if (bmi < 25.0) { label = 'อ้วน'; color = 'text-orange-500 bg-orange-50 border-orange-200'; }
+                    else { label = 'อ้วนมาก'; color = 'text-red-600 bg-red-50 border-red-200'; }
+                } else {
+                    // เกณฑ์ผู้ใหญ่มาตรฐาน
+                    if (bmi < 18.5) { label = 'ผอม'; color = 'text-blue-500 bg-blue-50 border-blue-200'; }
+                    else if (bmi < 23) { label = 'สมส่วน'; color = 'text-green-600 bg-green-50 border-green-200'; }
+                    else if (bmi < 25) { label = 'ท้วม'; color = 'text-yellow-600 bg-yellow-50 border-yellow-200'; }
+                    else if (bmi < 30) { label = 'อ้วน'; color = 'text-orange-500 bg-orange-50 border-orange-200'; }
+                    else { label = 'อ้วนมาก'; color = 'text-red-600 bg-red-50 border-red-200'; }
+                }
+                
+                labelCell.innerHTML = `<span class="px-3 py-1 rounded-full border text-xs font-bold ${color}">${label}</span>`;
+                labelValInput.value = label;
+            } else {
+                bmiCell.innerText = '-';
+                labelCell.innerHTML = '<span class="text-gray-300">-</span>';
+                bmiValInput.value = '';
+                labelValInput.value = '';
+            }
+        }
+
+        async function saveHealthRecords() {
+            const dateStr = document.getElementById('health-date').value;
+            let resultData = [];
+            
+            document.querySelectorAll('.health-row').forEach(row => {
+                const code = row.querySelector('.h-stu-code').value;
+                const name = row.querySelector('.h-stu-name').value;
+                const sClass = row.querySelector('.h-stu-class').value;
+                const num = row.querySelector('.h-stu-num').value;
+                
+                const g = document.getElementById(`g_${code}`).value;
+                const a = document.getElementById(`a_${code}`).value;
+                const w = document.getElementById(`w_${code}`).value;
+                const h = document.getElementById(`h_${code}`).value;
+                const bmi = document.getElementById(`bmi_val_${code}`).value;
+                const label = document.getElementById(`bmi_label_val_${code}`).value;
+
+                if (w && h) {
+                    resultData.push({
+                        record_date: dateStr,
+                        class_name: sClass,
+                        student_number: parseInt(num),
+                        student_code: code,
+                        student_name: name,
+                        gender: g,
+                        age: a ? parseInt(a) : null,
+                        weight: parseFloat(w),
+                        height: parseFloat(h),
+                        bmi: parseFloat(bmi),
+                        bmi_label: label,
+                        recorder_name: currentUser.name
+                    });
+                }
+            });
+
+            if(resultData.length === 0) {
+                Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลที่ถูกกรอก กรุณากรอกน้ำหนักและส่วนสูงก่อนบันทึก', 'warning');
+                return;
+            }
+
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+                // บันทึกข้อมูลลงตาราง health_records
+                const { error } = await supabaseClient.from('health_records').upsert(resultData, { onConflict: 'record_date, student_code' });
+                if (error) {
+                    if (error.message.includes('relation "public.health_records" does not exist')) {
+                        throw new Error('ไม่พบตาราง health_records ในฐานข้อมูล กรุณาสร้างตารางนี้ก่อนการใช้งาน');
+                    }
+                    throw error;
+                }
+                Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลน้ำหนักส่วนสูงเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
             } catch (err) {
                 Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark });
             }
@@ -1481,7 +1995,6 @@
                         }
                         
                         renderTeachersManage(); 
-                        renderTeacherSelection();
                         Swal.fire({icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลบุคลากรเรียบร้อย', timer: 1500, showConfirmButton: false});
                     } catch(err) { 
                         Swal.fire('ผิดพลาด', err.message, 'error'); 
@@ -1498,7 +2011,7 @@
                         const { error } = await supabaseClient.from('teachers').delete().eq('id', id);
                         if (error) throw error;
                         allTeachers = allTeachers.filter(t => String(t.id) !== String(id));
-                        renderTeachersManage(); renderTeacherSelection();
+                        renderTeachersManage();
                         Swal.fire({icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000});
                     } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
                 }
@@ -1651,7 +2164,6 @@
                 if (result.isConfirmed) {
                     Swal.fire({title: 'กำลังลบข้อมูล...', didOpen: () => Swal.showLoading()});
                     try {
-                        // ใช้ filter .not('student_code', 'is', null) เพื่อให้ลบทุกแถว (Supabase บังคับให้ต้องมี filter ในการ delete)
                         const { error } = await supabaseClient.from('students').delete().not('student_code', 'is', null);
                         if (error) throw error;
                         Swal.fire('สำเร็จ', 'ลบข้อมูลนักเรียนทั้งหมดเรียบร้อยแล้ว', 'success');
@@ -1680,7 +2192,6 @@
                     let cols = rows[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
                     if (cols.length >= 4 && cols[0]) {
                         const className = cols[3];
-                        // ตรวจสอบว่ามีชั้นเรียนนี้อยู่ในระบบหรือไม่
                         if (!allClasses.includes(className)) {
                             missingClasses.add(className);
                         }
@@ -1688,7 +2199,6 @@
                     }
                 }
                 
-                // ถ้าพบชั้นเรียนที่ไม่มีในระบบ ให้เพิ่มชั้นเรียนอัตโนมัติ
                 if (missingClasses.size > 0) {
                     Swal.fire({title: 'กำลังสร้างชั้นเรียนใหม่...', didOpen: () => Swal.showLoading()});
                     try {
@@ -1696,7 +2206,6 @@
                         const { error: classError } = await supabaseClient.from('classes').insert(newClassesToInsert);
                         if (classError) throw classError;
                         
-                        // เพิ่มลงในตัวแปร local และอัปเดต UI
                         Array.from(missingClasses).forEach(c => allClasses.push(c));
                         populateDropdowns(); 
                         renderClassesManage();
@@ -1733,7 +2242,7 @@
                 reader.onload = function(e) {
                     currentLogo = e.target.result;
                     localStorage.setItem('school_logo', currentLogo);
-                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview'].forEach(id => {
+                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview'].forEach(id => {
                         const imgEl = document.getElementById(id);
                         if (imgEl) { imgEl.src = currentLogo; imgEl.style.display = 'block'; }
                     });
