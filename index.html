@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ระบบบันทึกและสถิติการมาเรียน (Supabase)</title>
+    <title>ระบบบริหารจัดการโรงเรียน (Supabase)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -37,6 +37,11 @@
         .radio-leave:checked + label { background-color: #FF7F50; color: white; }
         .radio-late:checked + label { background-color: #1E90FF; color: white; }
         .radio-absent:checked + label { background-color: #DC143C; color: white; }
+        
+        /* สไตล์สำหรับปุ่มตรวจสุขภาพ */
+        .radio-pass:checked + label { background-color: #10B981; color: white; }
+        .radio-fail:checked + label { background-color: #EF4444; color: white; }
+
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
         .pin-dot { width: 16px; height: 16px; border-radius: 50%; background-color: #E5E7EB; transition: all 0.2s; } .pin-dot.filled { background-color: var(--color-brand-dark); transform: scale(1.1); }
         
@@ -55,31 +60,21 @@
 
         @media print {
             aside, header, nav, .print-hide { display: none !important; }
-            /* บังคับพื้นหลังขาวล้วน ลบสีรบกวน */
             main, body, #main-scroll-area, #pdf-export-area, .bg-brand-bg, .bg-white, .shadow-sm { 
-                background: white !important; 
-                background-color: white !important; 
-                padding: 0 !important; 
-                margin: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
+                background: white !important; background-color: white !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: none !important;
             }
             main { width: 100% !important; overflow: visible !important; height: auto !important; display: block !important; }
             body { font-family: 'Sarabun', sans-serif !important; color: black !important; }
             
-            /* ควบคุมเส้นตารางและการขึ้นหน้าใหม่ */
             table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px; page-break-inside: auto; border: 1px solid #000 !important; }
             th, td { border: 1px solid #000 !important; padding: 3px 4px !important; color: black !important; font-size: 11px !important; }
             thead { display: table-header-group !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
-            #tab-health:not(.hidden), #tab-stats:not(.hidden) { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            #tab-health:not(.hidden), #tab-stats:not(.hidden), #tab-hygiene:not(.hidden) { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             
-            /* บังคับพิมพ์สีพื้นหลัง */
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
-            
-            /* ลายเซ็นไม่ให้โดนตัดขาด */
             .print-signature-container { margin-top: 40px !important; page-break-inside: avoid !important; display: flex !important; justify-content: space-between !important; width: 100% !important; background: white !important; }
         }
     </style>
@@ -141,17 +136,18 @@
             <div class="w-16 h-16 mx-auto bg-white rounded-full flex items-center justify-center mb-3 shadow-inner p-1 overflow-hidden">
                 <img id="sidebar-logo-preview" src="https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png" class="object-cover w-full h-full p-1" onerror="this.style.display='none'">
             </div>
-            <h1 class="text-lg font-bold">บันทึกการมาเรียน</h1>
+            <h1 class="text-lg font-bold">ระบบโรงเรียน</h1>
             <p class="text-xs text-white/80 mt-1" id="sidebar-school-name">กำลังโหลด...</p>
         </div>
         <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
             <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center px-4 py-3 bg-white text-brand-dark rounded-xl font-medium transition-colors shadow-sm"><i class="fa-solid fa-border-all w-8 text-xl"></i> แดชบอร์ด</button>
             <button onclick="switchTab('record')" id="nav-record" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-calendar-check w-8 text-xl"></i> บันทึกเช็คชื่อ</button>
             <button onclick="switchTab('health')" id="nav-health" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-weight-scale w-8 text-xl"></i> น้ำหนัก/ส่วนสูง</button>
-            <button onclick="switchTab('stats')" id="nav-stats" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-file-invoice w-8 text-xl"></i> รายงานสถิติ</button>
+            <button onclick="switchTab('hygiene')" id="nav-hygiene" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-hand-sparkles w-8 text-xl"></i> ตรวจสุขภาพเบื้องต้น</button>
             <button onclick="switchTab('manage-students')" id="nav-manage-students" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-users-gear w-8 text-xl"></i> จัดการนักเรียน</button>
             <button onclick="switchTab('manage-classes')" id="nav-manage-classes" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-chalkboard-user w-8 text-xl"></i> จัดการชั้นเรียน</button>
             <button onclick="switchTab('manage-teachers')" id="nav-manage-teachers" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-user-tie w-8 text-xl"></i> จัดการบุคลากร</button>
+            <button onclick="switchTab('stats')" id="nav-stats" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-file-invoice w-8 text-xl"></i> รายงานสถิติรวม</button>
             <button onclick="switchTab('settings')" id="nav-settings" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-gear w-8 text-xl"></i> ตั้งค่าระบบ</button>
         </nav>
     </aside>
@@ -184,10 +180,9 @@
                         <div class="flex flex-wrap gap-4 md:gap-6 justify-center md:justify-start">
                             <button onclick="switchTab('record')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2DD4BF] to-[#0F766E] text-white flex items-center justify-center text-[26px] shadow-md shadow-teal-500/20 mb-2"><i class="fa-regular fa-pen-to-square"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">บันทึก<br>มาเรียน</span></button>
                             <button onclick="switchTab('health')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F472B6] to-[#BE185D] text-white flex items-center justify-center text-[24px] shadow-md shadow-pink-500/20 mb-2"><i class="fa-solid fa-weight-scale"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">น้ำหนัก<br>ส่วนสูง</span></button>
-                            <button onclick="switchTab('stats')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#6D28D9] text-white flex items-center justify-center text-[24px] shadow-md shadow-purple-500/20 mb-2"><i class="fa-solid fa-file-invoice"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">รายงาน<br>สถิติ</span></button>
+                            <button onclick="switchTab('hygiene')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#60A5FA] to-[#1D4ED8] text-white flex items-center justify-center text-[24px] shadow-md shadow-blue-500/20 mb-2"><i class="fa-solid fa-hand-sparkles"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">ตรวจสุขภาพ<br>เบื้องต้น</span></button>
+                            <button onclick="switchTab('stats')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#6D28D9] text-white flex items-center justify-center text-[24px] shadow-md shadow-purple-500/20 mb-2"><i class="fa-solid fa-file-invoice"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">รายงาน<br>สถิติรวม</span></button>
                             <button onclick="switchTab('manage-students')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white flex items-center justify-center text-[24px] shadow-md shadow-blue-500/20 mb-2"><i class="fa-solid fa-users-gear"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>นักเรียน</span></button>
-                            <button onclick="switchTab('manage-classes')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#10B981] to-[#047857] text-white flex items-center justify-center text-[24px] shadow-md shadow-emerald-500/20 mb-2"><i class="fa-solid fa-chalkboard-user"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>ชั้นเรียน</span></button>
-                            <button onclick="switchTab('manage-teachers')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-white flex items-center justify-center text-[24px] shadow-md shadow-orange-500/20 mb-2"><i class="fa-solid fa-user-tie"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>บุคลากร</span></button>
                             <button onclick="switchTab('settings')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-brand-dark text-white flex items-center justify-center text-[24px] shadow-md mb-2 transition-colors duration-300"><i class="fa-solid fa-gear"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">ตั้งค่าระบบ</span></button>
                         </div>
                     </div>
@@ -212,7 +207,6 @@
                         <div class="bg-status-absent text-white rounded-2xl p-4 shadow-md relative overflow-hidden h-28"><i class="fa-solid fa-times-circle absolute -right-2 -bottom-2 text-6xl opacity-20"></i><p class="text-sm font-medium opacity-90">ขาดเรียน</p><p class="text-3xl font-bold mt-1" id="stat-absent">0</p></div>
                     </div>
 
-                    <!-- กราฟคู่ซ้ายขวา -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                         <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 flex flex-col items-center">
                             <h3 class="text-gray-700 font-bold w-full mb-4 border-b pb-2"><i class="fa-solid fa-chart-pie text-brand-dark mr-2 transition-colors"></i>สัดส่วนสถานะนักเรียน</h3>
@@ -224,7 +218,6 @@
                         </div>
                     </div>
 
-                    <!-- ตารางสรุปแยกตามห้องเรียน -->
                     <div class="bg-white rounded-2xl shadow-sm p-5 border border-gray-100 mb-4">
                         <h3 class="text-gray-700 font-bold w-full mb-4 border-b pb-2"><i class="fa-solid fa-list-ul text-brand-dark mr-2 transition-colors"></i>รายงานการมาเรียนแยกตามห้อง</h3>
                         <div class="overflow-x-auto">
@@ -289,7 +282,7 @@
                                 <button id="btn-hlth-report" onclick="setHealthMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
                             </div>
                         </div>
-                        <p class="text-sm text-gray-500 mb-4" id="health-desc">กรอกข้อมูลน้ำหนัก (กิโลกรัม) และส่วนสูง (เซนติเมตร) ระบบจะคำนวณค่า BMI ให้อัตโนมัติ</p>
+                        <p class="text-sm text-gray-500 mb-4" id="health-desc">กรอกข้อมูลน้ำหนัก (กก.) และส่วนสูง (ซม.) ระบบจะคำนวณอายุและเกณฑ์ BMI ให้อัตโนมัติจากวันเกิดนักเรียน</p>
                         
                         <div id="health-report-toggles" class="hidden mb-4 print-hide">
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
@@ -301,7 +294,7 @@
                         <div class="flex flex-col md:flex-row gap-4 mb-2">
                             <div class="flex-1" id="health-date-wrapper">
                                 <label class="block text-xs font-medium text-gray-500 mb-1">วันที่บันทึก/รายงาน</label>
-                                <input type="date" id="health-date" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                                <input type="date" id="health-date" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark" onchange="if(currentHealthMode === 'record') fetchHealthData()">
                             </div>
                             <div class="flex-1 hidden" id="health-month-wrapper">
                                 <label class="block text-xs font-medium text-gray-500 mb-1">เดือนที่รายงาน</label>
@@ -320,27 +313,15 @@
                     </div>
 
                     <div id="health-list-container" class="hidden pb-12 print-hide">
-                        <!-- ส่วนควบคุมกำหนดอายุทุกคน -->
-                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div class="flex items-center gap-3 w-full md:w-auto">
-                                <label class="font-bold text-gray-700 text-sm whitespace-nowrap">กำหนดอายุทุกคน (ปี):</label>
-                                <input type="number" id="bulk-age-input" class="w-20 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-center" min="1" step="1">
-                                <button onclick="setBulkAge()" class="bg-brand-dark text-white px-4 py-2 rounded-lg font-medium hover:bg-brand-light transition-colors text-sm shadow-sm whitespace-nowrap">นำไปใช้</button>
-                            </div>
-                            <div class="text-sm text-gray-500">
-                                *สามารถแก้ไขอายุรายบุคคลในตารางด้านล่างได้
-                            </div>
-                        </div>
-
-                        <!-- ตารางกรอกน้ำหนักส่วนสูง -->
+                        <!-- ตารางกรอกน้ำหนักส่วนสูง (เอาช่องอายุและเพศออกตาม Request) -->
                         <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white mb-6">
                             <table class="w-full text-sm text-left border-collapse">
                                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
                                     <tr>
                                         <th class="px-2 py-4 text-center w-16">เลขที่</th>
                                         <th class="px-4 py-4 text-left">ชื่อ - นามสกุล</th>
-                                        <th class="px-2 py-4 text-center w-24">เพศ</th>
-                                        <th class="px-2 py-4 text-center w-24">อายุ (ปี)</th>
+                                        <th class="px-2 py-4 text-center w-16">เพศ</th>
+                                        <th class="px-2 py-4 text-center w-16">อายุ</th>
                                         <th class="px-2 py-4 text-center w-28">น้ำหนัก (กก.)</th>
                                         <th class="px-2 py-4 text-center w-28">ส่วนสูง (ซม.)</th>
                                         <th class="px-2 py-4 text-center w-20">BMI</th>
@@ -399,6 +380,113 @@
                                         <tr><td colspan="10" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: HYGIENE (ตรวจสุขภาพเบื้องต้น) -->
+                <div id="tab-hygiene" class="hidden animate-fade-in max-w-5xl mx-auto">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 mb-6 shadow-sm border border-gray-100 print-hide">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
+                            <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-hand-sparkles mr-2"></i>แบบบันทึกตรวจสุขภาพเบื้องต้น</h2>
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
+                                <button id="btn-hyg-record" onclick="setHygieneMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-hyg-report" onclick="setHygieneMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                            </div>
+                        </div>
+                        
+                        <div id="hygiene-report-toggles" class="hidden mb-4 print-hide">
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
+                                <button id="btn-hyg-rep-daily" onclick="setHygieneReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
+                                <button id="btn-hyg-rep-monthly" onclick="setHygieneReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-4 mb-2">
+                            <div class="flex-1" id="hygiene-date-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">วันที่บันทึก/รายงาน</label>
+                                <input type="date" id="hygiene-date" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1 hidden" id="hygiene-month-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เดือนที่รายงาน</label>
+                                <input type="month" id="hygiene-month" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เลือกชั้นเรียน</label>
+                                <select id="hygiene-class" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark"></select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="fetchHygieneData()" class="w-full md:w-auto bg-brand-dark text-white px-6 py-2.5 rounded-xl font-medium hover:bg-brand-light shadow-md transition-all active:scale-95 flex items-center justify-center">
+                                    <i class="fa-solid fa-filter mr-2"></i>ดึงข้อมูล
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="hygiene-list-container" class="hidden pb-12 print-hide">
+                        <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white mb-6">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-2 py-4 text-center w-16">เลขที่</th>
+                                        <th class="px-4 py-4 text-left">ชื่อ - นามสกุล</th>
+                                        <th class="px-2 py-4 text-center">ความสะอาดของเส้นผม</th>
+                                        <th class="px-2 py-4 text-center">ความสะอาดของเล็บ</th>
+                                        <th class="px-2 py-4 text-center">ความสะอาดของฟัน</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hygiene-list-body" class="divide-y divide-gray-100 bg-white"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="w-full flex justify-center pt-2 pb-8">
+                            <button onclick="saveHygieneRecords()" class="w-full md:w-[400px] bg-brand-dark text-white px-6 py-4 rounded-xl font-bold shadow-2xl hover:-translate-y-1 transition-all flex items-center justify-center gap-2 text-lg border-2 border-white">
+                                <i class="fa-solid fa-save text-xl"></i> บันทึกตรวจสุขภาพเบื้องต้น
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="hygiene-report-container" class="hidden pb-12 relative">
+                        <div class="flex justify-end gap-2 mb-4 print-hide">
+                            <button onclick="exportHygieneExcel()" class="px-4 py-2 bg-[#107C41] text-white rounded-xl text-sm font-medium hover:bg-green-700 shadow-sm transition-colors"><i class="fa-solid fa-file-excel mr-1"></i> ดาวน์โหลด Excel</button>
+                            <button onclick="window.print()" class="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 shadow-sm transition-colors"><i class="fa-solid fa-print mr-1"></i> สั่งพิมพ์เอกสาร</button>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 md:p-6 print:border-none print:shadow-none print:p-0">
+                            <!-- Print Header -->
+                            <div class="hidden print:block text-center mb-6 font-print">
+                                <img id="print-logo-hygiene-preview" src="" class="h-20 mx-auto mb-2 grayscale opacity-90 object-contain" alt="ตราโรงเรียน" style="display:none;">
+                                <h1 class="text-2xl font-bold text-black">แบบบันทึกการตรวจสุขภาพเบื้องต้น (ผม, เล็บ, ฟัน)</h1>
+                                <h2 class="text-xl text-black mt-1" id="print-hygiene-doc-school">กำลังโหลด...</h2>
+                                <p class="text-lg text-black mt-2 font-medium" id="print-hygiene-doc-date">ประจำวันที่ ...</p>
+                                <p class="text-lg text-black mt-1 font-medium" id="print-hygiene-doc-class">ชั้นเรียน: ...</p>
+                            </div>
+
+                            <div class="flex flex-wrap justify-center gap-2 mb-6 relative z-10" id="hygiene-summary-badges"></div>
+
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 print:border-none print:shadow-none print:rounded-none">
+                                <table class="w-full text-sm text-left border-collapse font-print" id="report-table-hygiene">
+                                    <thead class="bg-gray-100 text-gray-700 print:bg-transparent print:text-black print:font-bold border-b border-gray-200 print:border-black">
+                                        <tr>
+                                            <th class="py-3 px-2 text-center w-12 border print:border-black">เลขที่</th>
+                                            <th class="py-3 px-2 text-center w-20 border print:border-black">รหัสประจำตัว</th>
+                                            <th class="py-3 px-4 text-center border print:border-black">ชื่อ - นามสกุล</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">ชั้นเรียน</th>
+                                            <th class="py-3 px-2 text-center border print:border-black">ผม</th>
+                                            <th class="py-3 px-2 text-center border print:border-black">เล็บ</th>
+                                            <th class="py-3 px-2 text-center border print:border-black">ฟัน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hygiene-report-body" class="divide-y divide-gray-100 bg-white print:divide-black">
+                                        <tr><td colspan="7" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="print-signature-container hidden print:flex justify-between mt-10 px-4 font-print text-sm md:text-base">
+                                <div id="hygiene-signature-block-teachers"></div>
+                                <div id="hygiene-signature-block-director"></div>
                             </div>
                         </div>
                     </div>
@@ -527,7 +615,7 @@
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200">
                             <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase"><tr><th class="px-4 py-3 text-center">เลขที่</th><th class="px-4 py-3 text-center">รหัส นร.</th><th class="px-4 py-3 text-center">ชื่อ - นามสกุล</th><th class="px-4 py-3 text-center">ชั้นเรียน</th><th class="px-4 py-3 text-center">จัดการ</th></tr></thead>
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase"><tr><th class="px-4 py-3 text-center">เลขที่</th><th class="px-4 py-3 text-center">รหัส นร.</th><th class="px-4 py-3 text-center">ชื่อ - นามสกุล</th><th class="px-4 py-3 text-center">ชั้นเรียน</th><th class="px-4 py-3 text-center">วัน/เดือน/ปีเกิด</th><th class="px-4 py-3 text-center">จัดการ</th></tr></thead>
                                 <tbody class="divide-y divide-gray-100 bg-white" id="manage-students-tbody"></tbody>
                             </table>
                         </div>
@@ -697,7 +785,7 @@
             'pastel-lavender': { name: 'ม่วงพาสเทล', dark: '#A78BFA', light: '#DDD6FE', bg: '#F5F3FF' }
         };
         let currentTheme = 'default';
-        let specialHolidays = []; // เก็บวันหยุดพิเศษ
+        let specialHolidays = [];
 
         const thaiMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
         const thaiDays = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
@@ -710,12 +798,34 @@
         let currentReportType = 'daily'; 
         let currentHealthMode = 'record';
         let currentHealthReportType = 'daily';
+        let currentHygieneMode = 'record';
+        let currentHygieneReportType = 'daily';
 
         let appSettings = {};
         let allClasses = [];
         let allTeachers = [];
-        let allStudentsData = [];
         let currentLogo = localStorage.getItem('school_logo') || 'https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png';
+
+        // คำนวณอายุจาก วัน/เดือน/ปีเกิด
+        function calculateAge(birthDateString) {
+            if(!birthDateString) return '-';
+            const today = new Date();
+            const birthDate = new Date(birthDateString);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age >= 0 ? age : '-';
+        }
+
+        // Format วันเกิดเป็น YYYY-MM-DD
+        function formatDateForInput(dateString) {
+            if(!dateString) return '';
+            const d = new Date(dateString);
+            if (isNaN(d.getTime())) return '';
+            return d.toISOString().split('T')[0];
+        }
 
         window.enterPin = function(num) {
             if (pin.length < 6) {
@@ -727,15 +837,8 @@
             }
         };
 
-        window.clearPin = function() { 
-            pin = ''; 
-            updatePinUI(); 
-        };
-
-        window.deletePin = function() { 
-            pin = pin.slice(0, -1); 
-            updatePinUI(); 
-        };
+        window.clearPin = function() { pin = ''; updatePinUI(); };
+        window.deletePin = function() { pin = pin.slice(0, -1); updatePinUI(); };
 
         function updatePinUI() {
             document.querySelectorAll('.pin-dot').forEach((dot, idx) => {
@@ -750,14 +853,12 @@
                 clearPin(); return;
             }
             if (String(pin) === String(systemPin)) {
-                // ตั้งค่าผู้ใช้งานเริ่มต้นเป็น Admin หลังจากกรอกรหัสผ่านถูก
                 currentUser = { name: 'ผู้ดูแลระบบ', role: 'แอดมิน', homeroom_class: null };
                 let shortName = 'ผ';
                 
                 document.getElementById('header-user-name').innerText = currentUser.name;
                 document.getElementById('header-user-role').innerText = currentUser.role;
                 document.getElementById('header-avatar-initial').innerText = shortName;
-                
                 document.getElementById('profile-avatar-large').innerText = shortName;
                 document.getElementById('profile-display-name').innerText = currentUser.name;
                 document.getElementById('profile-display-role').innerText = currentUser.role;
@@ -776,14 +877,12 @@
 
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
-            
             try {
                 const [setRes, clsRes, tchRes] = await Promise.all([
                     supabaseClient.from('settings').select('*'),
                     supabaseClient.from('classes').select('class_name').order('id'),
                     supabaseClient.from('teachers').select('*').order('id')
                 ]);
-
                 if (setRes.error) throw setRes.error;
                 
                 setRes.data.forEach(item => { appSettings[item.setting_key] = item.setting_value; });
@@ -791,7 +890,6 @@
                 allTeachers = tchRes.data || [];
                 systemPin = String(appSettings.SystemPIN || '123456');
 
-                // โหลดวันหยุดพิเศษ
                 if (appSettings.SpecialHolidays) {
                     try { specialHolidays = JSON.parse(appSettings.SpecialHolidays); } 
                     catch(e) { specialHolidays = []; }
@@ -810,6 +908,8 @@
                 document.getElementById('record-date').value = today;
                 document.getElementById('health-date').value = today;
                 document.getElementById('health-month').value = currentMonth;
+                document.getElementById('hygiene-date').value = today;
+                document.getElementById('hygiene-month').value = currentMonth;
                 document.getElementById('stats-date').value = today;
                 document.getElementById('stats-month').value = currentMonth;
                 updateDashboardDateDisplay();
@@ -840,18 +940,15 @@
             
             document.getElementById('print-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('print-health-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
+            document.getElementById('print-hygiene-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('stats-table-school-subtitle').innerText = sNameText;
 
-            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview'].forEach(id => {
+            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview'].forEach(id => {
                 const imgEl = document.getElementById(id);
-                if (imgEl) {
-                    imgEl.src = currentLogo;
-                    imgEl.style.display = currentLogo ? 'block' : 'none';
-                }
+                if (imgEl) { imgEl.src = currentLogo; imgEl.style.display = currentLogo ? 'block' : 'none'; }
             });
         }
 
-        // จัดการวันหยุดพิเศษ
         function renderSpecialHolidays() {
             const tbody = document.getElementById('special-holidays-list');
             let html = '';
@@ -888,34 +985,6 @@
             renderSpecialHolidays();
         }
 
-        window.setBulkAge = function() {
-            const bulkAge = document.getElementById('bulk-age-input').value;
-            if (!bulkAge) {
-                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุอายุที่ต้องการกำหนดให้ทุกคนก่อน' });
-                return;
-            }
-            
-            let updatedCount = 0;
-            const ageInputs = document.querySelectorAll('.health-row input[id^="a_"]');
-            ageInputs.forEach(input => {
-                input.value = bulkAge;
-                const code = input.id.substring(2); 
-                calcBMI(code); 
-                updatedCount++;
-            });
-            
-            if (updatedCount > 0) {
-                Swal.fire({
-                    icon: 'success', 
-                    title: 'กำหนดอายุเรียบร้อย', 
-                    toast: true, 
-                    position: 'top-end', 
-                    showConfirmButton: false, 
-                    timer: 1500
-                });
-            }
-        }
-
         function populateDropdowns() {
             let optionsHtml = '<option value="ทั้งหมด">-- ทุกชั้นเรียน (รวม) --</option>';
             allClasses.forEach(c => { optionsHtml += `<option value="${c}">${c}</option>`; });
@@ -923,6 +992,7 @@
             document.getElementById('record-class').innerHTML = optionsHtml;
             document.getElementById('manage-class-filter').innerHTML = optionsHtml;
             document.getElementById('health-class').innerHTML = optionsHtml;
+            document.getElementById('hygiene-class').innerHTML = optionsHtml;
         }
 
         function logout(e) {
@@ -934,13 +1004,11 @@
             switchTab('dashboard');
         }
 
-        function toggleMobileMenu() { 
-            document.getElementById('sidebar').classList.toggle('-translate-x-full'); 
-        }
+        function toggleMobileMenu() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
 
         function switchTab(tabName) {
             if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleMobileMenu();
-            ['dashboard', 'record', 'health', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
+            ['dashboard', 'record', 'health', 'hygiene', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab}`);
                 if(el) el.classList.add('hidden');
             });
@@ -963,6 +1031,10 @@
             if (tabName === 'health') {
                 document.getElementById('health-list-container').classList.add('hidden');
                 document.getElementById('health-report-container').classList.add('hidden');
+            }
+            if (tabName === 'hygiene') {
+                document.getElementById('hygiene-list-container').classList.add('hidden');
+                document.getElementById('hygiene-report-container').classList.add('hidden');
             }
             if (tabName === 'manage-students') { populateDropdowns(); renderManageStudentsTable(); }
             if (tabName === 'manage-classes') renderClassesManage();
@@ -1086,32 +1158,17 @@
                     datasets: [{
                         label: 'มาเรียน (%)',
                         data: dataArray,
-                        borderColor: '#3B82F6', 
-                        backgroundColor: gradient,
-                        borderWidth: 2,
-                        fill: true, 
-                        tension: 0.4, 
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#3B82F6',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
+                        borderColor: '#3B82F6', backgroundColor: gradient, borderWidth: 2, fill: true, tension: 0.4, 
+                        pointBackgroundColor: '#ffffff', pointBorderColor: '#3B82F6', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
                     }]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     scales: {
                         x: { grid: { display: false } },
-                        y: { 
-                            min: 0, max: 100, 
-                            border: { dash: [4, 4] },
-                            ticks: { callback: function(value) { return value + '%' } }
-                        }
+                        y: { min: 0, max: 100, border: { dash: [4, 4] }, ticks: { callback: function(value) { return value + '%' } } }
                     },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { callbacks: { label: function(context) { return context.parsed.y + '%'; } } }
-                    }
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: function(context) { return context.parsed.y + '%'; } } } }
                 }
             });
         }
@@ -1128,19 +1185,8 @@
 
             myDonutChart = new Chart(donutCtx, {
                 type: 'doughnut',
-                data: {
-                    labels: displayLabels,
-                    datasets: [{ data: displayData, backgroundColor: displayColors, borderWidth: 0 }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    cutout: '70%', 
-                    plugins: { 
-                        legend: { position: 'right' },
-                        tooltip: { enabled: total !== 0 }
-                    } 
-                }
+                data: { labels: displayLabels, datasets: [{ data: displayData, backgroundColor: displayColors, borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right' }, tooltip: { enabled: total !== 0 } } }
             });
         }
 
@@ -1162,7 +1208,6 @@
                     listDiv.innerHTML = '<div class="text-center py-10 text-gray-500 bg-white rounded-xl shadow-sm border border-gray-100">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</div>'; return;
                 }
 
-                // จัดกลุ่มนักเรียนตามชั้นเรียน
                 const groupedStudents = {};
                 students.forEach(s => {
                     if (!groupedStudents[s.class_name]) groupedStudents[s.class_name] = [];
@@ -1204,10 +1249,8 @@
                         </div>`;
                     });
 
-                    // คำนวณสรุปจำนวนนักเรียน
                     let mCount = stuList.filter(s => s.gender !== 'F').length;
                     let fCount = stuList.filter(s => s.gender === 'F').length;
-                    
                     finalHtml += `
                     <div class="bg-gray-100/80 p-4 rounded-2xl border border-gray-200 flex flex-col md:flex-row justify-between items-center text-sm font-bold text-gray-700 shadow-sm mt-2 mb-6">
                         <div class="mb-3 md:mb-0 text-brand-dark"><i class="fa-solid fa-users mr-2"></i>สรุปยอดนักเรียนชั้น ${cls}</div>
@@ -1220,12 +1263,8 @@
                         </div>
                     </div>`;
                 }
-
                 listDiv.innerHTML = finalHtml;
-
-            } catch (err) {
-                listDiv.innerHTML = `<div class="text-center py-10 text-red-500">ดึงข้อมูลล้มเหลว: ${err.message}</div>`;
-            }
+            } catch (err) { listDiv.innerHTML = `<div class="text-center py-10 text-red-500">ดึงข้อมูลล้มเหลว: ${err.message}</div>`; }
         }
 
         function createRadioBtn(code, label, type, isDefault) {
@@ -1251,14 +1290,9 @@
                     const checkedRadio = row.querySelector('input[type="radio"]:checked');
                     if (checkedRadio) {
                         resultData.push({ 
-                            record_date: dateStr,
-                            month_year: dateStr.substring(0, 7),
-                            class_name: sClass,
-                            student_number: parseInt(number),
-                            student_code: codeMatch[1],
-                            student_name: name,
-                            status: checkedRadio.value,
-                            recorder_name: currentUser.name
+                            record_date: dateStr, month_year: dateStr.substring(0, 7), class_name: sClass,
+                            student_number: parseInt(number), student_code: codeMatch[1], student_name: name,
+                            status: checkedRadio.value, recorder_name: currentUser.name
                         });
                     }
                 }
@@ -1266,17 +1300,14 @@
 
             if(resultData.length === 0) return;
             Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
             try {
                 const { error } = await supabaseClient.from('attendance').upsert(resultData, { onConflict: 'record_date, student_code' });
                 if (error) throw error;
                 Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกเช็คชื่อเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
-            } catch (err) {
-                Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark });
-            }
+            } catch (err) { Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark }); }
         }
 
-        // จัดการโหมดของหน้าสุขภาพ (บันทึก/รายงาน)
+        /* ----- ระบบน้ำหนักและส่วนสูง ----- */
         function setHealthMode(mode) {
             currentHealthMode = mode;
             const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
@@ -1284,19 +1315,15 @@
             
             document.getElementById('btn-hlth-record').className = mode === 'record' ? btnClassA : btnClassB;
             document.getElementById('btn-hlth-report').className = mode === 'report' ? btnClassA : btnClassB;
-            
             document.getElementById('health-desc').innerText = mode === 'record' 
-                ? 'กรอกข้อมูลน้ำหนัก (กิโลกรัม) และส่วนสูง (เซนติเมตร) ระบบจะคำนวณค่า BMI ให้อัตโนมัติ'
+                ? 'กรอกข้อมูลน้ำหนัก (กก.) และส่วนสูง (ซม.) ระบบจะคำนวณอายุและเกณฑ์ BMI ให้อัตโนมัติจากวันเกิดนักเรียน'
                 : 'ดูรายงานและส่งออกข้อมูลน้ำหนัก ส่วนสูง และเกณฑ์ BMI ของนักเรียน';
-
             document.getElementById('health-report-toggles').classList.toggle('hidden', mode === 'record');
             
             if (mode === 'record') {
                 document.getElementById('health-date-wrapper').classList.remove('hidden');
                 document.getElementById('health-month-wrapper').classList.add('hidden');
-            } else {
-                setHealthReportType(currentHealthReportType);
-            }
+            } else { setHealthReportType(currentHealthReportType); }
 
             document.getElementById('health-list-container').classList.add('hidden');
             document.getElementById('health-report-container').classList.add('hidden');
@@ -1309,19 +1336,14 @@
             
             document.getElementById('btn-hlth-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
             document.getElementById('btn-hlth-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
-            
             document.getElementById('health-date-wrapper').classList.toggle('hidden', type !== 'daily');
             document.getElementById('health-month-wrapper').classList.toggle('hidden', type !== 'monthly');
-            
             document.getElementById('health-report-container').classList.add('hidden');
         }
 
         function fetchHealthData() {
-            if (currentHealthMode === 'record') {
-                loadHealthStudents();
-            } else {
-                loadHealthReport();
-            }
+            if (currentHealthMode === 'record') loadHealthStudents();
+            else loadHealthReport();
         }
 
         async function loadHealthReport() {
@@ -1361,11 +1383,8 @@
                 }
 
                 let healthQuery = supabaseClient.from('health_records').select('*');
-                if (isDaily) {
-                    healthQuery = healthQuery.eq('record_date', recordDate);
-                } else {
-                    healthQuery = healthQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
-                }
+                if (isDaily) healthQuery = healthQuery.eq('record_date', recordDate);
+                else healthQuery = healthQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
                 
                 if (className !== 'ทั้งหมด') healthQuery = healthQuery.eq('class_name', className);
                 const { data: records, error: hlthErr } = await healthQuery;
@@ -1373,10 +1392,7 @@
                 let healthMap = {};
                 if(records) {
                     records.forEach(r => {
-                        // เก็บข้อมูลล่าสุด (เนื่องจากดึงมาแบบเรียงจากวันที่ล่าสุดแล้ว กรณีรายเดือน)
-                        if (!healthMap[r.student_code]) {
-                            healthMap[r.student_code] = r;
-                        }
+                        if (!healthMap[r.student_code]) healthMap[r.student_code] = r;
                     });
                 }
 
@@ -1387,11 +1403,13 @@
                     let rec = healthMap[s.student_code];
                     let hasRec = !!rec;
                     
-                    let a = hasRec && rec.age ? rec.age : '-';
+                    let g = s.gender === 'M' ? 'ชาย' : 'หญิง';
+                    // ถ้าในตาราง health_records บันทึกอายุไว้ก็ใช้ค่านั้น ถ้ายังไม่มีให้คำนวณจากข้อมูลนักเรียน
+                    let a = hasRec && rec.age ? rec.age : calculateAge(s.birth_date); 
+                    
                     let w = hasRec && rec.weight ? rec.weight : '-';
                     let h = hasRec && rec.height ? rec.height : '-';
                     let bmi = hasRec && rec.bmi ? rec.bmi : '-';
-                    let g = hasRec && rec.gender ? (rec.gender === 'M' ? 'ชาย' : 'หญิง') : (s.gender === 'M' ? 'ชาย' : 'หญิง');
                     
                     let labelHtml = '-';
                     if (hasRec && rec.bmi_label) {
@@ -1419,7 +1437,6 @@
                 });
 
                 tbody.innerHTML = html;
-
                 document.getElementById('health-summary-badges').innerHTML = `
                     <div class="px-3 py-1.5 bg-white text-gray-700 rounded-lg text-xs md:text-sm font-medium border border-gray-200 shadow-sm">นักเรียนทั้งหมด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.total}</span></div>
                     <div class="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs md:text-sm font-medium border border-blue-200 shadow-sm">ผอม: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.thin}</span></div>
@@ -1428,9 +1445,7 @@
                     <div class="px-3 py-1.5 bg-white text-orange-600 rounded-lg text-xs md:text-sm font-medium border border-orange-200 shadow-sm">อ้วน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.fat}</span></div>
                     <div class="px-3 py-1.5 bg-white text-red-600 rounded-lg text-xs md:text-sm font-medium border border-red-200 shadow-sm">อ้วนมาก: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.very_fat}</span></div>
                 `;
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`;
-            }
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
         function exportHealthExcel() {
@@ -1442,8 +1457,7 @@
                 row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
                 csvContent += rowData.join(",") + "\n";
             });
-            const link = document.createElement("a"); 
-            link.href = encodeURI(csvContent); 
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); 
             const isDaily = currentHealthReportType === 'daily';
             const d = isDaily ? document.getElementById('health-date').value : document.getElementById('health-month').value;
             const cls = document.getElementById('health-class').value;
@@ -1456,10 +1470,9 @@
             const recordDate = document.getElementById('health-date').value;
             document.getElementById('health-list-container').classList.remove('hidden');
             const tbody = document.getElementById('health-list-body');
-            tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
 
             try {
-                // ดึงรายชื่อนักเรียน
                 let query = supabaseClient.from('students').select('*')
                             .order('class_name', { ascending: true })
                             .order('student_number', { ascending: true });
@@ -1468,21 +1481,16 @@
                 if (stuErr) throw stuErr;
 
                 if (students.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
+                    tbody.innerHTML = '<tr><td colspan="8" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; 
                     return;
                 }
 
-                // ดึงข้อมูลสุขภาพที่มีการบันทึกไว้แล้วในวันนี้ (เพื่อนำมาแสดง)
                 let healthQuery = supabaseClient.from('health_records').select('*').eq('record_date', recordDate);
                 if (className !== 'ทั้งหมด') healthQuery = healthQuery.eq('class_name', className);
-                const { data: existingRecords, error: hlthErr } = await healthQuery;
+                const { data: existingRecords } = await healthQuery;
                 
                 let healthMap = {};
-                if(existingRecords) {
-                    existingRecords.forEach(r => {
-                        healthMap[r.student_code] = r;
-                    });
-                }
+                if(existingRecords) existingRecords.forEach(r => { healthMap[r.student_code] = r; });
 
                 let html = '';
                 let currentClassRendered = '';
@@ -1490,15 +1498,15 @@
                 students.forEach(s => {
                     if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
                         currentClassRendered = s.class_name;
-                        html += `
-                        <tr class="bg-brand-dark/5 border-y border-gray-200">
-                            <td colspan="8" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td>
-                        </tr>`;
+                        html += `<tr class="bg-brand-dark/5 border-y border-gray-200"><td colspan="8" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td></tr>`;
                     }
 
                     let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
-                    let rec = healthMap[s.student_code] || { weight: '', height: '', age: '', gender: s.gender || 'M', bmi: '', bmi_label: '' };
+                    let rec = healthMap[s.student_code] || { weight: '', height: '', bmi: '', bmi_label: '' };
                     
+                    let age = calculateAge(s.birth_date);
+                    let genderText = s.gender === 'F' ? 'หญิง' : 'ชาย';
+
                     let badgeHtml = '<span class="text-gray-300">-</span>';
                     if (rec.bmi_label) {
                         let color = '';
@@ -1510,13 +1518,6 @@
                         badgeHtml = `<span class="px-3 py-1 rounded-full border text-xs font-bold ${color}">${rec.bmi_label}</span>`;
                     }
 
-                    let genderSelect = `
-                        <select id="g_${s.student_code}" onchange="calcBMI('${s.student_code}')" class="w-full max-w-[60px] px-1 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-xs bg-white">
-                            <option value="M" ${rec.gender === 'M' ? 'selected' : ''}>ชาย</option>
-                            <option value="F" ${rec.gender === 'F' ? 'selected' : ''}>หญิง</option>
-                        </select>
-                    `;
-
                     html += `
                     <tr class="hover:bg-gray-50 health-row">
                         <td class="px-2 py-3 text-center">
@@ -1525,12 +1526,12 @@
                             <input type="hidden" class="h-stu-name" value="${s.name}">
                             <input type="hidden" class="h-stu-class" value="${s.class_name}">
                             <input type="hidden" class="h-stu-num" value="${s.student_number}">
+                            <input type="hidden" class="h-stu-g" id="g_val_${s.student_code}" value="${s.gender || 'M'}">
+                            <input type="hidden" class="h-stu-a" id="a_val_${s.student_code}" value="${age !== '-' ? age : ''}">
                         </td>
                         <td class="px-4 py-3 font-medium text-gray-800 text-sm whitespace-nowrap">${s.name}</td>
-                        <td class="px-2 py-3 text-center">${genderSelect}</td>
-                        <td class="px-2 py-3 text-center">
-                            <input type="number" id="a_${s.student_code}" value="${rec.age || ''}" step="1" min="1" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[60px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="ปี">
-                        </td>
+                        <td class="px-2 py-3 text-center text-sm text-gray-600">${genderText}</td>
+                        <td class="px-2 py-3 text-center text-sm text-gray-600">${age}</td>
                         <td class="px-2 py-3 text-center">
                             <input type="number" id="w_${s.student_code}" value="${rec.weight}" step="0.1" min="0" oninput="calcBMI('${s.student_code}')" class="w-full max-w-[70px] px-2 py-1.5 text-center border border-gray-300 rounded-lg outline-none focus:border-brand-dark text-sm bg-white" placeholder="กก.">
                         </td>
@@ -1545,22 +1546,19 @@
                 });
 
                 tbody.innerHTML = html;
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`;
-            }
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
         function calcBMI(code) {
-            const aInput = document.getElementById(`a_${code}`).value;
-            const gInput = document.getElementById(`g_${code}`).value;
             const wInput = document.getElementById(`w_${code}`).value;
             const hInput = document.getElementById(`h_${code}`).value;
+            const aVal = document.getElementById(`a_val_${code}`).value;
             const bmiCell = document.getElementById(`bmi_${code}`);
             const labelCell = document.getElementById(`bmilabel_${code}`);
             const bmiValInput = document.getElementById(`bmi_val_${code}`);
             const labelValInput = document.getElementById(`bmi_label_val_${code}`);
 
-            const a = parseInt(aInput);
+            const a = aVal ? parseInt(aVal) : null;
             const w = parseFloat(wInput);
             const h = parseFloat(hInput);
 
@@ -1571,8 +1569,6 @@
                 bmiValInput.value = bmi;
                 
                 let label = '', color = '';
-                
-                // สำหรับเด็ก/วัยรุ่น (อายุ < 19 ปี) เกณฑ์เบื้องต้นจะต่างจากผู้ใหญ่ 
                 if (a && a < 19) {
                     if (bmi < 15.0) { label = 'ผอม'; color = 'text-blue-500 bg-blue-50 border-blue-200'; }
                     else if (bmi < 20.0) { label = 'สมส่วน'; color = 'text-green-600 bg-green-50 border-green-200'; }
@@ -1580,7 +1576,6 @@
                     else if (bmi < 25.0) { label = 'อ้วน'; color = 'text-orange-500 bg-orange-50 border-orange-200'; }
                     else { label = 'อ้วนมาก'; color = 'text-red-600 bg-red-50 border-red-200'; }
                 } else {
-                    // เกณฑ์ผู้ใหญ่มาตรฐาน
                     if (bmi < 18.5) { label = 'ผอม'; color = 'text-blue-500 bg-blue-50 border-blue-200'; }
                     else if (bmi < 23) { label = 'สมส่วน'; color = 'text-green-600 bg-green-50 border-green-200'; }
                     else if (bmi < 25) { label = 'ท้วม'; color = 'text-yellow-600 bg-yellow-50 border-yellow-200'; }
@@ -1608,8 +1603,8 @@
                 const sClass = row.querySelector('.h-stu-class').value;
                 const num = row.querySelector('.h-stu-num').value;
                 
-                const g = document.getElementById(`g_${code}`).value;
-                const a = document.getElementById(`a_${code}`).value;
+                const g = row.querySelector('.h-stu-g').value;
+                const a = row.querySelector('.h-stu-a').value;
                 const w = document.getElementById(`w_${code}`).value;
                 const h = document.getElementById(`h_${code}`).value;
                 const bmi = document.getElementById(`bmi_val_${code}`).value;
@@ -1617,412 +1612,284 @@
 
                 if (w && h) {
                     resultData.push({
-                        record_date: dateStr,
-                        class_name: sClass,
-                        student_number: parseInt(num),
-                        student_code: code,
-                        student_name: name,
-                        gender: g,
-                        age: a ? parseInt(a) : null,
-                        weight: parseFloat(w),
-                        height: parseFloat(h),
-                        bmi: parseFloat(bmi),
-                        bmi_label: label,
+                        record_date: dateStr, class_name: sClass, student_number: parseInt(num), student_code: code, student_name: name,
+                        gender: g, age: a ? parseInt(a) : null, weight: parseFloat(w), height: parseFloat(h), bmi: parseFloat(bmi), bmi_label: label, recorder_name: currentUser.name
+                    });
+                }
+            });
+
+            if(resultData.length === 0) { Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลที่ถูกกรอก กรุณากรอกน้ำหนักและส่วนสูงก่อนบันทึก', 'warning'); return; }
+            Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            try {
+                const { error } = await supabaseClient.from('health_records').upsert(resultData, { onConflict: 'record_date, student_code' });
+                if (error) {
+                    if (error.message.includes('does not exist')) throw new Error('ไม่พบตาราง health_records ในฐานข้อมูล กรุณารันคำสั่ง SQL สร้างตารางก่อน');
+                    throw error;
+                }
+                Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลน้ำหนักส่วนสูงเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
+            } catch (err) { Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark }); }
+        }
+
+
+        /* ----- ระบบตรวจสุขภาพเบื้องต้น (Hygiene) ----- */
+        function setHygieneMode(mode) {
+            currentHygieneMode = mode;
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-hyg-record').className = mode === 'record' ? btnClassA : btnClassB;
+            document.getElementById('btn-hyg-report').className = mode === 'report' ? btnClassA : btnClassB;
+            document.getElementById('hygiene-report-toggles').classList.toggle('hidden', mode === 'record');
+            
+            if (mode === 'record') {
+                document.getElementById('hygiene-date-wrapper').classList.remove('hidden');
+                document.getElementById('hygiene-month-wrapper').classList.add('hidden');
+            } else { setHygieneReportType(currentHygieneReportType); }
+
+            document.getElementById('hygiene-list-container').classList.add('hidden');
+            document.getElementById('hygiene-report-container').classList.add('hidden');
+        }
+
+        function setHygieneReportType(type) {
+            currentHygieneReportType = type;
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-hyg-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
+            document.getElementById('btn-hyg-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
+            document.getElementById('hygiene-date-wrapper').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('hygiene-month-wrapper').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('hygiene-report-container').classList.add('hidden');
+        }
+
+        function fetchHygieneData() {
+            if (currentHygieneMode === 'record') loadHygieneStudents();
+            else loadHygieneReport();
+        }
+
+        function createHygieneRadioGroup(code, type, val) {
+            const isPass = val === 'ผ่าน' || !val; // Default is Pass
+            const isFail = val === 'ไม่ผ่าน';
+            const idPass = `hyg_${type}_pass_${code}`;
+            const idFail = `hyg_${type}_fail_${code}`;
+            
+            return `
+            <div class="flex justify-center gap-2 w-full max-w-[140px] mx-auto">
+                <div class="flex-1">
+                    <input type="radio" id="${idPass}" name="hyg_${type}_${code}" value="ผ่าน" class="hidden radio-status radio-pass hyg-input-${type}" ${isPass ? 'checked' : ''}>
+                    <label for="${idPass}" class="block text-center py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 cursor-pointer text-xs transition-all font-medium shadow-sm status-btn">ผ่าน</label>
+                </div>
+                <div class="flex-1">
+                    <input type="radio" id="${idFail}" name="hyg_${type}_${code}" value="ไม่ผ่าน" class="hidden radio-status radio-fail hyg-input-${type}" ${isFail ? 'checked' : ''}>
+                    <label for="${idFail}" class="block text-center py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 cursor-pointer text-xs transition-all font-medium shadow-sm status-btn">ไม่ผ่าน</label>
+                </div>
+            </div>`;
+        }
+
+        async function loadHygieneStudents() {
+            const className = document.getElementById('hygiene-class').value;
+            const recordDate = document.getElementById('hygiene-date').value;
+            document.getElementById('hygiene-list-container').classList.remove('hidden');
+            const tbody = document.getElementById('hygiene-list-body');
+            tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
+
+            try {
+                let query = supabaseClient.from('students').select('*').order('class_name', { ascending: true }).order('student_number', { ascending: true });
+                if (className !== 'ทั้งหมด') query = query.eq('class_name', className);
+                const { data: students, error: stuErr } = await query;
+                if (stuErr) throw stuErr;
+
+                if (students.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; return; }
+
+                let hygQuery = supabaseClient.from('hygiene_records').select('*').eq('record_date', recordDate);
+                if (className !== 'ทั้งหมด') hygQuery = hygQuery.eq('class_name', className);
+                const { data: existingRecords } = await hygQuery;
+                
+                let hygMap = {};
+                if(existingRecords) existingRecords.forEach(r => { hygMap[r.student_code] = r; });
+
+                let html = '';
+                let currentClassRendered = '';
+
+                students.forEach(s => {
+                    if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
+                        currentClassRendered = s.class_name;
+                        html += `<tr class="bg-brand-dark/5 border-y border-gray-200"><td colspan="5" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td></tr>`;
+                    }
+
+                    let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
+                    let rec = hygMap[s.student_code] || {};
+                    
+                    html += `
+                    <tr class="hover:bg-gray-50 hygiene-row">
+                        <td class="px-2 py-3 text-center">
+                            <div class="w-8 h-8 mx-auto rounded-full ${prefixColor} flex items-center justify-center font-bold text-sm shrink-0">${s.student_number}</div>
+                            <input type="hidden" class="hyg-stu-code" value="${s.student_code}">
+                            <input type="hidden" class="hyg-stu-name" value="${s.name}">
+                            <input type="hidden" class="hyg-stu-class" value="${s.class_name}">
+                            <input type="hidden" class="hyg-stu-num" value="${s.student_number}">
+                        </td>
+                        <td class="px-4 py-3 font-medium text-gray-800 text-sm whitespace-nowrap">${s.name}</td>
+                        <td class="px-2 py-3 align-middle">${createHygieneRadioGroup(s.student_code, 'hair', rec.hair_status)}</td>
+                        <td class="px-2 py-3 align-middle">${createHygieneRadioGroup(s.student_code, 'nail', rec.nail_status)}</td>
+                        <td class="px-2 py-3 align-middle">${createHygieneRadioGroup(s.student_code, 'teeth', rec.teeth_status)}</td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
+        }
+
+        async function saveHygieneRecords() {
+            const dateStr = document.getElementById('hygiene-date').value;
+            let resultData = [];
+            
+            document.querySelectorAll('.hygiene-row').forEach(row => {
+                const code = row.querySelector('.hyg-stu-code').value;
+                const hairEl = row.querySelector(`input[name="hyg_hair_${code}"]:checked`);
+                const nailEl = row.querySelector(`input[name="hyg_nail_${code}"]:checked`);
+                const teethEl = row.querySelector(`input[name="hyg_teeth_${code}"]:checked`);
+                
+                if (hairEl && nailEl && teethEl) {
+                    resultData.push({
+                        record_date: dateStr, month_year: dateStr.substring(0, 7),
+                        class_name: row.querySelector('.hyg-stu-class').value,
+                        student_number: parseInt(row.querySelector('.hyg-stu-num').value),
+                        student_code: code, student_name: row.querySelector('.hyg-stu-name').value,
+                        hair_status: hairEl.value, nail_status: nailEl.value, teeth_status: teethEl.value,
                         recorder_name: currentUser.name
                     });
                 }
             });
 
-            if(resultData.length === 0) {
-                Swal.fire('แจ้งเตือน', 'ไม่มีข้อมูลที่ถูกกรอก กรุณากรอกน้ำหนักและส่วนสูงก่อนบันทึก', 'warning');
-                return;
-            }
-
+            if(resultData.length === 0) return;
             Swal.fire({ title: 'กำลังบันทึกข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            
             try {
-                // บันทึกข้อมูลลงตาราง health_records
-                const { error } = await supabaseClient.from('health_records').upsert(resultData, { onConflict: 'record_date, student_code' });
+                const { error } = await supabaseClient.from('hygiene_records').upsert(resultData, { onConflict: 'record_date, student_code' });
                 if (error) {
-                    if (error.message.includes('relation "public.health_records" does not exist')) {
-                        throw new Error('ไม่พบตาราง health_records ในฐานข้อมูล กรุณาสร้างตารางนี้ก่อนการใช้งาน');
-                    }
+                    if (error.message.includes('does not exist')) throw new Error('ไม่พบตาราง hygiene_records กรุณารันคำสั่ง SQL ก่อน');
                     throw error;
                 }
-                Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลน้ำหนักส่วนสูงเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
-            } catch (err) {
-                Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark });
-            }
+                Swal.fire({ icon: 'success', title: 'สำเร็จ!', text: 'บันทึกตรวจสุขภาพเรียบร้อยแล้ว', confirmButtonColor: themes[currentTheme].dark, timer: 2000 });
+            } catch (err) { Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark }); }
         }
 
-        function setReportType(type) {
-            currentReportType = type;
-            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+        async function loadHygieneReport() {
+            const className = document.getElementById('hygiene-class').value;
+            const isDaily = currentHygieneReportType === 'daily';
+            const recordDate = document.getElementById('hygiene-date').value;
+            const monthVal = document.getElementById('hygiene-month').value;
             
-            document.getElementById('btn-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
-            document.getElementById('btn-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
-            
-            document.getElementById('filter-date-container').classList.toggle('hidden', type !== 'daily');
-            document.getElementById('filter-month-container').classList.toggle('hidden', type !== 'monthly');
-            document.getElementById('area-rep-daily').classList.toggle('hidden', type !== 'daily');
-            document.getElementById('area-rep-daily').classList.toggle('print:hidden', type !== 'daily');
-            document.getElementById('area-rep-monthly').classList.toggle('hidden', type !== 'monthly');
-            document.getElementById('area-rep-monthly').classList.toggle('print:hidden', type !== 'monthly');
-            
-            const printStyleEl = document.getElementById('print-page-style');
-            if (type === 'daily') {
-                printStyleEl.innerHTML = '@page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }';
+            document.getElementById('hygiene-report-container').classList.remove('hidden');
+            const tbody = document.getElementById('hygiene-report-body');
+            tbody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
+
+            let dateText = '';
+            if (isDaily) {
+                const d = new Date(recordDate);
+                dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
             } else {
-                printStyleEl.innerHTML = '@page { size: landscape; margin: 0.5cm 1cm 0.5cm 1cm; }';
+                const [y, m] = monthVal.split('-');
+                dateText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
             }
-            renderActiveReport();
-        }
-
-        function renderSummaryBadges(stats, isDaily) {
-            const container = document.getElementById('stats-summary-badges');
-            if(!isDaily) {
-                container.innerHTML = `<div class="px-4 py-2 bg-white text-gray-700 rounded-xl text-sm font-bold border border-gray-200 shadow-sm"><i class="fa-solid fa-users mr-2 text-brand-dark"></i>รวมจำนวนนักเรียนทั้งหมด: ${stats.total} คน</div>`;
-                return;
-            }
-            container.innerHTML = `
-                <div class="px-3 py-1.5 bg-white text-[#4F378B] rounded-lg text-xs md:text-sm font-medium border border-[#4F378B]/20 shadow-sm">ทั้งหมด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.total}</span></div>
-                <div class="px-3 py-1.5 bg-white text-[#20B2AA] rounded-lg text-xs md:text-sm font-medium border border-[#20B2AA]/20 shadow-sm">มาเรียน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.p}</span></div>
-                <div class="px-3 py-1.5 bg-white text-[#B8860B] rounded-lg text-xs md:text-sm font-medium border border-[#FFC107]/40 shadow-sm">ลาป่วย: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.s}</span></div>
-                <div class="px-3 py-1.5 bg-white text-[#D2691E] rounded-lg text-xs md:text-sm font-medium border border-[#FF7F50]/40 shadow-sm">ลากิจ: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.l}</span></div>
-                <div class="px-3 py-1.5 bg-white text-[#1E90FF] rounded-lg text-xs md:text-sm font-medium border border-[#1E90FF]/30 shadow-sm">มาสาย: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.late}</span></div>
-                <div class="px-3 py-1.5 bg-white text-[#DC143C] rounded-lg text-xs md:text-sm font-medium border border-[#DC143C]/20 shadow-sm">ขาด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.a}</span></div>
-            `;
-        }
-
-        async function renderActiveReport() {
-            const className = document.getElementById('report-class').value;
-            document.getElementById('stats-table-class-subtitle').innerHTML = `<i class="fa-solid fa-chalkboard-user text-brand-dark mr-2"></i>ชั้น: ${className}`;
-            document.getElementById('print-doc-class').innerText = `ชั้นเรียน: ${className}`;
-            updateReportSignatures(className);
-            
-            const loadScreen = document.getElementById('report-loading');
-            loadScreen.classList.remove('hidden');
+            document.getElementById('print-hygiene-doc-date').innerText = `ประจำ${dateText}`;
+            document.getElementById('print-hygiene-doc-class').innerText = `ชั้นเรียน: ${className}`;
+            updateHygieneSignatures(className);
 
             try {
-                if (currentReportType === 'daily') {
-                    document.getElementById('stats-table-title').innerText = 'รายงานสถิติการมาเรียน (รายวัน)';
-                    const dateVal = document.getElementById('stats-date').value;
-                    const d = new Date(dateVal);
-                    const dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
-                    
-                    document.getElementById('print-doc-date').innerText = `ประจำ${dateText}`;
-                    document.getElementById('stats-table-date-subtitle').innerHTML = `<i class="fa-regular fa-calendar-days text-brand-dark mr-2"></i>${dateText}`;
-                    
-                    let query = supabaseClient.from('attendance').select('*')
-                                .eq('record_date', dateVal)
-                                .order('class_name', { ascending: true })
-                                .order('student_number', { ascending: true });
-                    
-                    if (className !== 'ทั้งหมด') query = query.eq('class_name', className);
-                    const { data, error } = await query;
-                    if (error) throw error;
+                let stuQuery = supabaseClient.from('students').select('*').order('class_name', { ascending: true }).order('student_number', { ascending: true });
+                if (className !== 'ทั้งหมด') stuQuery = stuQuery.eq('class_name', className);
+                const { data: students, error: stuErr } = await stuQuery;
+                if (stuErr) throw stuErr;
 
-                    const tbody = document.getElementById('stats-daily-body');
-                    let html = '';
-                    let stats = { total: data.length, p:0, s:0, l:0, late:0, a:0 };
-
-                    if(data.length === 0) html = '<tr><td colspan="6" class="py-6 text-center text-gray-500">ไม่มีข้อมูลการบันทึก</td></tr>';
-                    else {
-                        data.forEach(s => {
-                            let col = s.status === 'มาเรียน' ? 'text-[#20B2AA]' : s.status === 'ลาป่วย' ? 'text-[#FFC107]' : s.status === 'ลากิจ' ? 'text-[#FF7F50]' : s.status === 'มาสาย' ? 'text-[#1E90FF]' : 'text-[#DC143C]';
-                            if(s.status === 'มาเรียน') stats.p++; else if(s.status === 'ลาป่วย') stats.s++; else if(s.status === 'ลากิจ') stats.l++; else if(s.status === 'มาสาย') stats.late++; else if(s.status === 'ขาด') stats.a++;
-
-                            html += `<tr class="hover:bg-brand-dark/5 transition-colors group">
-                                <td class="py-3 px-4 text-center text-gray-600 group-hover:text-brand-dark print:border print:border-black print:text-black">${s.student_number}</td>
-                                <td class="py-3 px-4 text-center font-mono text-gray-500 print:border print:border-black print:text-black">${s.student_code || '-'}</td>
-                                <td class="py-3 px-4 text-left font-medium text-gray-800 print:border print:border-black print:text-black">${s.student_name}</td>
-                                <td class="py-3 px-4 text-center text-gray-600 print:border print:border-black print:text-black">${s.class_name}</td>
-                                <td class="py-3 px-4 text-center font-bold ${col} print:text-black print:border print:border-black">${s.status}</td>
-                                <td class="py-3 px-4 text-center text-gray-400 print:border print:border-black print:text-black"></td>
-                            </tr>`;
-                        });
-                    }
-                    tbody.innerHTML = html;
-                    renderSummaryBadges(stats, true);
-                    
-                } else {
-                    document.getElementById('stats-table-title').innerText = 'รายงานสถิติการมาเรียน (รายเดือน)';
-                    const monthVal = document.getElementById('stats-month').value;
-                    const [y, m] = monthVal.split('-');
-                    const monthText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
-                    
-                    document.getElementById('print-doc-date').innerText = `ประจำ${monthText}`;
-                    document.getElementById('stats-table-date-subtitle').innerHTML = `<i class="fa-regular fa-calendar-days text-brand-dark mr-2"></i>${monthText}`;
-                    
-                    let stuQuery = supabaseClient.from('students').select('*')
-                                    .order('class_name', { ascending: true })
-                                    .order('student_number', { ascending: true });
-                    
-                    if (className !== 'ทั้งหมด') stuQuery = stuQuery.eq('class_name', className);
-                    const { data: students, error: stuErr } = await stuQuery;
-                    if (stuErr) throw stuErr;
-
-                    let attQuery = supabaseClient.from('attendance').select('*').eq('month_year', monthVal);
-                    if (className !== 'ทั้งหมด') attQuery = attQuery.eq('class_name', className);
-                    const { data: attData, error: attErr } = await attQuery;
-                    if (attErr) throw attErr;
-
-                    let attendanceMap = {};
-                    attData.forEach(r => {
-                        if (!attendanceMap[r.student_code]) attendanceMap[r.student_code] = {};
-                        attendanceMap[r.student_code][r.record_date] = r.status;
-                    });
-
-                    const daysInMonth = new Date(y, m, 0).getDate();
-                    const tbody = document.getElementById('stats-monthly-body');
-                    const rowHeader = document.getElementById('stats-days-row');
-                    
-                    let daysHtml = '';
-                    for(let i=1; i<=31; i++) {
-                        if(i <= daysInMonth) {
-                            let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
-                            let dayOfWeek = new Date(dateStr).getDay();
-                            
-                            // ตรวจสอบวันหยุดพิเศษ หรือ เสาร์-อาทิตย์
-                            let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
-                            let isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || isSpecialHoliday);
-                            
-                            let textCol = isHolidayOrWeekend ? 'text-red-500' : 'text-gray-800';
-                            let bgStyle = isHolidayOrWeekend ? 'background-color: #e5e7eb !important;' : '';
-                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px] ${textCol}" style="${bgStyle}">${i}<br>${thaiDays[dayOfWeek]}</th>`;
-                        } else {
-                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px]" style="background-color: #f3f4f6 !important;">-</th>`;
-                        }
-                    }
-                    daysHtml += `<th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">มา</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ป</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ก</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ส</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ข</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">%</th>`;
-                    rowHeader.innerHTML = daysHtml;
-
-                    let html = '';
-                    if(students.length === 0) html = `<tr><td colspan="40" class="py-6 text-center text-gray-500">ไม่มีข้อมูลนักเรียน</td></tr>`;
-                    else {
-                        students.forEach((s) => {
-                            let rHtml = `<tr>
-                                <td class="py-1.5 px-1 border text-center text-[10px] w-10">${s.student_number}</td>
-                                <td class="py-1.5 px-1 border text-center text-[10px] font-mono text-gray-500 w-16">${s.student_code || '-'}</td>
-                                <td class="py-1.5 px-2 border text-left text-[11px] font-medium whitespace-nowrap truncate max-w-[140px]">${s.name}</td>`;
-                                
-                            let stats = { p:0, s:0, l:0, late:0, a:0 };
-                            let history = attendanceMap[s.student_code] || {};
-
-                            for(let i=1; i<=31; i++) {
-                                if(i <= daysInMonth) {
-                                    let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
-                                    let dayOfWeek = new Date(dateStr).getDay();
-                                    let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
-                                    let isHol = (dayOfWeek === 0 || dayOfWeek === 6 || isSpecialHoliday);
-                                    
-                                    if (dayOfWeek === 0 || dayOfWeek === 6) {
-                                        rHtml += `<td class="py-1 border" style="background-color: #e5e7eb !important;"></td>`;
-                                    } else if (isSpecialHoliday) {
-                                        rHtml += `<td class="py-1 border text-red-500 font-bold text-[8px]" style="background-color: #e5e7eb !important;">หยุด</td>`;
-                                    } else {
-                                        let status = history[dateStr] || '';
-                                        let mark = '', col = '';
-                                        if(status === 'มาเรียน') { mark = 'ม'; col = 'text-[#20B2AA]'; stats.p++; }
-                                        else if(status === 'ลาป่วย') { mark = 'ป'; col = 'text-[#FFC107]'; stats.s++; }
-                                        else if(status === 'ลากิจ') { mark = 'ก'; col = 'text-[#FF7F50]'; stats.l++; }
-                                        else if(status === 'มาสาย') { mark = 'ส'; col = 'text-[#1E90FF]'; stats.late++; }
-                                        else if(status === 'ขาด') { mark = 'ข'; col = 'text-[#DC143C]'; stats.a++; }
-                                        rHtml += `<td class="py-1 border font-bold text-[10px] ${col} print:text-black text-center">${mark}</td>`;
-                                    }
-                                } else {
-                                    rHtml += `<td class="py-1 border" style="background-color: #f3f4f6 !important;"></td>`;
-                                }
-                            }
-                            let totalDays = stats.p + stats.s + stats.l + stats.late + stats.a;
-                            let percent = totalDays > 0 ? ((stats.p / totalDays) * 100).toFixed(0) + '%' : '0%';
-                            rHtml += `<td class="border font-bold text-[10px] text-[#20B2AA] print:text-black text-center">${stats.p}</td><td class="border font-bold text-[10px] text-[#FFC107] print:text-black text-center">${stats.s}</td><td class="border font-bold text-[10px] text-[#FF7F50] print:text-black text-center">${stats.l}</td><td class="border font-bold text-[10px] text-[#1E90FF] print:text-black text-center">${stats.late}</td><td class="border font-bold text-[10px] text-[#DC143C] print:text-black text-center">${stats.a}</td><td class="border font-bold text-[10px] text-center">${percent}</td></tr>`;
-                            html += rHtml;
-                        });
-                    }
-                    tbody.innerHTML = html;
-                    renderSummaryBadges({total: students.length}, false);
+                if (students.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียน</td></tr>'; 
+                    document.getElementById('hygiene-summary-badges').innerHTML = ''; return;
                 }
-            } catch (err) {
-                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดรายงานได้: ' + String(err.message), 'error');
-            } finally {
-                loadScreen.classList.add('hidden');
-            }
+
+                let hygQuery = supabaseClient.from('hygiene_records').select('*');
+                if (isDaily) hygQuery = hygQuery.eq('record_date', recordDate);
+                else hygQuery = hygQuery.like('record_date', `${monthVal}-%`).order('record_date', { ascending: false });
+                
+                if (className !== 'ทั้งหมด') hygQuery = hygQuery.eq('class_name', className);
+                const { data: records, error: hygErr } = await hygQuery;
+                
+                let hygMap = {};
+                if(records) records.forEach(r => { if (!hygMap[r.student_code]) hygMap[r.student_code] = r; });
+
+                let stats = { total: students.length, h_pass:0, h_fail:0, n_pass:0, n_fail:0, t_pass:0, t_fail:0 };
+                let html = '';
+
+                students.forEach(s => {
+                    let rec = hygMap[s.student_code] || { hair_status: '-', nail_status: '-', teeth_status: '-' };
+                    
+                    if (rec.hair_status === 'ผ่าน') stats.h_pass++; else if (rec.hair_status === 'ไม่ผ่าน') stats.h_fail++;
+                    if (rec.nail_status === 'ผ่าน') stats.n_pass++; else if (rec.nail_status === 'ไม่ผ่าน') stats.n_fail++;
+                    if (rec.teeth_status === 'ผ่าน') stats.t_pass++; else if (rec.teeth_status === 'ไม่ผ่าน') stats.t_fail++;
+
+                    let hCol = rec.hair_status === 'ผ่าน' ? 'text-green-600' : (rec.hair_status === 'ไม่ผ่าน' ? 'text-red-500' : 'text-gray-400');
+                    let nCol = rec.nail_status === 'ผ่าน' ? 'text-green-600' : (rec.nail_status === 'ไม่ผ่าน' ? 'text-red-500' : 'text-gray-400');
+                    let tCol = rec.teeth_status === 'ผ่าน' ? 'text-green-600' : (rec.teeth_status === 'ไม่ผ่าน' ? 'text-red-500' : 'text-gray-400');
+
+                    html += `<tr class="hover:bg-gray-50 group transition-colors">
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${s.student_number}</td>
+                        <td class="py-3 px-2 text-center font-mono text-gray-500 border print:border-black print:text-black">${s.student_code}</td>
+                        <td class="py-3 px-4 text-left font-medium text-gray-800 border print:border-black print:text-black">${s.name}</td>
+                        <td class="py-3 px-2 text-center text-gray-600 border print:border-black print:text-black">${s.class_name}</td>
+                        <td class="py-3 px-2 text-center font-bold ${hCol} border print:border-black print:text-black">${rec.hair_status}</td>
+                        <td class="py-3 px-2 text-center font-bold ${nCol} border print:border-black print:text-black">${rec.nail_status}</td>
+                        <td class="py-3 px-2 text-center font-bold ${tCol} border print:border-black print:text-black">${rec.teeth_status}</td>
+                    </tr>`;
+                });
+
+                tbody.innerHTML = html;
+                document.getElementById('hygiene-summary-badges').innerHTML = `
+                    <div class="px-3 py-1.5 bg-white text-gray-700 rounded-lg text-xs md:text-sm font-medium border border-gray-200 shadow-sm">นักเรียนทั้งหมด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.total}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs md:text-sm font-medium border border-blue-200 shadow-sm">ผมไม่ผ่าน: <span class="font-bold text-lg leading-none align-middle ml-1 text-red-500">${stats.h_fail}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs md:text-sm font-medium border border-blue-200 shadow-sm">เล็บไม่ผ่าน: <span class="font-bold text-lg leading-none align-middle ml-1 text-red-500">${stats.n_fail}</span></div>
+                    <div class="px-3 py-1.5 bg-white text-blue-600 rounded-lg text-xs md:text-sm font-medium border border-blue-200 shadow-sm">ฟันไม่ผ่าน: <span class="font-bold text-lg leading-none align-middle ml-1 text-red-500">${stats.t_fail}</span></div>
+                `;
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
-        // จัดการลายเซ็นให้ใช้ Flexbox บรรทัดเดียวกันเป๊ะ
-        function updateReportSignatures(className) {
-            const blockTeachers = document.getElementById('signature-block-teachers');
-            const blockDirector = document.getElementById('signature-block-director');
-            
+        function exportHygieneExcel() {
+            let table = document.getElementById('report-table-hygiene');
+            let rows = Array.from(table.querySelectorAll('tr'));
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            rows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                csvContent += rowData.join(",") + "\n";
+            });
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); 
+            const isDaily = currentHygieneReportType === 'daily';
+            const d = isDaily ? document.getElementById('hygiene-date').value : document.getElementById('hygiene-month').value;
+            const cls = document.getElementById('hygiene-class').value;
+            link.download = `รายงานตรวจสุขภาพ_${cls}_${d}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function updateHygieneSignatures(className) {
+            const blockTeachers = document.getElementById('hygiene-signature-block-teachers');
+            const blockDirector = document.getElementById('hygiene-signature-block-director');
             const directorName = appSettings.SchoolDirector || '.......................................................';
             let homeroomTeachers = allTeachers.filter(t => t.homeroom_class === className);
             
-            // ฝั่งผู้รายงาน (ซ้าย)
             if (className === 'ทั้งหมด' || homeroomTeachers.length === 0) {
-                blockTeachers.innerHTML = `
-                    <div class="flex flex-col items-center">
-                        <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p>
-                        <p class="mt-8 whitespace-nowrap">( ........................................ )</p>
-                        <p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p>
-                    </div>`;
+                blockTeachers.innerHTML = `<div class="flex flex-col items-center"><p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p><p class="mt-8 whitespace-nowrap">( ........................................ )</p><p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p></div>`;
             } else {
                 let namesHtml = homeroomTeachers.map(t => `<p class="whitespace-nowrap mx-3">( ${t.name} )</p>`).join('');
-                blockTeachers.innerHTML = `
-                    <div class="flex flex-col items-center">
-                        <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p>
-                        <div class="mt-8 flex justify-center w-full">${namesHtml}</div>
-                        <p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p>
-                    </div>`;
+                blockTeachers.innerHTML = `<div class="flex flex-col items-center"><p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p><div class="mt-8 flex justify-center w-full">${namesHtml}</div><p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p></div>`;
             }
-
-            // ฝั่งผู้อำนวยการ (ขวา)
-            blockDirector.innerHTML = `
-                <div class="flex flex-col items-center">
-                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รับรอง</p>
-                    <p class="mt-8 whitespace-nowrap">( ${directorName} )</p>
-                    <p class="mt-1 font-medium whitespace-nowrap">ผู้อำนวยการโรงเรียน</p>
-                </div>`;
+            blockDirector.innerHTML = `<div class="flex flex-col items-center"><p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รับรอง</p><p class="mt-8 whitespace-nowrap">( ${directorName} )</p><p class="mt-1 font-medium whitespace-nowrap">ผู้อำนวยการโรงเรียน</p></div>`;
         }
 
-        function renderTeachersManage() {
-            const tbody = document.getElementById('teachers-table-body');
-            let html = '';
-            allTeachers.forEach((t, idx) => {
-                let hmBadge = t.homeroom_class ? `<span class="bg-green-100 text-green-800 text-[10px] md:text-xs px-2 md:px-3 py-1 rounded-full font-bold whitespace-nowrap border border-green-200">ประจำชั้น ${t.homeroom_class}</span>` : `<span class="text-gray-400 text-xs">-</span>`;
-                let roleBadge = t.role === 'แอดมิน' ? `<span class="bg-purple-100 text-purple-800 text-[10px] md:text-xs px-2 md:px-3 py-1 rounded-full font-bold whitespace-nowrap border border-purple-200"><i class="fa-solid fa-shield-halved mr-1"></i>แอดมิน</span>` : `<span class="bg-gray-100 text-gray-700 text-[10px] md:text-xs px-2 md:px-3 py-1 rounded-full font-medium whitespace-nowrap border border-gray-200">ครูทั่วไป</span>`;
-                
-                html += `<tr class="hover:bg-gray-50 group transition-colors">
-                    <td class="px-4 py-3 text-center text-gray-400 font-bold">${idx + 1}</td>
-                    <td class="px-4 py-3 font-bold text-gray-800 text-left">${t.name}</td>
-                    <td class="px-4 py-3 text-sm text-gray-600 text-center">${t.role || '-'}</td>
-                    <td class="px-4 py-3 text-center">${hmBadge}</td>
-                    <td class="px-4 py-3 text-center">${roleBadge}</td>
-                    <td class="px-4 py-3 text-center">
-                        <button onclick="showTeacherModal('${t.id}')" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors mr-2"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="deleteTeacher('${t.id}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors"><i class="fa-solid fa-trash-can"></i></button>
-                    </td>
-                </tr>`;
-            });
-            tbody.innerHTML = html;
-        }
-
-        function showTeacherModal(id = null) {
-            let isEdit = id !== null;
-            let t = isEdit ? allTeachers.find(x => String(x.id) === String(id)) : null;
-            
-            let classOptHtml = '<option value="">-- ไม่ได้เป็นครูประจำชั้น --</option>';
-            allClasses.forEach(c => {
-                let selected = (isEdit && t.homeroom_class === c) ? 'selected' : '';
-                classOptHtml += `<option value="${c}" ${selected}>${c}</option>`;
-            });
-
-            let nameVal = isEdit ? t.name : '';
-            let roleVal = isEdit ? t.role : '';
-            let positionVal = (isEdit && roleVal && roleVal !== 'แอดมิน') ? roleVal : '';
-            let isAdm = (isEdit && roleVal === 'แอดมิน');
-
-            Swal.fire({
-                title: isEdit ? 'แก้ไขข้อมูลบุคลากร' : 'เพิ่มบุคลากรใหม่',
-                html: `
-                    <div class="space-y-4 text-left px-2 mt-4 font-sans">
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">1. ชื่อ-นามสกุล <span class="text-red-500">*</span></label>
-                            <input id="modal-t-name" type="text" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark focus:ring-2 focus:ring-brand-dark/20 transition-all" placeholder="เช่น นายสมชาย ใจดี" value="${nameVal}">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">2. ครูเวรประจำวัน / ตำแหน่ง</label>
-                            <input id="modal-t-position" type="text" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark transition-all" placeholder="เช่น ครูเวรวันจันทร์ / ครูชำนาญการ" value="${positionVal}">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">3. หน้าที่: ครูประจำชั้น (ปจช.)</label>
-                            <select id="modal-t-homeroom" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-brand-dark transition-all">${classOptHtml}</select>
-                            <p class="text-[10px] text-gray-500 mt-1">* จะไปปรากฏในส่วนลงชื่อท้ายรายงานของห้องนั้นๆ</p>
-                        </div>
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 mt-2">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">4. สิทธิ์การใช้งานระบบ</label>
-                            <div class="flex gap-4">
-                                <label class="flex-1 flex items-center justify-center p-2 border rounded-lg cursor-pointer transition-colors hover:bg-white has-[:checked]:border-brand-dark has-[:checked]:bg-brand-dark/5">
-                                    <input type="radio" name="modal-t-sysrole" value="ครูทั่วไป" class="mr-2" ${!isAdm ? 'checked' : ''}> <span class="text-sm font-medium">ครูทั่วไป</span>
-                                </label>
-                                <label class="flex-1 flex items-center justify-center p-2 border rounded-lg cursor-pointer transition-colors hover:bg-white has-[:checked]:border-purple-600 has-[:checked]:bg-purple-50">
-                                    <input type="radio" name="modal-t-sysrole" value="แอดมิน" class="mr-2" ${isAdm ? 'checked' : ''}> <span class="text-sm font-medium text-purple-700">แอดมิน</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                `,
-                showCancelButton: true, confirmButtonText: 'บันทึกข้อมูล', cancelButtonText: 'ยกเลิก',
-                customClass: { confirmButton: 'bg-brand-dark text-white px-6 py-2.5 rounded-xl font-bold', cancelButton: 'bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl font-bold ml-2' },
-                buttonsStyling: false,
-                preConfirm: () => {
-                    const name = document.getElementById('modal-t-name').value;
-                    if(!name) { Swal.showValidationMessage('กรุณากรอก ชื่อ-นามสกุล'); return false; }
-                    
-                    let systemRole = document.querySelector('input[name="modal-t-sysrole"]:checked').value;
-                    let position = document.getElementById('modal-t-position').value;
-                    let finalRole = systemRole === 'แอดมิน' ? 'แอดมิน' : (position || 'ครูทั่วไป');
-                    let homeroomClass = document.getElementById('modal-t-homeroom').value;
-
-                    return { 
-                        name: name, 
-                        role: finalRole, 
-                        homeroom_class: homeroomClass === "" ? null : homeroomClass 
-                    };
-                }
-            }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    try {
-                        let updatedData = null;
-
-                        if (isEdit) {
-                            const { data, error } = await supabaseClient.from('teachers').update(result.value).eq('id', id).select();
-                            if (error) throw error;
-                            updatedData = data;
-                            const idx = allTeachers.findIndex(x => String(x.id) === String(id));
-                            if (idx !== -1 && data && data.length > 0) {
-                                allTeachers[idx] = data[0];
-                            }
-                        } else {
-                            const { data, error } = await supabaseClient.from('teachers').insert(result.value).select();
-                            if (error) throw error;
-                            updatedData = data;
-                            if (data && data.length > 0) {
-                                allTeachers.push(data[0]);
-                            }
-                        }
-                        
-                        renderTeachersManage(); 
-                        Swal.fire({icon: 'success', title: 'สำเร็จ!', text: 'บันทึกข้อมูลบุคลากรเรียบร้อย', timer: 1500, showConfirmButton: false});
-                    } catch(err) { 
-                        Swal.fire('ผิดพลาด', err.message, 'error'); 
-                    }
-                }
-            });
-        }
-
-        function deleteTeacher(id) {
-            Swal.fire({ title: 'ยืนยันการลบ?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ใช่, ลบข้อมูล' }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { error } = await supabaseClient.from('teachers').delete().eq('id', id);
-                        if (error) throw error;
-                        allTeachers = allTeachers.filter(t => String(t.id) !== String(id));
-                        renderTeachersManage();
-                        Swal.fire({icon: 'success', title: 'ลบสำเร็จ', showConfirmButton: false, timer: 1000});
-                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
-                }
-            });
-        }
-
+        /* ----- จัดการนักเรียน ----- */
         async function renderManageStudentsTable() {
             const classFilter = document.getElementById('manage-class-filter').value;
             const searchInput = document.getElementById('manage-student-search').value.toLowerCase();
             const tbody = document.getElementById('manage-students-tbody');
-            tbody.innerHTML = '<tr><td colspan="5" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังโหลดข้อมูล...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังโหลดข้อมูล...</td></tr>';
             
             try {
                 let query = supabaseClient.from('students').select('*')
@@ -2035,148 +1902,68 @@
                 
                 let filtered = searchInput ? data.filter(s => s.name.toLowerCase().includes(searchInput) || String(s.student_code).includes(searchInput)) : data;
                 let html = '';
-                if(filtered.length === 0) html = '<tr><td colspan="5" class="py-8 text-center text-gray-500">ไม่พบรายชื่อนักเรียน</td></tr>';
+                if(filtered.length === 0) html = '<tr><td colspan="6" class="py-8 text-center text-gray-500">ไม่พบรายชื่อนักเรียน</td></tr>';
                 else {
                     filtered.forEach(s => {
-                        html += `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center">${s.student_number}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${s.student_code}</td><td class="px-4 py-3 font-medium text-left">${s.name}</td><td class="px-4 py-3 text-center text-sm text-gray-500">${s.class_name}</td><td class="px-4 py-3 text-center"><button onclick="deleteStudent('${s.student_code}')" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
+                        // รูปแบบวันเกิด
+                        let dobText = s.birth_date ? new Date(s.birth_date).toLocaleDateString('th-TH') : '-';
+                        html += `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-center">${s.student_number}</td><td class="px-4 py-3 text-center text-gray-500 font-mono">${s.student_code}</td><td class="px-4 py-3 font-medium text-left">${s.name}</td><td class="px-4 py-3 text-center text-sm text-gray-500">${s.class_name}</td><td class="px-4 py-3 text-center text-sm text-gray-600">${dobText}</td><td class="px-4 py-3 text-center"><button onclick="deleteStudent('${s.student_code}')" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button></td></tr>`;
                     });
                 }
                 tbody.innerHTML = html;
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`;
-            }
-        }
-
-        function renderClassesManage() {
-            const container = document.getElementById('class-cards-container');
-            let html = '';
-            
-            const classColors = [
-                'from-blue-300 to-blue-100 text-blue-800 border-blue-200',
-                'from-purple-300 to-purple-100 text-purple-800 border-purple-200',
-                'from-orange-300 to-orange-100 text-orange-800 border-orange-200',
-                'from-emerald-300 to-emerald-100 text-emerald-800 border-emerald-200',
-                'from-rose-300 to-rose-100 text-rose-800 border-rose-200',
-                'from-indigo-300 to-indigo-100 text-indigo-800 border-indigo-200'
-            ];
-
-            allClasses.forEach((c, idx) => {
-                let colorClass = classColors[idx % classColors.length];
-                html += `
-                <div class="bg-white border border-gray-100 p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 group">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border">
-                            ${idx+1}
-                        </div>
-                        <h4 class="font-bold text-gray-700 text-lg">${c}</h4>
-                    </div>
-                    <button onclick="deleteClass('${c}')" class="w-10 h-10 rounded-full bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center opacity-70 group-hover:opacity-100"><i class="fa-solid fa-trash-can"></i></button>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function promptAddClass() {
-            Swal.fire({
-                title: 'เพิ่มชั้นเรียน', input: 'text', inputPlaceholder: 'เช่น ประถมศึกษาปีที่ 1',
-                showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark
-            }).then(async (result) => {
-                if (result.isConfirmed && result.value) {
-                    Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { error } = await supabaseClient.from('classes').insert({ class_name: result.value });
-                        if (error) throw error;
-                        allClasses.push(result.value);
-                        populateDropdowns(); renderClassesManage();
-                        Swal.fire('สำเร็จ', 'เพิ่มชั้นเรียนเรียบร้อย', 'success');
-                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
-                }
-            });
-        }
-        function deleteClass(cName) {
-            Swal.fire({ 
-                title: 'ยืนยันการลบ?', 
-                html: `ต้องการลบชั้นเรียน <b>${cName}</b> หรือไม่?<br><span class="text-sm text-red-500 mt-2 block">(คำเตือน: หากมีนักเรียนอยู่ในชั้นนี้ จะไม่สามารถลบได้ ต้องย้ายหรือลบนักเรียนออกก่อน)</span>`, 
-                showCancelButton: true, 
-                confirmButtonColor: '#d33', 
-                confirmButtonText: 'ลบข้อมูล' 
-            }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { error } = await supabaseClient.from('classes').delete().eq('class_name', cName);
-                        if (error) throw error;
-                        allClasses = allClasses.filter(c => c !== cName);
-                        populateDropdowns(); renderClassesManage();
-                        Swal.fire('สำเร็จ', 'ลบชั้นเรียนเรียบร้อย', 'success');
-                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
-                }
-            });
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
         }
 
         function showAddStudentModal() {
             let classOptions = allClasses.map(c => `<option value="${c}">${c}</option>`).join('');
             Swal.fire({
                 title: '<h2 class="text-xl font-bold">เพิ่มรายชื่อนักเรียน</h2>',
-                html: `<div class="space-y-4 text-left mt-2"><input id="add-s-num" type="number" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="เลขที่"><input id="add-s-code" type="text" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="รหัสประจำตัว"><input id="add-s-name" type="text" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="ชื่อ-นามสกุล"><select id="add-s-class" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">${classOptions}</select><select id="add-s-gender" class="w-full p-3 bg-gray-50 border rounded-xl outline-none"><option value="M">ชาย</option><option value="F">หญิง</option></select></div>`,
+                html: `
+                <div class="space-y-4 text-left mt-2">
+                    <input id="add-s-num" type="number" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="เลขที่">
+                    <input id="add-s-code" type="text" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="รหัสประจำตัว">
+                    <input id="add-s-name" type="text" class="w-full p-3 bg-gray-50 border rounded-xl outline-none" placeholder="ชื่อ-นามสกุล">
+                    <select id="add-s-class" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">${classOptions}</select>
+                    <select id="add-s-gender" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
+                        <option value="M">ชาย</option>
+                        <option value="F">หญิง</option>
+                    </select>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">วัน/เดือน/ปีเกิด (ค.ศ.)</label>
+                        <input id="add-s-dob" type="date" class="w-full p-3 bg-gray-50 border rounded-xl outline-none">
+                    </div>
+                </div>`,
                 showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark,
                 preConfirm: () => {
                     const number = document.getElementById('add-s-num').value;
                     const code = document.getElementById('add-s-code').value;
                     const name = document.getElementById('add-s-name').value;
+                    const dob = document.getElementById('add-s-dob').value;
                     if(!number || !code || !name) { Swal.showValidationMessage('กรุณากรอกให้ครบ'); return false; }
-                    return { student_number: number, student_code: code, name: name, class_name: document.getElementById('add-s-class').value, gender: document.getElementById('add-s-gender').value };
+                    return { 
+                        student_number: number, student_code: code, name: name, 
+                        class_name: document.getElementById('add-s-class').value, 
+                        gender: document.getElementById('add-s-gender').value,
+                        birth_date: dob ? dob : null
+                    };
                 }
             }).then(async (result) => {
                 if(result.isConfirmed) {
                     try {
                         const { error } = await supabaseClient.from('students').insert(result.value);
-                        if (error) throw error;
+                        if (error) {
+                            if (error.message.includes('birth_date')) throw new Error('คอลัมน์ birth_date ไม่มีในฐานข้อมูล กรุณาอัปเดต SQL ใน Supabase');
+                            throw error;
+                        }
                         renderManageStudentsTable(); 
                         Swal.fire('สำเร็จ', '', 'success');
                     } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
                 }
             });
         }
-        function deleteStudent(code) {
-            Swal.fire({ title: 'ลบรายชื่อ?', icon:'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบ' }).then(async (result) => {
-                if (result.isConfirmed) {
-                    try {
-                        const { error } = await supabaseClient.from('students').delete().eq('student_code', code);
-                        if (error) throw error;
-                        renderManageStudentsTable(); 
-                    } catch(err) {}
-                }
-            });
-        }
-        
-        function deleteAllStudents() {
-            Swal.fire({ 
-                title: 'ยืนยันการลบนักเรียนทั้งหมด?', 
-                text: 'คำเตือน: ข้อมูลนักเรียนทั้งหมดจะถูกลบออกจากระบบและไม่สามารถกู้คืนได้!', 
-                icon: 'warning', 
-                showCancelButton: true, 
-                confirmButtonColor: '#d33', 
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'ใช่, ลบทั้งหมด',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    Swal.fire({title: 'กำลังลบข้อมูล...', didOpen: () => Swal.showLoading()});
-                    try {
-                        const { error } = await supabaseClient.from('students').delete().not('student_code', 'is', null);
-                        if (error) throw error;
-                        Swal.fire('สำเร็จ', 'ลบข้อมูลนักเรียนทั้งหมดเรียบร้อยแล้ว', 'success');
-                        renderManageStudentsTable(); 
-                    } catch(err) {
-                        Swal.fire('ผิดพลาด', err.message, 'error');
-                    }
-                }
-            });
-        }
 
         function downloadStudentTemplate() {
-            const csv = "data:text/csv;charset=utf-8,\uFEFFเลขที่,รหัสประจำตัว,ชื่อ-นามสกุล,ชั้นเรียน,เพศ (M/F)\n1,660101,เด็กชายตัวอย่าง,ประถมศึกษาปีที่ 1,M";
+            const csv = "data:text/csv;charset=utf-8,\uFEFFเลขที่,รหัสประจำตัว,ชื่อ-นามสกุล,ชั้นเรียน,เพศ (M/F),วันเกิด (YYYY-MM-DD)\n1,660101,เด็กชายตัวอย่าง,ประถมศึกษาปีที่ 1,M,2015-05-20";
             const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "แม่แบบนักเรียน.csv";
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
@@ -2192,10 +1979,13 @@
                     let cols = rows[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
                     if (cols.length >= 4 && cols[0]) {
                         const className = cols[3];
-                        if (!allClasses.includes(className)) {
-                            missingClasses.add(className);
-                        }
-                        newStudents.push({ student_number: parseInt(cols[0]), student_code: cols[1], name: cols[2], class_name: className, gender: cols[4] || '' });
+                        if (!allClasses.includes(className)) missingClasses.add(className);
+                        let dob = cols.length >= 6 && cols[5] ? cols[5] : null;
+                        
+                        newStudents.push({ 
+                            student_number: parseInt(cols[0]), student_code: cols[1], name: cols[2], 
+                            class_name: className, gender: cols[4] || '', birth_date: dob
+                        });
                     }
                 }
                 
@@ -2207,12 +1997,10 @@
                         if (classError) throw classError;
                         
                         Array.from(missingClasses).forEach(c => allClasses.push(c));
-                        populateDropdowns(); 
-                        renderClassesManage();
+                        populateDropdowns(); renderClassesManage();
                     } catch (err) {
                         Swal.fire('เกิดข้อผิดพลาดในการสร้างชั้นเรียน', err.message, 'error');
-                        event.target.value = '';
-                        return;
+                        event.target.value = ''; return;
                     }
                 }
 
@@ -2221,9 +2009,7 @@
                     try {
                         const { error } = await supabaseClient.from('students').insert(newStudents);
                         if (error) {
-                            if(error.message.includes('foreign key constraint')) {
-                                throw new Error('ชื่อชั้นเรียนในไฟล์ ไม่ตรงกับในระบบ กรุณาตรวจสอบให้แน่ใจว่าได้เพิ่มชั้นเรียนไว้แล้ว');
-                            }
+                            if (error.message.includes('birth_date')) throw new Error('เกิดข้อผิดพลาด: โปรดอัปเดต SQL ใน Supabase เพื่อเพิ่มคอลัมน์ birth_date');
                             throw error;
                         }
                         Swal.fire('สำเร็จ', `นำเข้าทั้งหมด ${newStudents.length} รายการ`, 'success'); 
@@ -2235,6 +2021,75 @@
             reader.readAsText(file);
         }
 
+        function deleteStudent(code) {
+            Swal.fire({ title: 'ลบรายชื่อ?', icon:'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบ' }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const { error } = await supabaseClient.from('students').delete().eq('student_code', code);
+                        if (error) throw error;
+                        renderManageStudentsTable(); 
+                    } catch(err) {}
+                }
+            });
+        }
+        function deleteAllStudents() {
+            Swal.fire({ 
+                title: 'ยืนยันการลบนักเรียนทั้งหมด?', text: 'คำเตือน: ข้อมูลนักเรียนทั้งหมดจะถูกลบออกจากระบบและไม่สามารถกู้คืนได้!', icon: 'warning', 
+                showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#6b7280', confirmButtonText: 'ใช่, ลบทั้งหมด', cancelButtonText: 'ยกเลิก'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({title: 'กำลังลบข้อมูล...', didOpen: () => Swal.showLoading()});
+                    try {
+                        const { error } = await supabaseClient.from('students').delete().not('student_code', 'is', null);
+                        if (error) throw error;
+                        Swal.fire('สำเร็จ', 'ลบข้อมูลนักเรียนทั้งหมดเรียบร้อยแล้ว', 'success');
+                        renderManageStudentsTable(); 
+                    } catch(err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                }
+            });
+        }
+
+        /* ----- ระบบอื่นๆ ----- */
+        function renderClassesManage() {
+            const container = document.getElementById('class-cards-container');
+            let html = '';
+            const classColors = ['from-blue-300 to-blue-100 text-blue-800 border-blue-200', 'from-purple-300 to-purple-100 text-purple-800 border-purple-200', 'from-orange-300 to-orange-100 text-orange-800 border-orange-200', 'from-emerald-300 to-emerald-100 text-emerald-800 border-emerald-200', 'from-rose-300 to-rose-100 text-rose-800 border-rose-200', 'from-indigo-300 to-indigo-100 text-indigo-800 border-indigo-200'];
+            allClasses.forEach((c, idx) => {
+                let colorClass = classColors[idx % classColors.length];
+                html += `<div class="bg-white border border-gray-100 p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all transform hover:-translate-y-1 group"><div class="flex items-center gap-4"><div class="w-12 h-12 bg-gradient-to-br ${colorClass} rounded-xl flex items-center justify-center font-bold text-lg shadow-sm border">${idx+1}</div><h4 class="font-bold text-gray-700 text-lg">${c}</h4></div><button onclick="deleteClass('${c}')" class="w-10 h-10 rounded-full bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center opacity-70 group-hover:opacity-100"><i class="fa-solid fa-trash-can"></i></button></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function promptAddClass() {
+            Swal.fire({
+                title: 'เพิ่มชั้นเรียน', input: 'text', inputPlaceholder: 'เช่น ประถมศึกษาปีที่ 1', showCancelButton: true, confirmButtonText: 'บันทึก', confirmButtonColor: themes[currentTheme].dark
+            }).then(async (result) => {
+                if (result.isConfirmed && result.value) {
+                    Swal.fire({title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading()});
+                    try {
+                        const { error } = await supabaseClient.from('classes').insert({ class_name: result.value });
+                        if (error) throw error;
+                        allClasses.push(result.value); populateDropdowns(); renderClassesManage();
+                        Swal.fire('สำเร็จ', 'เพิ่มชั้นเรียนเรียบร้อย', 'success');
+                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                }
+            });
+        }
+        function deleteClass(cName) {
+            Swal.fire({ title: 'ยืนยันการลบ?', html: `ต้องการลบชั้นเรียน <b>${cName}</b> หรือไม่?<br><span class="text-sm text-red-500 mt-2 block">(คำเตือน: หากมีนักเรียนอยู่ในชั้นนี้ จะไม่สามารถลบได้ ต้องย้ายหรือลบนักเรียนออกก่อน)</span>`, showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบข้อมูล' }).then(async (result) => {
+                if(result.isConfirmed) {
+                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
+                    try {
+                        const { error } = await supabaseClient.from('classes').delete().eq('class_name', cName);
+                        if (error) throw error;
+                        allClasses = allClasses.filter(c => c !== cName); populateDropdowns(); renderClassesManage();
+                        Swal.fire('สำเร็จ', 'ลบชั้นเรียนเรียบร้อย', 'success');
+                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                }
+            });
+        }
+
         function handleLogoUpload(event) {
             const file = event.target.files[0];
             if(file) {
@@ -2242,7 +2097,7 @@
                 reader.onload = function(e) {
                     currentLogo = e.target.result;
                     localStorage.setItem('school_logo', currentLogo);
-                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview'].forEach(id => {
+                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview'].forEach(id => {
                         const imgEl = document.getElementById(id);
                         if (imgEl) { imgEl.src = currentLogo; imgEl.style.display = 'block'; }
                     });
@@ -2256,19 +2111,14 @@
             const newPinInput = document.getElementById('set-pin-new').value;
             
             if (newPinInput && (String(currentPinInput) !== String(systemPin) || newPinInput.length !== 6)) {
-                Swal.fire({icon: 'error', title: 'รหัสผ่านไม่ถูกต้อง', text: 'ตรวจสอบรหัสเดิมและกรอกรหัสใหม่ 6 หลัก', confirmButtonColor: themes[currentTheme].dark});
-                return;
+                Swal.fire({icon: 'error', title: 'รหัสผ่านไม่ถูกต้อง', text: 'ตรวจสอบรหัสเดิมและกรอกรหัสใหม่ 6 หลัก', confirmButtonColor: themes[currentTheme].dark}); return;
             }
 
             let newSettings = {
-                SchoolName: document.getElementById('setting-school-name').value,
-                SchoolDirector: document.getElementById('setting-school-director').value,
-                SchoolArea: document.getElementById('setting-school-area').value,
-                SchoolYear: document.getElementById('setting-school-year').value,
-                Semester: document.getElementById('setting-school-semester').value,
-                TelegramBotToken: document.getElementById('setting-tel-token').value,
-                TelegramChatID: document.getElementById('setting-tel-chatid').value,
-                SpecialHolidays: JSON.stringify(specialHolidays)
+                SchoolName: document.getElementById('setting-school-name').value, SchoolDirector: document.getElementById('setting-school-director').value,
+                SchoolArea: document.getElementById('setting-school-area').value, SchoolYear: document.getElementById('setting-school-year').value,
+                Semester: document.getElementById('setting-school-semester').value, TelegramBotToken: document.getElementById('setting-tel-token').value,
+                TelegramChatID: document.getElementById('setting-tel-chatid').value, SpecialHolidays: JSON.stringify(specialHolidays)
             };
             if (newPinInput) { newSettings.SystemPIN = newPinInput; systemPin = newPinInput; }
 
@@ -2280,24 +2130,18 @@
                 const { error } = await supabaseClient.from('settings').upsert(rows);
                 if (error) throw error;
                 
-                appSettings = {...appSettings, ...newSettings};
-                applySettingsToUI();
+                appSettings = {...appSettings, ...newSettings}; applySettingsToUI();
                 document.getElementById('set-pin-current').value = ''; document.getElementById('set-pin-new').value = '';
                 Swal.fire('สำเร็จ', 'บันทึกการตั้งค่าแล้ว', 'success');
             } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
         }
 
-        function initTheme() {
-            const savedTheme = localStorage.getItem('school_theme') || 'default';
-            applyTheme(savedTheme, false);
-        }
+        function initTheme() { const savedTheme = localStorage.getItem('school_theme') || 'default'; applyTheme(savedTheme, false); }
         function applyTheme(themeKey, showToast = true) {
             const theme = themes[themeKey];
             if(!theme) return;
             currentTheme = themeKey;
-            document.documentElement.style.setProperty('--color-brand-dark', theme.dark);
-            document.documentElement.style.setProperty('--color-brand-light', theme.light);
-            document.documentElement.style.setProperty('--color-brand-bg', theme.bg);
+            document.documentElement.style.setProperty('--color-brand-dark', theme.dark); document.documentElement.style.setProperty('--color-brand-light', theme.light); document.documentElement.style.setProperty('--color-brand-bg', theme.bg);
             localStorage.setItem('school_theme', themeKey);
             
             document.querySelectorAll('.theme-btn').forEach(btn => { btn.classList.remove('ring-4', 'ring-offset-2', 'ring-gray-400', 'scale-110'); btn.innerHTML = ''; });
@@ -2310,23 +2154,7 @@
             for (const [key, theme] of Object.entries(themes)) {
                 html += `<div class="flex flex-col items-center gap-1.5"><button id="theme-btn-${key}" onclick="applyTheme('${key}')" class="theme-btn w-12 h-12 rounded-full shadow-sm border-2 border-white transition-all hover:scale-110" style="background: linear-gradient(135deg, ${theme.light} 0%, ${theme.dark} 100%);"></button><span class="text-[10px] md:text-xs text-gray-500 whitespace-nowrap">${theme.name}</span></div>`;
             }
-            container.innerHTML = html;
-            applyTheme(currentTheme, false);
-        }
-
-        function downloadPDF() { window.print(); }
-        function exportToExcel() {
-            let tableId = currentReportType === 'daily' ? 'report-table-daily' : 'report-table-monthly';
-            let table = document.getElementById(tableId);
-            let rows = Array.from(table.querySelectorAll('tr'));
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-            rows.forEach(row => {
-                let rowData = [];
-                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
-                csvContent += rowData.join(",") + "\n";
-            });
-            const link = document.createElement("a"); link.href = encodeURI(csvContent); link.download = `รายงานสถิติการมาเรียน_${currentReportType}.csv`;
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            container.innerHTML = html; applyTheme(currentTheme, false);
         }
     </script>
 </body>
