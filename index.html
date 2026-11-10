@@ -71,7 +71,7 @@
             thead { display: table-header-group !important; }
             tr { page-break-inside: avoid !important; page-break-after: auto !important; }
             
-            #tab-health:not(.hidden), #tab-stats:not(.hidden), #tab-hygiene:not(.hidden) { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+            #tab-health:not(.hidden), #tab-stats:not(.hidden), #tab-hygiene:not(.hidden), #tab-merit:not(.hidden) { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
             #tab-dashboard, #tab-record, #tab-manage-students, #tab-manage-classes, #tab-settings, #tab-profile, #tab-manage-teachers { display: none !important; }
             
             * { -webkit-print-color-adjust: exact !important; color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -144,6 +144,7 @@
             <button onclick="switchTab('record')" id="nav-record" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-calendar-check w-8 text-xl"></i> บันทึกเช็คชื่อ</button>
             <button onclick="switchTab('health')" id="nav-health" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-weight-scale w-8 text-xl"></i> น้ำหนัก/ส่วนสูง</button>
             <button onclick="switchTab('hygiene')" id="nav-hygiene" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-hand-sparkles w-8 text-xl"></i> ตรวจสุขภาพเบื้องต้น</button>
+            <button onclick="switchTab('merit')" id="nav-merit" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-star w-8 text-xl text-yellow-300"></i> บันทึกความดี</button>
             <button onclick="switchTab('manage-students')" id="nav-manage-students" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-users-gear w-8 text-xl"></i> จัดการนักเรียน</button>
             <button onclick="switchTab('manage-classes')" id="nav-manage-classes" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-chalkboard-user w-8 text-xl"></i> จัดการชั้นเรียน</button>
             <button onclick="switchTab('manage-teachers')" id="nav-manage-teachers" class="w-full flex items-center px-4 py-3 text-white hover:bg-white/10 rounded-xl font-medium transition-colors"><i class="fa-solid fa-user-tie w-8 text-xl"></i> จัดการบุคลากร</button>
@@ -181,6 +182,7 @@
                             <button onclick="switchTab('record')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2DD4BF] to-[#0F766E] text-white flex items-center justify-center text-[26px] shadow-md shadow-teal-500/20 mb-2"><i class="fa-regular fa-pen-to-square"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">บันทึก<br>มาเรียน</span></button>
                             <button onclick="switchTab('health')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F472B6] to-[#BE185D] text-white flex items-center justify-center text-[24px] shadow-md shadow-pink-500/20 mb-2"><i class="fa-solid fa-weight-scale"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">น้ำหนัก<br>ส่วนสูง</span></button>
                             <button onclick="switchTab('hygiene')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#60A5FA] to-[#1D4ED8] text-white flex items-center justify-center text-[24px] shadow-md shadow-blue-500/20 mb-2"><i class="fa-solid fa-hand-sparkles"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">ตรวจสุขภาพ<br>เบื้องต้น</span></button>
+                            <button onclick="switchTab('merit')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FCD34D] to-[#D97706] text-white flex items-center justify-center text-[24px] shadow-md shadow-yellow-500/20 mb-2"><i class="fa-solid fa-star"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">บันทึก<br>ความดี</span></button>
                             <button onclick="switchTab('stats')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#A78BFA] to-[#6D28D9] text-white flex items-center justify-center text-[24px] shadow-md shadow-purple-500/20 mb-2"><i class="fa-solid fa-file-invoice"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">รายงาน<br>สถิติรวม</span></button>
                             <button onclick="switchTab('manage-students')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3B82F6] to-[#1D4ED8] text-white flex items-center justify-center text-[24px] shadow-md shadow-blue-500/20 mb-2"><i class="fa-solid fa-users-gear"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">จัดการ<br>นักเรียน</span></button>
                             <button onclick="switchTab('settings')" class="w-[72px] md:w-20 flex flex-col items-center justify-start group hover:-translate-y-1 transition-transform"><div class="w-14 h-14 rounded-2xl bg-brand-dark text-white flex items-center justify-center text-[24px] shadow-md mb-2 transition-colors duration-300"><i class="fa-solid fa-gear"></i></div><span class="text-[11px] md:text-xs text-gray-600 font-medium text-center leading-tight">ตั้งค่าระบบ</span></button>
@@ -482,6 +484,108 @@
                             <div class="print-signature-container hidden print:flex justify-between mt-10 px-4 font-print text-sm md:text-base">
                                 <div id="hygiene-signature-block-teachers"></div>
                                 <div id="hygiene-signature-block-director"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: MERIT (บันทึกความดี) -->
+                <div id="tab-merit" class="hidden animate-fade-in max-w-5xl mx-auto">
+                    <div class="bg-white rounded-2xl p-4 md:p-6 mb-6 shadow-sm border border-gray-100 print-hide">
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
+                            <h2 class="text-lg font-bold text-yellow-600 transition-colors"><i class="fa-solid fa-star mr-2"></i>ระบบบันทึกพฤติกรรมความดี</h2>
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
+                                <button id="btn-merit-record" onclick="setMeritMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-merit-report" onclick="setMeritMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                            </div>
+                        </div>
+                        
+                        <div id="merit-report-toggles" class="hidden mb-4 print-hide">
+                            <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
+                                <button id="btn-merit-rep-daily" onclick="setMeritReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
+                                <button id="btn-merit-rep-monthly" onclick="setMeritReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row gap-4 mb-2">
+                            <div class="flex-1" id="merit-date-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">วันที่บันทึก/รายงาน</label>
+                                <input type="date" id="merit-date" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1 hidden" id="merit-month-wrapper">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เดือนที่รายงาน</label>
+                                <input type="month" id="merit-month" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-500 mb-1">เลือกชั้นเรียน</label>
+                                <select id="merit-class" class="w-full px-4 py-2.5 border border-gray-200 bg-gray-50 rounded-xl outline-none focus:border-brand-dark"></select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="fetchMeritData()" class="w-full md:w-auto bg-yellow-500 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-yellow-600 shadow-md transition-all active:scale-95 flex items-center justify-center">
+                                    <i class="fa-solid fa-search mr-2"></i>ดึงรายชื่อ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Merit Record List -->
+                    <div id="merit-list-container" class="hidden pb-12 print-hide">
+                        <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl mb-4 text-sm text-blue-800 flex items-start">
+                            <i class="fa-solid fa-info-circle mt-1 mr-3 text-blue-500 text-lg"></i>
+                            <div>
+                                <p class="font-bold">วิธีใช้งาน:</p>
+                                <p>เลือกนักเรียนที่ทำความดี แล้วกดปุ่ม <b>"+ เพิ่มความดี"</b> เพื่อระบุรายละเอียด เช่น เก็บของได้ส่งคืน หรือ ช่วยเหลืองานโรงเรียน</p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm bg-white mb-6">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                                    <tr>
+                                        <th class="px-2 py-4 text-center w-16">เลขที่</th>
+                                        <th class="px-4 py-4 text-center">ชื่อ - นามสกุล</th>
+                                        <th class="px-2 py-4 text-center w-24">ชั้นเรียน</th>
+                                        <th class="px-4 py-4 text-center w-40">บันทึกเหตุการณ์</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="merit-list-body" class="divide-y divide-gray-100 bg-white"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Merit Report Container -->
+                    <div id="merit-report-container" class="hidden pb-12 relative">
+                        <div class="flex justify-end gap-2 mb-4 print-hide">
+                            <button onclick="exportMeritExcel()" class="px-4 py-2 bg-[#107C41] text-white rounded-xl text-sm font-medium hover:bg-green-700 shadow-sm transition-colors"><i class="fa-solid fa-file-excel mr-1"></i> ดาวน์โหลด Excel</button>
+                            <button onclick="window.print()" class="px-4 py-2 bg-blue-500 text-white rounded-xl text-sm font-medium hover:bg-blue-600 shadow-sm transition-colors"><i class="fa-solid fa-print mr-1"></i> สั่งพิมพ์เอกสาร</button>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-2 md:p-6 print:border-none print:shadow-none print:p-0">
+                            <!-- Print Header -->
+                            <div class="hidden print:block text-center mb-6 font-print">
+                                <img id="print-logo-merit-preview" src="" class="h-20 mx-auto mb-2 grayscale opacity-90 object-contain" alt="ตราโรงเรียน" style="display:none;">
+                                <h1 class="text-2xl font-bold text-black">แบบรายงานการบันทึกพฤติกรรมความดี</h1>
+                                <h2 class="text-xl text-black mt-1" id="print-merit-doc-school">กำลังโหลด...</h2>
+                                <p class="text-lg text-black mt-2 font-medium" id="print-merit-doc-date">ประจำวันที่ ...</p>
+                                <p class="text-lg text-black mt-1 font-medium" id="print-merit-doc-class">ชั้นเรียน: ...</p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 print:border-none print:shadow-none print:rounded-none">
+                                <table class="w-full text-sm text-left border-collapse font-print" id="report-table-merit">
+                                    <thead class="bg-yellow-50 text-yellow-800 print:bg-transparent print:text-black print:font-bold border-b border-yellow-200 print:border-black">
+                                        <tr>
+                                            <th class="py-3 px-2 text-center w-12 border print:border-black">ที่</th>
+                                            <th class="py-3 px-2 text-center w-16 border print:border-black">ชั้น</th>
+                                            <th class="py-3 px-4 text-center border print:border-black">ชื่อ - นามสกุล</th>
+                                            <th class="py-3 px-4 text-center border print:border-black">หมวดหมู่ความดี</th>
+                                            <th class="py-3 px-4 text-center border print:border-black">รายละเอียดเหตุการณ์</th>
+                                            <th class="py-3 px-2 text-center w-16 border print:border-black">คะแนน</th>
+                                            <th class="py-3 px-2 text-center w-24 border print:border-black">วันที่บันทึก</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="merit-report-body" class="divide-y divide-gray-100 bg-white print:divide-black">
+                                        <tr><td colspan="7" class="py-8 text-center text-gray-500">กรุณากดปุ่มดึงข้อมูล</td></tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -795,6 +899,8 @@
         let currentHealthReportType = 'daily';
         let currentHygieneMode = 'record';
         let currentHygieneReportType = 'daily';
+        let currentMeritMode = 'record';
+        let currentMeritReportType = 'daily';
 
         let appSettings = {};
         let allClasses = [];
@@ -905,6 +1011,8 @@
                 document.getElementById('health-month').value = currentMonth;
                 document.getElementById('hygiene-date').value = today;
                 document.getElementById('hygiene-month').value = currentMonth;
+                document.getElementById('merit-date').value = today;
+                document.getElementById('merit-month').value = currentMonth;
                 document.getElementById('stats-date').value = today;
                 document.getElementById('stats-month').value = currentMonth;
                 updateDashboardDateDisplay();
@@ -936,9 +1044,10 @@
             document.getElementById('print-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('print-health-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('print-hygiene-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
+            document.getElementById('print-merit-doc-school').innerText = `${sNameText} ภาคเรียนที่ ${sSemText} ปีการศึกษา ${sYearText}`;
             document.getElementById('stats-table-school-subtitle').innerText = sNameText;
 
-            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview'].forEach(id => {
+            ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview', 'print-logo-merit-preview'].forEach(id => {
                 const imgEl = document.getElementById(id);
                 if (imgEl) { imgEl.src = currentLogo; imgEl.style.display = currentLogo ? 'block' : 'none'; }
             });
@@ -988,6 +1097,7 @@
             document.getElementById('manage-class-filter').innerHTML = optionsHtml;
             document.getElementById('health-class').innerHTML = optionsHtml;
             document.getElementById('hygiene-class').innerHTML = optionsHtml;
+            document.getElementById('merit-class').innerHTML = optionsHtml;
         }
 
         function logout(e) {
@@ -1003,7 +1113,7 @@
 
         function switchTab(tabName) {
             if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) toggleMobileMenu();
-            ['dashboard', 'record', 'health', 'hygiene', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
+            ['dashboard', 'record', 'health', 'hygiene', 'merit', 'stats', 'manage-students', 'manage-classes', 'manage-teachers', 'settings', 'profile'].forEach(tab => {
                 const el = document.getElementById(`tab-${tab}`);
                 if(el) el.classList.add('hidden');
             });
@@ -1030,6 +1140,10 @@
             if (tabName === 'hygiene') {
                 document.getElementById('hygiene-list-container').classList.add('hidden');
                 document.getElementById('hygiene-report-container').classList.add('hidden');
+            }
+            if (tabName === 'merit') {
+                document.getElementById('merit-list-container').classList.add('hidden');
+                document.getElementById('merit-report-container').classList.add('hidden');
             }
             if (tabName === 'manage-students') { populateDropdowns(); renderManageStudentsTable(); }
             if (tabName === 'manage-classes') renderClassesManage();
@@ -1885,6 +1999,233 @@
             blockDirector.innerHTML = `<div class="flex flex-col items-center"><p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รับรอง</p><p class="mt-8 whitespace-nowrap">( ${directorName} )</p><p class="mt-1 font-medium whitespace-nowrap">ผู้อำนวยการโรงเรียน</p></div>`;
         }
 
+        /* ----- ระบบบันทึกพฤติกรรมความดี (Merit) ----- */
+        function setMeritMode(mode) {
+            currentMeritMode = mode;
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-merit-record').className = mode === 'record' ? btnClassA : btnClassB;
+            document.getElementById('btn-merit-report').className = mode === 'report' ? btnClassA : btnClassB;
+            document.getElementById('merit-report-toggles').classList.toggle('hidden', mode === 'record');
+            
+            if (mode === 'record') {
+                document.getElementById('merit-date-wrapper').classList.remove('hidden');
+                document.getElementById('merit-month-wrapper').classList.add('hidden');
+            } else { setMeritReportType(currentMeritReportType); }
+
+            document.getElementById('merit-list-container').classList.add('hidden');
+            document.getElementById('merit-report-container').classList.add('hidden');
+        }
+
+        function setMeritReportType(type) {
+            currentMeritReportType = type;
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-merit-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
+            document.getElementById('btn-merit-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
+            document.getElementById('merit-date-wrapper').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('merit-month-wrapper').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('merit-report-container').classList.add('hidden');
+        }
+
+        function fetchMeritData() {
+            if (currentMeritMode === 'record') loadMeritStudents();
+            else loadMeritReport();
+        }
+
+        async function loadMeritStudents() {
+            const className = document.getElementById('merit-class').value;
+            document.getElementById('merit-list-container').classList.remove('hidden');
+            const tbody = document.getElementById('merit-list-body');
+            tbody.innerHTML = '<tr><td colspan="4" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายชื่อ...</td></tr>';
+
+            try {
+                let query = supabaseClient.from('students').select('*').order('class_name', { ascending: true }).order('student_number', { ascending: true });
+                if (className !== 'ทั้งหมด') query = query.eq('class_name', className);
+                const { data: students, error: stuErr } = await query;
+                if (stuErr) throw stuErr;
+
+                if (students.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="py-10 text-center text-gray-500">ไม่พบรายชื่อนักเรียนในชั้นเรียนนี้</td></tr>'; return; }
+
+                let html = '';
+                let currentClassRendered = '';
+
+                students.forEach(s => {
+                    if (className === 'ทั้งหมด' && s.class_name !== currentClassRendered) {
+                        currentClassRendered = s.class_name;
+                        html += `<tr class="bg-brand-dark/5 border-y border-gray-200"><td colspan="4" class="px-4 py-2 font-bold text-brand-dark text-sm"><i class="fa-solid fa-chalkboard-user mr-2"></i>${s.class_name}</td></tr>`;
+                    }
+
+                    let prefixColor = s.gender === 'F' ? 'bg-pink-100 text-pink-700' : 'bg-blue-100 text-blue-700';
+                    
+                    html += `
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-2 py-3 text-center">
+                            <div class="w-8 h-8 mx-auto rounded-full ${prefixColor} flex items-center justify-center font-bold text-sm shrink-0">${s.student_number}</div>
+                        </td>
+                        <td class="px-4 py-3 font-medium text-gray-800 text-sm whitespace-nowrap">${s.name}</td>
+                        <td class="px-2 py-3 text-center text-xs text-gray-500">${s.class_name}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="showAddMeritModal('${s.student_code}', '${s.name}', '${s.class_name}', ${s.student_number})" class="px-4 py-1.5 bg-yellow-50 text-yellow-600 border border-yellow-200 hover:bg-yellow-500 hover:text-white rounded-lg text-xs font-bold transition-colors shadow-sm">
+                                <i class="fa-solid fa-plus mr-1"></i> เพิ่มความดี
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
+        }
+
+        function showAddMeritModal(code, name, className, number) {
+            const recordDate = document.getElementById('merit-date').value;
+            
+            Swal.fire({
+                title: `<div class="text-xl">บันทึกความดี</div><div class="text-sm text-gray-500 font-normal mt-1">${name}</div>`,
+                html: `
+                    <div class="text-left space-y-4 mt-4 font-sans">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">หมวดหมู่ความดี <span class="text-red-500">*</span></label>
+                            <select id="modal-merit-type" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-yellow-500 transition-colors">
+                                <option value="เก็บของได้ส่งคืน">เก็บของได้ส่งคืน</option>
+                                <option value="จิตอาสา/ช่วยเหลืองานโรงเรียน">จิตอาสา/ช่วยเหลืองานโรงเรียน</option>
+                                <option value="ความซื่อสัตย์สุจริต">ความซื่อสัตย์สุจริต</option>
+                                <option value="ช่วยเหลือเพื่อน/ผู้อื่น">ช่วยเหลือเพื่อน/ผู้อื่น</option>
+                                <option value="เป็นผู้นำที่ดี">เป็นผู้นำที่ดี</option>
+                                <option value="อื่นๆ">อื่นๆ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">รายละเอียดเหตุการณ์</label>
+                            <textarea id="modal-merit-detail" rows="2" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-yellow-500 transition-colors" placeholder="เช่น เก็บกระเป๋าตังค์ได้ที่โรงอาหาร, ช่วยครูยกของ..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">คะแนนที่ได้รับ (+)</label>
+                            <input type="number" id="modal-merit-score" value="5" min="1" class="w-full p-3 bg-yellow-50 text-yellow-700 font-bold border border-yellow-200 rounded-xl outline-none focus:border-yellow-500 transition-colors">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#EAB308',
+                preConfirm: () => {
+                    const type = document.getElementById('modal-merit-type').value;
+                    const detail = document.getElementById('modal-merit-detail').value;
+                    const score = document.getElementById('modal-merit-score').value;
+                    
+                    if(!type) { Swal.showValidationMessage('กรุณาเลือกหมวดหมู่ความดี'); return false; }
+                    if(!score || score <= 0) { Swal.showValidationMessage('กรุณาระบุคะแนนที่มากกว่า 0'); return false; }
+                    
+                    return {
+                        record_date: recordDate,
+                        month_year: recordDate.substring(0, 7),
+                        class_name: className,
+                        student_number: parseInt(number),
+                        student_code: code,
+                        student_name: name,
+                        merit_type: type,
+                        merit_detail: detail,
+                        score: parseInt(score),
+                        recorder_name: currentUser.name
+                    };
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                    try {
+                        const { error } = await supabaseClient.from('merit_records').insert(result.value);
+                        if (error) {
+                            if (error.message.includes('does not exist')) throw new Error('ไม่พบตาราง merit_records กรุณารันคำสั่ง SQL ก่อน');
+                            throw error;
+                        }
+                        Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ!', text: `บวก ${result.value.score} คะแนนความดี ให้ ${name} แล้ว`, timer: 2000, showConfirmButton: false });
+                    } catch (err) { Swal.fire('ล้มเหลว', err.message, 'error'); }
+                }
+            });
+        }
+
+        async function loadMeritReport() {
+            const className = document.getElementById('merit-class').value;
+            const isDaily = currentMeritReportType === 'daily';
+            const recordDate = document.getElementById('merit-date').value;
+            const monthVal = document.getElementById('merit-month').value;
+            
+            document.getElementById('merit-report-container').classList.remove('hidden');
+            const tbody = document.getElementById('merit-report-body');
+            tbody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-gray-500"><div class="modern-loader modern-loader-sm mb-3 mx-auto block"></div>กำลังดึงรายงาน...</td></tr>';
+
+            let dateText = '';
+            let startDate = '';
+            let endDate = '';
+
+            if (isDaily) {
+                const d = new Date(recordDate);
+                dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+            } else {
+                const [y, m] = monthVal.split('-');
+                dateText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
+                startDate = `${monthVal}-01`;
+                const lastDay = new Date(y, m, 0).getDate();
+                endDate = `${monthVal}-${lastDay}`;
+            }
+            document.getElementById('print-merit-doc-date').innerText = `ประจำ${dateText}`;
+            document.getElementById('print-merit-doc-class').innerText = `ชั้นเรียน: ${className}`;
+
+            try {
+                let meritQuery = supabaseClient.from('merit_records').select('*');
+                if (isDaily) meritQuery = meritQuery.eq('record_date', recordDate);
+                else meritQuery = meritQuery.gte('record_date', startDate).lte('record_date', endDate);
+                
+                if (className !== 'ทั้งหมด') meritQuery = meritQuery.eq('class_name', className);
+                
+                // เรียงตามวันที่ (ใหม่ไปเก่า)
+                meritQuery = meritQuery.order('record_date', { ascending: false }).order('class_name').order('student_number');
+                const { data: records, error: err } = await meritQuery;
+                if (err) throw err;
+
+                if (!records || records.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="py-10 text-center text-gray-500">ไม่มีประวัติการทำความดีในช่วงเวลานี้</td></tr>'; 
+                    return;
+                }
+
+                let html = '';
+                records.forEach((r, idx) => {
+                    const d = new Date(r.record_date);
+                    const dateDisplay = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()+543}`;
+                    
+                    html += `<tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-3 px-2 text-center text-gray-500 border print:border-black print:text-black">${idx + 1}</td>
+                        <td class="py-3 px-2 text-center text-xs text-gray-600 border print:border-black print:text-black">${r.class_name}</td>
+                        <td class="py-3 px-4 text-left font-medium text-gray-800 border print:border-black print:text-black">${r.student_name}</td>
+                        <td class="py-3 px-4 text-center text-brand-dark font-medium text-xs md:text-sm border print:border-black print:text-black bg-brand-dark/5">${r.merit_type}</td>
+                        <td class="py-3 px-4 text-left text-gray-600 text-xs md:text-sm border print:border-black print:text-black">${r.merit_detail || '-'}</td>
+                        <td class="py-3 px-2 text-center font-bold text-yellow-600 border print:border-black print:text-black">+${r.score}</td>
+                        <td class="py-3 px-2 text-center text-xs text-gray-500 border print:border-black print:text-black">${dateDisplay}</td>
+                    </tr>`;
+                });
+                tbody.innerHTML = html;
+            } catch (err) { tbody.innerHTML = `<tr><td colspan="7" class="py-10 text-center text-red-500">ผิดพลาด: ${err.message}</td></tr>`; }
+        }
+
+        function exportMeritExcel() {
+            let table = document.getElementById('report-table-merit');
+            let rows = Array.from(table.querySelectorAll('tr'));
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            rows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                csvContent += rowData.join(",") + "\n";
+            });
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); 
+            const isDaily = currentMeritReportType === 'daily';
+            const d = isDaily ? document.getElementById('merit-date').value : document.getElementById('merit-month').value;
+            const cls = document.getElementById('merit-class').value;
+            link.download = `รายงานบันทึกความดี_${cls}_${d}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
         /* ----- จัดการนักเรียน ----- */
         async function renderManageStudentsTable() {
             const classFilter = document.getElementById('manage-class-filter').value;
@@ -2098,7 +2439,7 @@
                 reader.onload = function(e) {
                     currentLogo = e.target.result;
                     localStorage.setItem('school_logo', currentLogo);
-                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview'].forEach(id => {
+                    ['login-logo-preview', 'sidebar-logo-preview', 'settings-logo-preview', 'print-logo-preview', 'print-logo-health-preview', 'print-logo-hygiene-preview', 'print-logo-merit-preview'].forEach(id => {
                         const imgEl = document.getElementById(id);
                         if (imgEl) { imgEl.src = currentLogo; imgEl.style.display = 'block'; }
                     });
