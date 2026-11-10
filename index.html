@@ -1118,6 +1118,17 @@
             document.getElementById('health-class').innerHTML = optionsHtml;
             document.getElementById('hygiene-class').innerHTML = optionsHtml;
             document.getElementById('merit-class').innerHTML = optionsHtml;
+
+            // ตั้งค่าเริ่มต้นให้เลือก "ห้องแรก" แทน "ทั้งหมด" (เพื่อความสวยงามและลดภาระการโหลดข้อมูล)
+            if (allClasses.length > 0) {
+                const firstClass = allClasses[0];
+                document.getElementById('report-class').value = firstClass;
+                document.getElementById('record-class').value = firstClass;
+                document.getElementById('health-class').value = firstClass;
+                document.getElementById('hygiene-class').value = firstClass;
+                document.getElementById('merit-class').value = firstClass;
+                // หมายเหตุ: manage-class-filter (จัดการนักเรียน) ยังคงใช้ "ทั้งหมด" เพื่อให้เห็นรายชื่อทั้งโรงเรียนง่ายๆ
+            }
         }
 
         function logout(e) {
@@ -2696,21 +2707,25 @@
                 }
             });
         }
+
         function deleteClass(cName) {
-                if (missingClasses.size > 0) {
-                    Swal.fire({title: 'กำลังสร้างชั้นเรียนใหม่...', didOpen: () => Swal.showLoading()});
+            Swal.fire({
+                title: `ยืนยันการลบชั้นเรียน ${cName}?`,
+                text: 'คำเตือน: ข้อมูลนักเรียนที่อยู่ในชั้นเรียนนี้อาจได้รับผลกระทบ',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'ลบข้อมูล'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
                     try {
-                        const newClassesToInsert = Array.from(missingClasses).map(c => ({ class_name: c }));
-                        const { error: classError } = await supabaseClient.from('classes').insert(newClassesToInsert);
-                        if (classError) throw classError;
-                        
-                        Array.from(missingClasses).forEach(c => allClasses.push(c));
-                        allClasses = sortClasses(allClasses); // จัดเรียงใหม่หลังนำเข้า
+                        const { error } = await supabaseClient.from('classes').delete().eq('class_name', cName);
+                        if (error) throw error;
+                        allClasses = allClasses.filter(c => c !== cName);
                         populateDropdowns(); renderClassesManage();
-                    } catch (err) {
-                        Swal.fire('เกิดข้อผิดพลาดในการสร้างชั้นเรียน', err.message, 'error');
-                        event.target.value = ''; return;
-                    }
+                        Swal.fire('สำเร็จ', 'ลบชั้นเรียนเรียบร้อย', 'success');
+                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
                 }
             });
         }
