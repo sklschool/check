@@ -907,6 +907,25 @@
         let allTeachers = [];
         let currentLogo = localStorage.getItem('school_logo') || 'https://raw.githubusercontent.com/sklschool/check/6e3b6239bd39916526c0723abc97fc839459bb79/logo.png';
 
+        // ฟังก์ชันสำหรับเรียงลำดับชั้นเรียน (อนุบาล -> ประถม -> มัธยม)
+        function sortClasses(classesArray) {
+            return classesArray.sort((a, b) => {
+                const getWeight = (name) => {
+                    let weight = 400; // หมวดหมู่อื่นๆ
+                    let num = 0;
+                    const match = name.match(/\d+/);
+                    if (match) num = parseInt(match[0], 10);
+                    
+                    if (name.includes('อนุบาล')) weight = 100;
+                    else if (name.includes('ประถม') || name.match(/\bป\./)) weight = 200;
+                    else if (name.includes('มัธยม') || name.match(/\bม\./)) weight = 300;
+                    
+                    return weight + num;
+                };
+                return getWeight(a) - getWeight(b);
+            });
+        }
+
         // คำนวณอายุจาก วัน/เดือน/ปีเกิด
         function calculateAge(birthDateString) {
             if(!birthDateString) return '-';
@@ -988,6 +1007,7 @@
                 
                 setRes.data.forEach(item => { appSettings[item.setting_key] = item.setting_value; });
                 allClasses = clsRes.data ? clsRes.data.map(c => c.class_name) : [];
+                allClasses = sortClasses(allClasses); // เรียกใช้ฟังก์ชันจัดเรียง
                 allTeachers = tchRes.data || [];
                 systemPin = String(appSettings.SystemPIN || '123456');
 
@@ -2668,22 +2688,29 @@
                     try {
                         const { error } = await supabaseClient.from('classes').insert({ class_name: result.value });
                         if (error) throw error;
-                        allClasses.push(result.value); populateDropdowns(); renderClassesManage();
+                        allClasses.push(result.value); 
+                        allClasses = sortClasses(allClasses); // จัดเรียงใหม่หลังเพิ่ม
+                        populateDropdowns(); renderClassesManage();
                         Swal.fire('สำเร็จ', 'เพิ่มชั้นเรียนเรียบร้อย', 'success');
                     } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
                 }
             });
         }
         function deleteClass(cName) {
-            Swal.fire({ title: 'ยืนยันการลบ?', html: `ต้องการลบชั้นเรียน <b>${cName}</b> หรือไม่?<br><span class="text-sm text-red-500 mt-2 block">(คำเตือน: หากมีนักเรียนอยู่ในชั้นนี้ จะไม่สามารถลบได้ ต้องย้ายหรือลบนักเรียนออกก่อน)</span>`, showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบข้อมูล' }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'กำลังลบ...', didOpen: () => Swal.showLoading()});
+                if (missingClasses.size > 0) {
+                    Swal.fire({title: 'กำลังสร้างชั้นเรียนใหม่...', didOpen: () => Swal.showLoading()});
                     try {
-                        const { error } = await supabaseClient.from('classes').delete().eq('class_name', cName);
-                        if (error) throw error;
-                        allClasses = allClasses.filter(c => c !== cName); populateDropdowns(); renderClassesManage();
-                        Swal.fire('สำเร็จ', 'ลบชั้นเรียนเรียบร้อย', 'success');
-                    } catch (err) { Swal.fire('ผิดพลาด', err.message, 'error'); }
+                        const newClassesToInsert = Array.from(missingClasses).map(c => ({ class_name: c }));
+                        const { error: classError } = await supabaseClient.from('classes').insert(newClassesToInsert);
+                        if (classError) throw classError;
+                        
+                        Array.from(missingClasses).forEach(c => allClasses.push(c));
+                        allClasses = sortClasses(allClasses); // จัดเรียงใหม่หลังนำเข้า
+                        populateDropdowns(); renderClassesManage();
+                    } catch (err) {
+                        Swal.fire('เกิดข้อผิดพลาดในการสร้างชั้นเรียน', err.message, 'error');
+                        event.target.value = ''; return;
+                    }
                 }
             });
         }
