@@ -1416,6 +1416,249 @@
             } catch (err) { Swal.fire({ icon: 'error', title: 'ล้มเหลว', text: err.message, confirmButtonColor: themes[currentTheme].dark }); }
         }
 
+        /* ----- ระบบรายงานสถิติการมาเรียน (Attendance Report) ----- */
+        function setReportType(type) {
+            currentReportType = type;
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            
+            document.getElementById('btn-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
+            document.getElementById('btn-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
+            
+            document.getElementById('filter-date-container').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('filter-month-container').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('area-rep-daily').classList.toggle('hidden', type !== 'daily');
+            document.getElementById('area-rep-daily').classList.toggle('print:hidden', type !== 'daily');
+            document.getElementById('area-rep-monthly').classList.toggle('hidden', type !== 'monthly');
+            document.getElementById('area-rep-monthly').classList.toggle('print:hidden', type !== 'monthly');
+            
+            const printStyleEl = document.getElementById('print-page-style');
+            if (type === 'daily') {
+                printStyleEl.innerHTML = '@page { size: portrait; margin: 0.5cm 1cm 0.5cm 1cm; }';
+            } else {
+                printStyleEl.innerHTML = '@page { size: landscape; margin: 0.5cm 1cm 0.5cm 1cm; }';
+            }
+            renderActiveReport();
+        }
+
+        function renderSummaryBadges(stats, isDaily) {
+            const container = document.getElementById('stats-summary-badges');
+            if(!isDaily) {
+                container.innerHTML = `<div class="px-4 py-2 bg-white text-gray-700 rounded-xl text-sm font-bold border border-gray-200 shadow-sm"><i class="fa-solid fa-users mr-2 text-brand-dark"></i>รวมจำนวนนักเรียนทั้งหมด: ${stats.total} คน</div>`;
+                return;
+            }
+            container.innerHTML = `
+                <div class="px-3 py-1.5 bg-white text-[#4F378B] rounded-lg text-xs md:text-sm font-medium border border-[#4F378B]/20 shadow-sm">ทั้งหมด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.total}</span></div>
+                <div class="px-3 py-1.5 bg-white text-[#20B2AA] rounded-lg text-xs md:text-sm font-medium border border-[#20B2AA]/20 shadow-sm">มาเรียน: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.p}</span></div>
+                <div class="px-3 py-1.5 bg-white text-[#B8860B] rounded-lg text-xs md:text-sm font-medium border border-[#FFC107]/40 shadow-sm">ลาป่วย: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.s}</span></div>
+                <div class="px-3 py-1.5 bg-white text-[#D2691E] rounded-lg text-xs md:text-sm font-medium border border-[#FF7F50]/40 shadow-sm">ลากิจ: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.l}</span></div>
+                <div class="px-3 py-1.5 bg-white text-[#1E90FF] rounded-lg text-xs md:text-sm font-medium border border-[#1E90FF]/30 shadow-sm">มาสาย: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.late}</span></div>
+                <div class="px-3 py-1.5 bg-white text-[#DC143C] rounded-lg text-xs md:text-sm font-medium border border-[#DC143C]/20 shadow-sm">ขาด: <span class="font-bold text-lg leading-none align-middle ml-1">${stats.a}</span></div>
+            `;
+        }
+
+        async function renderActiveReport() {
+            const className = document.getElementById('report-class').value;
+            document.getElementById('stats-table-class-subtitle').innerHTML = `<i class="fa-solid fa-chalkboard-user text-brand-dark mr-2"></i>ชั้น: ${className}`;
+            document.getElementById('print-doc-class').innerText = `ชั้นเรียน: ${className}`;
+            updateReportSignatures(className);
+            
+            const loadScreen = document.getElementById('report-loading');
+            loadScreen.classList.remove('hidden');
+
+            try {
+                if (currentReportType === 'daily') {
+                    document.getElementById('stats-table-title').innerText = 'รายงานสถิติการมาเรียน (รายวัน)';
+                    const dateVal = document.getElementById('stats-date').value;
+                    const d = new Date(dateVal);
+                    const dateText = `วันที่ ${d.getDate()} ${thaiMonths[d.getMonth()]} ${d.getFullYear() + 543}`;
+                    
+                    document.getElementById('print-doc-date').innerText = `ประจำ${dateText}`;
+                    document.getElementById('stats-table-date-subtitle').innerHTML = `<i class="fa-regular fa-calendar-days text-brand-dark mr-2"></i>${dateText}`;
+                    
+                    let query = supabaseClient.from('attendance').select('*')
+                                .eq('record_date', dateVal)
+                                .order('class_name', { ascending: true })
+                                .order('student_number', { ascending: true });
+                    
+                    if (className !== 'ทั้งหมด') query = query.eq('class_name', className);
+                    const { data, error } = await query;
+                    if (error) throw error;
+
+                    const tbody = document.getElementById('stats-daily-body');
+                    let html = '';
+                    let stats = { total: data.length, p:0, s:0, l:0, late:0, a:0 };
+
+                    if(data.length === 0) html = '<tr><td colspan="6" class="py-6 text-center text-gray-500">ไม่มีข้อมูลการบันทึก</td></tr>';
+                    else {
+                        data.forEach(s => {
+                            let col = s.status === 'มาเรียน' ? 'text-[#20B2AA]' : s.status === 'ลาป่วย' ? 'text-[#FFC107]' : s.status === 'ลากิจ' ? 'text-[#FF7F50]' : s.status === 'มาสาย' ? 'text-[#1E90FF]' : 'text-[#DC143C]';
+                            if(s.status === 'มาเรียน') stats.p++; else if(s.status === 'ลาป่วย') stats.s++; else if(s.status === 'ลากิจ') stats.l++; else if(s.status === 'มาสาย') stats.late++; else if(s.status === 'ขาด') stats.a++;
+
+                            html += `<tr class="hover:bg-gray-50">
+                                <td class="py-4 px-4 border text-center print:border-black">${s.student_number}</td>
+                                <td class="py-4 px-4 border text-center font-mono text-gray-500 print:border-black print:text-black">${s.student_code || '-'}</td>
+                                <td class="py-4 px-4 border print:border-black">${s.student_name}</td>
+                                <td class="py-4 px-4 border text-center print:border-black">${s.class_name}</td>
+                                <td class="py-4 px-4 border text-center font-bold ${col} print:text-black print:border-black">${s.status}</td>
+                                <td class="py-4 px-4 border text-center text-gray-400 print:border-black print:text-black"></td>
+                            </tr>`;
+                        });
+                    }
+                    tbody.innerHTML = html;
+                    renderSummaryBadges(stats, true);
+                    
+                } else {
+                    document.getElementById('stats-table-title').innerText = 'รายงานสถิติการมาเรียน (รายเดือน)';
+                    const monthVal = document.getElementById('stats-month').value;
+                    if(!monthVal) return;
+                    const [y, m] = monthVal.split('-');
+                    const monthText = `เดือน ${thaiMonths[parseInt(m)-1]} พ.ศ. ${parseInt(y) + 543}`;
+                    
+                    document.getElementById('print-doc-date').innerText = `ประจำ${monthText}`;
+                    document.getElementById('stats-table-date-subtitle').innerHTML = `<i class="fa-regular fa-calendar-days text-brand-dark mr-2"></i>${monthText}`;
+                    
+                    let stuQuery = supabaseClient.from('students').select('*')
+                                    .order('class_name', { ascending: true })
+                                    .order('student_number', { ascending: true });
+                    
+                    if (className !== 'ทั้งหมด') stuQuery = stuQuery.eq('class_name', className);
+                    const { data: students, error: stuErr } = await stuQuery;
+                    if (stuErr) throw stuErr;
+
+                    let attQuery = supabaseClient.from('attendance').select('*').eq('month_year', monthVal);
+                    if (className !== 'ทั้งหมด') attQuery = attQuery.eq('class_name', className);
+                    const { data: attData, error: attErr } = await attQuery;
+                    if (attErr) throw attErr;
+
+                    let attendanceMap = {};
+                    attData.forEach(r => {
+                        if (!attendanceMap[r.student_code]) attendanceMap[r.student_code] = {};
+                        attendanceMap[r.student_code][r.record_date] = r.status;
+                    });
+
+                    const daysInMonth = new Date(y, m, 0).getDate();
+                    const tbody = document.getElementById('stats-monthly-body');
+                    const rowHeader = document.getElementById('stats-days-row');
+                    
+                    let daysHtml = '';
+                    for(let i=1; i<=31; i++) {
+                        if(i <= daysInMonth) {
+                            let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
+                            let dayOfWeek = new Date(dateStr).getDay();
+                            
+                            let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
+                            let isHolidayOrWeekend = (dayOfWeek === 0 || dayOfWeek === 6 || isSpecialHoliday);
+                            
+                            let textCol = isHolidayOrWeekend ? 'text-red-500' : 'text-gray-800';
+                            let bgStyle = isHolidayOrWeekend ? 'background-color: #e5e7eb !important;' : '';
+                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px] ${textCol}" style="${bgStyle}">${i}<br>${thaiDays[dayOfWeek]}</th>`;
+                        } else {
+                            daysHtml += `<th class="py-1 px-0.5 min-w-[20px] border text-[9px]" style="background-color: #f3f4f6 !important;">-</th>`;
+                        }
+                    }
+                    daysHtml += `<th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">มา</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ป</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ก</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ส</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">ข</th><th class="py-1 px-1 border" style="background-color: #f3f4f6 !important;">%</th>`;
+                    rowHeader.innerHTML = daysHtml;
+
+                    let html = '';
+                    if(students.length === 0) html = `<tr><td colspan="40" class="py-6 text-center text-gray-500">ไม่มีข้อมูลนักเรียน</td></tr>`;
+                    else {
+                        students.forEach((s) => {
+                            let rHtml = `<tr>
+                                <td class="py-1.5 px-1 border text-center text-[10px] w-10">${s.student_number}</td>
+                                <td class="py-1.5 px-1 border text-center text-[10px] font-mono text-gray-500 w-16">${s.student_code || '-'}</td>
+                                <td class="py-1.5 px-2 border text-left text-[11px] font-medium whitespace-nowrap truncate max-w-[140px]">${s.name}</td>`;
+                                
+                            let stats = { p:0, s:0, l:0, late:0, a:0 };
+                            let history = attendanceMap[s.student_code] || {};
+
+                            for(let i=1; i<=31; i++) {
+                                if(i <= daysInMonth) {
+                                    let dateStr = `${y}-${m}-${String(i).padStart(2, '0')}`;
+                                    let dayOfWeek = new Date(dateStr).getDay();
+                                    let isSpecialHoliday = specialHolidays.some(h => h.date === dateStr);
+                                    
+                                    if (dayOfWeek === 0 || dayOfWeek === 6) {
+                                        rHtml += `<td class="py-1 border" style="background-color: #e5e7eb !important;"></td>`;
+                                    } else if (isSpecialHoliday) {
+                                        rHtml += `<td class="py-1 border text-red-500 font-bold text-[8px]" style="background-color: #e5e7eb !important;">หยุด</td>`;
+                                    } else {
+                                        let status = history[dateStr] || '';
+                                        let mark = '', col = '';
+                                        if(status === 'มาเรียน') { mark = 'ม'; col = 'text-[#20B2AA]'; stats.p++; }
+                                        else if(status === 'ลาป่วย') { mark = 'ป'; col = 'text-[#FFC107]'; stats.s++; }
+                                        else if(status === 'ลากิจ') { mark = 'ก'; col = 'text-[#FF7F50]'; stats.l++; }
+                                        else if(status === 'มาสาย') { mark = 'ส'; col = 'text-[#1E90FF]'; stats.late++; }
+                                        else if(status === 'ขาด') { mark = 'ข'; col = 'text-[#DC143C]'; stats.a++; }
+                                        rHtml += `<td class="py-1 border font-bold text-[10px] ${col} print:text-black text-center">${mark}</td>`;
+                                    }
+                                } else {
+                                    rHtml += `<td class="py-1 border" style="background-color: #f3f4f6 !important;"></td>`;
+                                }
+                            }
+                            let totalDays = stats.p + stats.s + stats.l + stats.late + stats.a;
+                            let percent = totalDays > 0 ? ((stats.p / totalDays) * 100).toFixed(0) + '%' : '0%';
+                            rHtml += `<td class="border font-bold text-[10px] text-[#20B2AA] print:text-black text-center">${stats.p}</td><td class="border font-bold text-[10px] text-[#FFC107] print:text-black text-center">${stats.s}</td><td class="border font-bold text-[10px] text-[#FF7F50] print:text-black text-center">${stats.l}</td><td class="border font-bold text-[10px] text-[#1E90FF] print:text-black text-center">${stats.late}</td><td class="border font-bold text-[10px] text-[#DC143C] print:text-black text-center">${stats.a}</td><td class="border font-bold text-[10px] text-center">${percent}</td></tr>`;
+                            html += rHtml;
+                        });
+                    }
+                    tbody.innerHTML = html;
+                    renderSummaryBadges({total: students.length}, false);
+                }
+            } catch (err) {
+                Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถโหลดรายงานได้: ' + String(err.message), 'error');
+            } finally {
+                loadScreen.classList.add('hidden');
+            }
+        }
+
+        function updateReportSignatures(className) {
+            const blockTeachers = document.getElementById('signature-block-teachers');
+            const blockDirector = document.getElementById('signature-block-director');
+            const directorName = appSettings.SchoolDirector || '.......................................................';
+            let homeroomTeachers = allTeachers.filter(t => t.homeroom_class === className);
+            
+            if (className === 'ทั้งหมด' || homeroomTeachers.length === 0) {
+                blockTeachers.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p>
+                    <p class="mt-8 whitespace-nowrap">( ........................................ )</p>
+                    <p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p>
+                </div>`;
+            } else {
+                let namesHtml = homeroomTeachers.map(t => `<p class="whitespace-nowrap mx-3">( ${t.name} )</p>`).join('');
+                blockTeachers.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รายงาน</p>
+                    <div class="mt-8 flex justify-center w-full">${namesHtml}</div>
+                    <p class="mt-1 font-medium whitespace-nowrap">ครูประจำชั้น</p>
+                </div>`;
+            }
+            blockDirector.innerHTML = `
+                <div class="flex flex-col items-center">
+                    <p class="whitespace-nowrap">ลงชื่อ.......................................................ผู้รับรอง</p>
+                    <p class="mt-8 whitespace-nowrap">( ${directorName} )</p>
+                    <p class="mt-1 font-medium whitespace-nowrap">ผู้อำนวยการโรงเรียน</p>
+                </div>`;
+        }
+
+        function downloadPDF() { window.print(); }
+        
+        function exportToExcel() {
+            let tableId = currentReportType === 'daily' ? 'report-table-daily' : 'report-table-monthly';
+            let table = document.getElementById(tableId);
+            let rows = Array.from(table.querySelectorAll('tr'));
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            rows.forEach(row => {
+                let rowData = [];
+                row.querySelectorAll('th, td').forEach(col => rowData.push(`"${col.innerText.replace(/"/g, '""')}"`));
+                csvContent += rowData.join(",") + "\n";
+            });
+            const link = document.createElement("a"); link.href = encodeURI(csvContent); 
+            link.download = `รายงานสถิติการมาเรียน_${currentReportType}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
         /* ----- ระบบน้ำหนักและส่วนสูง ----- */
         function setHealthMode(mode) {
             currentHealthMode = mode;
