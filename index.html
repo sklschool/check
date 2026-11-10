@@ -280,16 +280,16 @@
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
                             <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-weight-scale mr-2"></i>ระบบน้ำหนักและส่วนสูง</h2>
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
-                                <button id="btn-hlth-record" onclick="setHealthMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
-                                <button id="btn-hlth-report" onclick="setHealthMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                                <button id="btn-hlth-record" onclick="setHealthMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-hlth-report" onclick="setHealthMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายงาน</button>
                             </div>
                         </div>
                         <p class="text-sm text-gray-500 mb-4" id="health-desc">กรอกข้อมูลน้ำหนัก (กก.) และส่วนสูง (ซม.) ระบบจะคำนวณอายุและเกณฑ์ BMI ให้อัตโนมัติจากวันเกิดนักเรียน</p>
                         
                         <div id="health-report-toggles" class="hidden mb-4 print-hide">
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
-                                <button id="btn-hlth-rep-daily" onclick="setHealthReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
-                                <button id="btn-hlth-rep-monthly" onclick="setHealthReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                                <button id="btn-hlth-rep-daily" onclick="setHealthReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">รายวัน</button>
+                                <button id="btn-hlth-rep-monthly" onclick="setHealthReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายเดือน</button>
                             </div>
                         </div>
 
@@ -388,15 +388,15 @@
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
                             <h2 class="text-lg font-bold text-brand-dark transition-colors"><i class="fa-solid fa-hand-sparkles mr-2"></i>แบบบันทึกตรวจสุขภาพเบื้องต้น</h2>
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
-                                <button id="btn-hyg-record" onclick="setHygieneMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
-                                <button id="btn-hyg-report" onclick="setHygieneMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                                <button id="btn-hyg-record" onclick="setHygieneMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-hyg-report" onclick="setHygieneMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายงาน</button>
                             </div>
                         </div>
                         
                         <div id="hygiene-report-toggles" class="hidden mb-4 print-hide">
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
-                                <button id="btn-hyg-rep-daily" onclick="setHygieneReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
-                                <button id="btn-hyg-rep-monthly" onclick="setHygieneReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                                <button id="btn-hyg-rep-daily" onclick="setHygieneReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">รายวัน</button>
+                                <button id="btn-hyg-rep-monthly" onclick="setHygieneReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายเดือน</button>
                             </div>
                         </div>
 
@@ -495,15 +495,15 @@
                         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-gray-100 pb-4 mb-4">
                             <h2 class="text-lg font-bold text-yellow-600 transition-colors"><i class="fa-solid fa-star mr-2"></i>ระบบบันทึกพฤติกรรมความดี</h2>
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64">
-                                <button id="btn-merit-record" onclick="setMeritMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">บันทึกข้อมูล</button>
-                                <button id="btn-merit-report" onclick="setMeritMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายงาน</button>
+                                <button id="btn-merit-record" onclick="setMeritMode('record')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">บันทึกข้อมูล</button>
+                                <button id="btn-merit-report" onclick="setMeritMode('report')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายงาน</button>
                             </div>
                         </div>
                         
                         <div id="merit-report-toggles" class="hidden mb-4 print-hide">
                             <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-48">
-                                <button id="btn-merit-rep-daily" onclick="setMeritReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
-                                <button id="btn-merit-rep-monthly" onclick="setMeritReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                                <button id="btn-merit-rep-daily" onclick="setMeritReportType('daily')" class="flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">รายวัน</button>
+                                <button id="btn-merit-rep-monthly" onclick="setMeritReportType('monthly')" class="flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายเดือน</button>
                             </div>
                         </div>
 
@@ -603,8 +603,8 @@
                         </div>
                         
                         <div class="flex bg-gray-100 p-1 rounded-xl w-full md:w-64 mb-6 print-hide">
-                            <button id="btn-rep-daily" onclick="setReportType('daily')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all">รายวัน</button>
-                            <button id="btn-rep-monthly" onclick="setReportType('monthly')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all">รายเดือน</button>
+                            <button id="btn-rep-daily" onclick="setReportType('daily')" class="flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all">รายวัน</button>
+                            <button id="btn-rep-monthly" onclick="setReportType('monthly')" class="flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all">รายเดือน</button>
                         </div>
 
                         <div class="flex flex-col md:flex-row gap-4 mb-6 print-hide">
@@ -1419,8 +1419,8 @@
         /* ----- ระบบรายงานสถิติการมาเรียน (Attendance Report) ----- */
         function setReportType(type) {
             currentReportType = type;
-            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
             document.getElementById('btn-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
@@ -1662,8 +1662,8 @@
         /* ----- ระบบน้ำหนักและส่วนสูง ----- */
         function setHealthMode(mode) {
             currentHealthMode = mode;
-            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-hlth-record').className = mode === 'record' ? btnClassA : btnClassB;
             document.getElementById('btn-hlth-report').className = mode === 'report' ? btnClassA : btnClassB;
@@ -1683,8 +1683,8 @@
 
         function setHealthReportType(type) {
             currentHealthReportType = type;
-            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-hlth-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
             document.getElementById('btn-hlth-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
@@ -1986,8 +1986,8 @@
         /* ----- ระบบตรวจสุขภาพเบื้องต้น (Hygiene) ----- */
         function setHygieneMode(mode) {
             currentHygieneMode = mode;
-            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-hyg-record').className = mode === 'record' ? btnClassA : btnClassB;
             document.getElementById('btn-hyg-report').className = mode === 'report' ? btnClassA : btnClassB;
@@ -2004,8 +2004,8 @@
 
         function setHygieneReportType(type) {
             currentHygieneReportType = type;
-            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-hyg-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
             document.getElementById('btn-hyg-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
@@ -2245,8 +2245,8 @@
         /* ----- ระบบบันทึกพฤติกรรมความดี (Merit) ----- */
         function setMeritMode(mode) {
             currentMeritMode = mode;
-            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-2 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-2 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-merit-record').className = mode === 'record' ? btnClassA : btnClassB;
             document.getElementById('btn-merit-report').className = mode === 'report' ? btnClassA : btnClassB;
@@ -2263,8 +2263,8 @@
 
         function setMeritReportType(type) {
             currentMeritReportType = type;
-            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-white text-brand-dark shadow-sm transition-all";
-            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 transition-all";
+            const btnClassA = "flex-1 py-1.5 text-sm font-bold rounded-lg bg-brand-dark text-white shadow-md transition-all";
+            const btnClassB = "flex-1 py-1.5 text-sm font-bold rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-200/50 transition-all";
             
             document.getElementById('btn-merit-rep-daily').className = type === 'daily' ? btnClassA : btnClassB;
             document.getElementById('btn-merit-rep-monthly').className = type === 'monthly' ? btnClassA : btnClassB;
